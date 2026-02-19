@@ -1,0 +1,9 @@
+[
+    {
+        "name": "title",
+        "type": "string",
+        "length": 255,
+        "style": "default",
+        "rules": "required|string|min:5"
+    }
+]

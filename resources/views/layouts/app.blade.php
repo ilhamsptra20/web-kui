@@ -10,35 +10,35 @@
     <meta name="keywords" content="admin template, Vuexy admin template, dashboard template, flat admin template, responsive admin template, web app">
     <meta name="author" content="PIXINVENT">
     <title>Dashboard analytics - Vuexy - Bootstrap HTML admin template</title>
-    <link rel="apple-touch-icon" href="assets/images/ico/apple-icon-120.png">
-    <link rel="shortcut icon" type="image/x-icon" href="assets/images/ico/favicon.ico">
+    <link rel="apple-touch-icon" href="{{ asset('assets/images/ico/apple-icon-120.png') }}">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('assets/images/ico/favicon.ico') }}">
     <link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600" rel="stylesheet">
 
     <!-- BEGIN: Vendor CSS-->
-    <link rel="stylesheet" type="text/css" href="assets/vendors/css/vendors.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendors/css/vendors.min.css') }}">
     @stack('styles')
 
 
     <!-- END: Vendor CSS-->
 
     <!-- BEGIN: Theme CSS-->
-    <link rel="stylesheet" type="text/css" href="assets/css/bootstrap.css">
-    <link rel="stylesheet" type="text/css" href="assets/css/bootstrap-extended.css">
-    <link rel="stylesheet" type="text/css" href="assets/css/colors.css">
-    <link rel="stylesheet" type="text/css" href="assets/css/components.css">
-    <link rel="stylesheet" type="text/css" href="assets/css/themes/dark-layout.css">
-    <link rel="stylesheet" type="text/css" href="assets/css/themes/semi-dark-layout.css">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/bootstrap.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/bootstrap-extended.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/colors.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/components.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/themes/dark-layout.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/themes/semi-dark-layout.css') }}">
 
     <!-- BEGIN: Page CSS-->
-    <link rel="stylesheet" type="text/css" href="assets/css/core/menu/menu-types/vertical-menu.css">
-    <link rel="stylesheet" type="text/css" href="assets/css/core/colors/palette-gradient.css">
-    <link rel="stylesheet" type="text/css" href="assets/css/pages/dashboard-analytics.css">
-    <link rel="stylesheet" type="text/css" href="assets/css/pages/card-analytics.css">
-    <link rel="stylesheet" type="text/css" href="assets/css/plugins/tour/tour.css">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/core/menu/menu-types/vertical-menu.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/core/colors/palette-gradient.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/pages/dashboard-analytics.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/pages/card-analytics.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/plugins/tour/tour.css') }}">
     <!-- END: Page CSS-->
 
     <!-- BEGIN: Custom CSS-->
-    <link rel="stylesheet" type="text/css" href="assets/css/style.css">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/style.css') }}">
     <!-- END: Custom CSS-->
 
 </head>
@@ -98,7 +98,7 @@
 
 
     <!-- BEGIN: Vendor JS-->
-    <script src="assets/vendors/js/vendors.min.js"></script>
+    <script src="{{ asset('assets/vendors/js/vendors.min.js') }}"></script>
     <!-- BEGIN Vendor JS-->
 
     <!-- BEGIN: Page Vendor JS-->
@@ -106,9 +106,9 @@
     <!-- END: Page Vendor JS-->
 
     <!-- BEGIN: Theme JS-->
-    <script src="assets/js/core/app-menu.js"></script>
-    <script src="assets/js/core/app.js"></script>
-    <script src="assets/js/scripts/components.js"></script>
+    <script src="{{ asset('assets/js/core/app-menu.js') }}"></script>
+    <script src="{{ asset('assets/js/core/app.js') }}"></script>
+    <script src="{{ asset('assets/js/scripts/components.js') }}"></script>
     <!-- END: Theme JS-->
 
     <!-- BEGIN: Page JS-->

@@ -1,0 +1,40 @@
+[
+    {
+        "name": "title",
+        "type": "string",
+        "length": 255,
+        "style": "default",
+        "rules": "required|string|min:5"
+    },
+    {
+        "name": "category_id",
+        "type": "uuid",
+        "style": "select",
+        "rules": "required|exists:categories,id",
+        "relation": "category"
+    },
+    {
+        "name": "thumbnail",
+        "type": "string",
+        "style": "file",
+        "rules": "nullable|image|max:2048"
+    },
+    {
+        "name": "published_at",
+        "type": "date",
+        "style": "datepicker",
+        "rules": "required|date"
+    },
+    {
+        "name": "is_active",
+        "type": "boolean",
+        "style": "switch",
+        "rules": "boolean"
+    },
+    {
+        "name": "description",
+        "type": "text",
+        "style": "textarea",
+        "rules": "nullable|string"
+    }
+]

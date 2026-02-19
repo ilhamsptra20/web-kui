@@ -1,0 +1,5 @@
+[
+    { "name": "album_id", "type": "uuid", "style": "select", "rules": "required", "relation": "album" },
+    { "name": "title_id", "type": "string", "rules": "nullable" },
+    { "name": "image", "type": "image", "style": "file", "rules": "required|image" }
+]

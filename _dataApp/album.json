@@ -1,0 +1,6 @@
+[
+    { "name": "name_id", "type": "string", "rules": "required|string" },
+    { "name": "name_en", "type": "string", "rules": "nullable|string" },
+    { "name": "slug", "type": "string", "rules": "required|unique:albums,slug" },
+    { "name": "image", "type": "image", "style": "file", "rules": "nullable|image" }
+]

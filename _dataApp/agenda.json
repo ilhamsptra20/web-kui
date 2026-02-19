@@ -1,0 +1,8 @@
+[
+    { "name": "name_id", "type": "string", "rules": "required" },
+    { "name": "slug", "type": "string", "rules": "required|unique:agendas,slug" },
+    { "name": "description_id", "type": "text", "style": "textarea", "rules": "nullable" },
+    { "name": "location_id", "type": "string", "rules": "nullable" },
+    { "name": "start_date", "type": "datetime", "style": "datepicker", "rules": "required|date" },
+    { "name": "end_date", "type": "datetime", "style": "datepicker", "rules": "nullable|date" }
+]

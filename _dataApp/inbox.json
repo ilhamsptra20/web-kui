@@ -1,0 +1,7 @@
+[
+    { "name": "name", "type": "string", "rules": "required" },
+    { "name": "email", "type": "string", "rules": "required|email" },
+    { "name": "subject", "type": "string", "rules": "nullable" },
+    { "name": "message", "type": "text", "style": "textarea", "rules": "required" },
+    { "name": "is_read", "type": "boolean", "style": "switch", "rules": "boolean" }
+]

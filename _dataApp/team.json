@@ -1,0 +1,8 @@
+[
+    { "name": "position_id", "type": "uuid", "style": "select", "rules": "required", "relation": "position" },
+    { "name": "npp", "type": "string", "rules": "nullable|unique:teams,npp" },
+    { "name": "name", "type": "string", "rules": "required" },
+    { "name": "image", "type": "image", "style": "file", "rules": "required|image" },
+    { "name": "bio_id", "type": "text", "style": "textarea", "rules": "nullable" },
+    { "name": "slug", "type": "string", "rules": "required|unique:teams,slug" }
+]

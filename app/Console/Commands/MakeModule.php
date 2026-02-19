@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 class MakeModule extends Command
 {
     protected $signature = 'make:module {name} {--datatable} {--json=}';
-    protected $description = 'Professional Module Scaffolder with JSON Schema & Relation Intelligence';
+    protected $description = 'Professional Module Scaffolder with Advanced JSON Schema';
 
     protected $moduleName, $singular, $plural, $fields = [];
 
@@ -19,23 +19,19 @@ class MakeModule extends Command
         $this->singular = Str::snake($this->moduleName);
         $this->plural = Str::plural($this->singular);
 
-        // 1. Load & Parse JSON Fields (Modular handling)
         if ($this->option('json')) {
-            $path = base_path($this->option('json'));
+            $path = base_path("_dataApp/" . $this->option('json'));
             if (!File::exists($path)) {
                 $this->error("❌ Error: File JSON tidak ditemukan di {$path}");
                 return 1;
             }
             $this->fields = json_decode(File::get($path), true);
         } else {
-            // Default field jika tidak pakai JSON
             $this->fields = [['name' => 'name', 'type' => 'string', 'style' => 'default', 'rules' => 'required']];
         }
 
-        // 2. Pre-Validation: Cek Relasi Model
         if (!$this->validateDependency()) return 1;
 
-        // 3. Execution (Scaffolding)
         $this->generateFolders();
         $this->generateMigration();
         $this->generateModel();
@@ -48,7 +44,7 @@ class MakeModule extends Command
         $this->generateViews();
         $this->registerModuleBindings();
 
-        $this->info("🚀 Module [{$this->moduleName}] has been engineered successfully!");
+        $this->info("🚀 Module [{$this->moduleName}] built successfully based on your schema!");
         return 0;
     }
 
@@ -56,13 +52,9 @@ class MakeModule extends Command
     {
         foreach ($this->fields as $field) {
             if (isset($field['relation'])) {
-                $targetModel = ucfirst($field['relation']);
+                $targetModel = ucfirst(Str::camel($field['relation']));
                 if (!File::exists(app_path("Models/{$targetModel}.php"))) {
-                    $this->newLine();
-                    $this->error(" ERROR ");
-                    $this->line("Target Relation Model [ <fg=yellow>{$targetModel}</> ] tidak ditemukan!");
-                    $this->line("Silahkan buat model <comment>{$targetModel}</comment> terlebih dahulu.");
-                    $this->newLine();
+                    $this->error("Target Model [ {$targetModel} ] missing! Build it first.");
                     return false;
                 }
             }
@@ -83,10 +75,17 @@ class MakeModule extends Command
     {
         $lines = "";
         foreach ($this->fields as $f) {
-            $type = $f['type'] ?? 'string';
+            $type = $f['type'];
             $name = $f['name'];
+
+            if ($type == 'image') {
+                $lines .= "            \$table->string('{$name}')->nullable();\n";
+                continue;
+            }
+
             $line = "\$table->{$type}('{$name}')";
             if ($type == 'string' && isset($f['length'])) $line = "\$table->string('{$name}', {$f['length']})";
+            
             $lines .= "            {$line}->nullable();\n";
         }
 
@@ -96,18 +95,39 @@ class MakeModule extends Command
 
     private function generateModel()
     {
+        $hasSlug = collect($this->fields)->contains('name', 'slug');
         $fillable = collect($this->fields)->map(fn($f) => "'{$f['name']}'")->implode(', ');
         $relations = "";
 
+        $traits = ["HasUuids"];
+        $imports = ["use Illuminate\Database\Eloquent\Concerns\HasUuids;"];
+
+        if ($hasSlug) {
+            $traits[] = "HasSlug";
+            $imports[] = "use Spatie\Sluggable\HasSlug;";
+            $imports[] = "use Spatie\Sluggable\SlugOptions;";
+        }
+
+        $traitString = "use " . implode(', ', $traits) . ";";
+        $importString = implode("\n", $imports);
+
+        $slugMethod = "";
+
+        if ($hasSlug) {
+            // Kita asumsikan slug dibuat dari field 'name' atau field pertama
+            $sourceField = collect($this->fields)->contains('name', 'name') ? 'name' : $this->fields[0]['name'];
+            $slugMethod = "\n    public function getSlugOptions() : SlugOptions\n    {\n        return SlugOptions::create()\n            ->generateSlugsFrom('{$sourceField}')\n            ->saveSlugsTo('slug');\n    }\n";
+        }
+
         foreach ($this->fields as $f) {
             if (isset($f['relation'])) {
-                $method = Str::camel($f['relation']);
-                $model = ucfirst($f['relation']);
+                $method = ($f['name'] === 'user_id') ? 'user' : Str::camel($f['relation']);
+                $model = ($f['name'] === 'user_id') ? 'User' : ucfirst(Str::camel($f['relation']));
                 $relations .= "\n    public function {$method}()\n    {\n        return \$this->belongsTo({$model}::class, '{$f['name']}');\n    }\n";
             }
         }
 
-        $content = "<?php\n\nnamespace App\Models;\n\nuse Illuminate\Database\Eloquent\Model;\nuse Illuminate\Database\Eloquent\Concerns\HasUuids;\n\nclass {$this->moduleName} extends Model {\n    use HasUuids;\n    protected \$keyType = 'string';\n    public \$incrementing = false;\n    protected \$fillable = [{$fillable}];\n{$relations}\n}";
+        $content = "<?php\n\nnamespace App\Models;\n\nuse Illuminate\Database\Eloquent\Model;\n{$importString}\n\nclass {$this->moduleName} extends Model {\n    {$traitString}\n    protected \$keyType = 'string';\n    public \$incrementing = false;\n    protected \$fillable = [{$fillable}];\n{$slugMethod}{$relations}\n}";
         File::put(app_path("Models/{$this->moduleName}.php"), $content);
     }
 
@@ -133,36 +153,47 @@ class MakeModule extends Command
 
     private function generateRequests()
     {
-        $rules = collect($this->fields)->map(fn($f) => "            '{$f['name']}' => '".($f['rules'] ?? 'required')."',")->implode("\n");
         foreach (['Store', 'Update'] as $t) {
-            $content = "<?php\nnamespace App\Http\Requests;\nuse Illuminate\Foundation\Http\FormRequest;\nclass {$t}{$this->moduleName}Request extends FormRequest {\n    public function authorize() { return true; }\n    public function rules() {\n        return [\n{$rules}\n        ];\n    }\n}";
+            $rules = "";
+            foreach ($this->fields as $f) {
+                if (in_array($f['name'], ['slug', 'user_id'])) continue;
+
+                $rule = $f['rules'] ?? 'required';
+                // Handle image rules specifically if it's an update
+                if ($f['type'] == 'image' && $t == 'Update') {
+                    $rule = str_replace('required', 'nullable', $rule);
+                }
+                $rules .= "            '{$f['name']}' => '{$rule}',\n";
+            }
+            $content = "<?php\nnamespace App\Http\Requests;\nuse Illuminate\Foundation\Http\FormRequest;\nclass {$t}{$this->moduleName}Request extends FormRequest {\n    public function authorize() { return true; }\n    public function rules() {\n        return [\n{$rules}        ];\n    }\n}";
             File::put(app_path("Http/Requests/{$t}{$this->moduleName}Request.php"), $content);
         }
     }
 
     private function generateController()
     {
-        $relationData = "";
-        $relationVars = [];
+        $relationData = ""; $relationVars = []; $uploadLogic = "";
+        $hasUserId = collect($this->fields)->contains('name', 'user_id'); // Cek field user_id
 
         foreach ($this->fields as $f) {
-            if (isset($f['relation'])) {
-                $mTarget = ucfirst($f['relation']);
+            if (isset($f['relation']) && $f['name'] !== 'user_id') {
+                $mTarget = ucfirst(Str::camel($f['relation']));
                 $vName = Str::plural(Str::camel($f['relation']));
                 $relationData .= "\n        \${$vName} = \\App\\Models\\{$mTarget}::all();";
                 $relationVars[] = "'{$vName}'";
             }
+            if ($f['type'] == 'image') {
+                $uploadLogic .= "        if (\$r->hasFile('{$f['name']}')) \$data['{$f['name']}'] = \$r->file('{$f['name']}')->store('modules/{$this->plural}', 'public');\n";
+            }
         }
-        
-        // Gabungin variabel relasi buat compact
+        $authLogic = $hasUserId ? "        \$data['user_id'] = Auth::id();\n" : "";
+
         $relationCompact = count($relationVars) > 0 ? implode(', ', $relationVars) : "";
-        
-        // Compact untuk Edit (pasti ada data modelnya)
         $editCompact = count($relationVars) > 0 ? $relationCompact . ", '{$this->singular}'" : "'{$this->singular}'";
 
         $dt = $this->option('datatable') ? "    public function list() {\n        return datatables()->of(\$this->service->listTable())->addIndexColumn()\n            ->addColumn('action', fn(\$row) => view('modules.{$this->singular}.action', compact('row'))->render())\n            ->rawColumns(['action'])->toJson();\n    }\n" : "";
         
-        $content = "<?php\n\nnamespace App\Http\Controllers;\n\nuse App\Http\Requests\{Store{$this->moduleName}Request, Update{$this->moduleName}Request};\nuse App\Services\Contracts\\{$this->moduleName}ServiceInterface;\n\nclass {$this->moduleName}Controller extends Controller {\n    protected \$service;\n\n    public function __construct({$this->moduleName}ServiceInterface \$service) { \$this->service = \$service; }\n\n    public function index() { return view('modules.{$this->singular}.index'); }\n\n{$dt}\n    public function create() { {$relationData}\n        return view('modules.{$this->singular}.form'" . ($relationCompact ? ", compact({$relationCompact})" : "") . ");\n    }\n\n    public function store(Store{$this->moduleName}Request \$r) { \$this->service->store(\$r->validated()); return redirect()->route('{$this->plural}.index'); }\n\n    public function edit(\$id) { \${$this->singular} = \$this->service->find(\$id); {$relationData}\n        return view('modules.{$this->singular}.form', compact({$editCompact}));\n    }\n\n    public function update(Update{$this->moduleName}Request \$r, \$id) { \$this->service->update(\$id, \$r->validated()); return redirect()->route('{$this->plural}.index'); }\n\n    public function destroy(\$id) { \$this->service->delete(\$id); return back(); }\n}";
+        $content = "<?php\n\nnamespace App\Http\Controllers;\n\nuse App\Http\Requests\{Store{$this->moduleName}Request, Update{$this->moduleName}Request};\nuse App\Services\Contracts\\{$this->moduleName}ServiceInterface;\n\nclass {$this->moduleName}Controller extends Controller {\n    protected \$service;\n\n    public function __construct({$this->moduleName}ServiceInterface \$service) { \$this->service = \$service; }\n\n    public function index() { return view('modules.{$this->singular}.index'); }\n\n{$dt}\n    public function create() { {$relationData}\n        return view('modules.{$this->singular}.form'" . ($relationCompact ? ", compact({$relationCompact})" : "") . ");\n    }\n\n    public function store(Store{$this->moduleName}Request \$r) {\n        \$data = \$r->validated();\n{$authLogic}{$uploadLogic}        \$this->service->store(\$data);\n        return redirect()->route('{$this->plural}.index');\n    }\n\n    public function edit(\$id) { \${$this->singular} = \$this->service->find(\$id); {$relationData}\n        return view('modules.{$this->singular}.form', compact({$editCompact}));\n    }\n\n    public function update(Update{$this->moduleName}Request \$r, \$id) {\n        \$data = \$r->validated();\n{$authLogic}{$uploadLogic}        \$this->service->update(\$id, \$data);\n        return redirect()->route('{$this->plural}.index');\n    }\n\n    public function destroy(\$id) { \$this->service->delete(\$id); return back(); }\n}";
         
         File::put(app_path("Http/Controllers/{$this->moduleName}Controller.php"), $content);
     }
@@ -181,31 +212,60 @@ class MakeModule extends Command
     private function generateViews()
     {
         $path = "resources/views/modules/{$this->singular}";
+        $hasImage = collect($this->fields)->contains('type', 'image');
+        $enctype = $hasImage ? 'enctype="multipart/form-data"' : '';
+
+        // --- LOGIC CERDAS DETEKSI FIELD UTAMA ---
+        $fieldsCollection = collect($this->fields);
+
+        // 1. Coba cari field yang namanya pas 'name'
+        $displayField = $fieldsCollection->firstWhere('name', 'name');
+
+        // 2. Kalau nggak ada, cari field pertama yang tipe-nya bukan image DAN namanya tidak berakhiran '_id'
+        if (!$displayField) {
+            $displayField = $fieldsCollection->first(function ($f) {
+                return $f['type'] !== 'image' && !Str::endsWith($f['name'], '_id');
+            });
+        }
+
+        // 3. Kalau masih nggak ketemu juga (misal isinya cuma ID semua), terpaksa ambil yang pertama banget
+        $displayField = $displayField ?? $this->fields[0];
         
-        // Action
+        $displayFieldName = $displayField['name'];
+        $displayLabel = Str::title(str_replace('_', ' ', $displayFieldName));
+        // ----------------------------------------
+        
+        // Action View
         File::put(base_path("{$path}/action.blade.php"), "<div class='btn-group'><a href='{{ route('{$this->plural}.edit', \$row->id) }}' class='btn btn-sm btn-primary'><i class='feather icon-edit'></i></a><button type='button' class='btn btn-sm btn-danger' onclick=\"handleDelete('{{ route('{$this->plural}.destroy', \$row->id) }}')\"><i class='feather icon-trash'></i></button></div>");
 
-        // Index
-        $dt = $this->option('datatable') ? "<x-table.datatable-script id='{$this->singular}-table' :url=\"route('{$this->plural}.list')\" :columns=\"[['data'=>'DT_RowIndex'],['data'=>'name'],['data'=>'action']]\" />" : "";
-        $index = "@extends('layouts.app')\n@section('content')\n<div class='card'><div class='card-header'><h4 class='card-title'>{$this->moduleName}</h4><a href='{{ route('{$this->plural}.create') }}' class='btn btn-primary'>Add</a></div><div class='card-body'><div class='table-responsive'><table class='table' id='{$this->singular}-table'><thead><tr><th>No</th><th>Name</th><th>Action</th></tr></thead></table></div></div></div>\n{$dt}\n@endsection";
+        // Index View (Datatable)
+        $dt = $this->option('datatable') ? "<x-table.datatable-script id='{$this->singular}-table' :url=\"route('{$this->plural}.list')\" :columns=\"[['data'=>'DT_RowIndex'],['data'=>'{$displayFieldName}'],['data'=>'action']]\" :order=\"[1, 'asc']\" />" : "";
+        
+        $index = "@extends('layouts.app')\n@section('content')\n<div class='card'><div class='card-header'><h4 class='card-title'>{$this->moduleName}</h4><a href='{{ route('{$this->plural}.create') }}' class='btn btn-primary'>Add</a></div><div class='card-body'><div class='table-responsive'><table class='table' id='{$this->singular}-table'><thead><tr><th>No</th><th>{$displayLabel}</th><th>Action</th></tr></thead></table></div></div></div>\n{$dt}\n@endsection";
         File::put(base_path("{$path}/index.blade.php"), $index);
 
-        // Form
+        // Form View (Looping semua field untuk input)
         $fieldsHtml = "";
         foreach ($this->fields as $f) {
+            if (in_array($f['name'], ['slug', 'user_id'])) continue;
             $label = Str::title(str_replace('_', ' ', $f['name']));
+            $style = $f['style'] ?? 'default';
+            
             if (isset($f['relation'])) {
                 $vName = Str::plural(Str::camel($f['relation']));
                 $fieldsHtml .= "            <x-form.select name='{$f['name']}' label='{$label}'>\n                @foreach(\${$vName} as \$item)\n                    <option value='{{ \$item->id }}' {{ (old('{$f['name']}', \${$this->singular}->{$f['name']} ?? '') == \$item->id) ? 'selected' : '' }}>{{ \$item->name }}</option>\n                @endforeach\n            </x-form.select>\n";
+            } elseif ($f['type'] == 'image') {
+                $fieldsHtml .= "            <x-form.photo-upload label='{$label}' name='{$f['name']}' :value=\"\${$this->singular}->{$f['name']} ?? null\" rounded='circle' />\n";
             } else {
-                switch ($f['style']) {
-                    case 'datepicker': $fieldsHtml .= "            <x-form.datepicker name='{$f['name']}' label='{$label}' />\n"; break;
-                    case 'switch': $fieldsHtml .= "            <x-form.switch name='{$f['name']}' label='{$label}' />\n"; break;
-                    default: $fieldsHtml .= "            <x-form.input name='{$f['name']}' label='{$label}' :value=\"\${$this->singular}->{$f['name']} ?? ''\" floating divider />\n"; break;
-                }
+                $fieldsHtml .= match($style) {
+                    'datepicker' => "            <x-form.datepicker name='{$f['name']}' label='{$label}' :value=\"\${$this->singular}->{$f['name']} ?? ''\" />\n",
+                    'switch'     => "            <x-form.switch name='{$f['name']}' label='{$label}' :checked=\"\${$this->singular}->{$f['name']} ?? false\" />\n",
+                    'textarea'   => "            <x-form.textarea name='{$f['name']}' label='{$label}'>{{ \${$this->singular}->{$f['name']} ?? '' }}</x-form.textarea>\n",
+                    default      => "            <x-form.input name='{$f['name']}' label='{$label}' :value=\"\${$this->singular}->{$f['name']} ?? ''\" floating divider />\n",
+                };
             }
         }
-        $form = "@php \$isEdit = isset(\${$this->singular}); @endphp\n@extends('layouts.app')\n@section('content')\n<div class='card'><div class='card-body'><form action=\"{{ \$isEdit ? route('{$this->plural}.update', \${$this->singular}->id) : route('{$this->plural}.store') }}\" method='POST' novalidate>@csrf @if(\$isEdit) @method('PUT') @endif\n{$fieldsHtml}<button type='submit' class='btn btn-primary mt-2'>Save</button></form></div></div>@endsection";
+        $form = "@php \$isEdit = isset(\${$this->singular}); @endphp\n@extends('layouts.app')\n@section('content')\n<div class='card'><div class='card-body'><form action=\"{{ \$isEdit ? route('{$this->plural}.update', \${$this->singular}->id) : route('{$this->plural}.store') }}\" method='POST' {$enctype} novalidate>@csrf @if(\$isEdit) @method('PUT') @endif\n{$fieldsHtml}<button type='submit' class='btn btn-primary mt-2'>Save</button></form></div></div>@endsection";
         File::put(base_path("{$path}/form.blade.php"), $form);
     }
 

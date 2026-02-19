@@ -1,0 +1,4 @@
+[
+    { "name": "key", "type": "string", "rules": "required|unique:settings,key" },
+    { "name": "value", "type": "text", "style": "textarea", "rules": "nullable" }
+]

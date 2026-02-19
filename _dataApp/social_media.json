@@ -1,0 +1,23 @@
+[
+    {
+        "name": "name",
+        "type": "string",
+        "length": 255,
+        "style": "default",
+        "rules": "required|string|min:3"
+    },
+    {
+        "name": "icon",
+        "type": "string",
+        "length": 255,
+        "style": "default",
+        "rules": "required|string|min:3"
+    },
+    {
+        "name": "link",
+        "type": "string",
+        "length": 255,
+        "style": "default",
+        "rules": "required|string|url"
+    }
+]

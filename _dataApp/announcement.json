@@ -1,0 +1,7 @@
+[
+    { "name": "title_id", "type": "string", "rules": "required|string" },
+    { "name": "title_en", "type": "string", "rules": "nullable|string" },
+    { "name": "content_id", "type": "text", "style": "textarea", "rules": "required" },
+    { "name": "file_path", "type": "string", "style": "default", "rules": "nullable" },
+    { "name": "is_active", "type": "boolean", "style": "switch", "rules": "boolean" }
+]

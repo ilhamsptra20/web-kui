@@ -1,0 +1,6 @@
+[
+    { "name": "title_id", "type": "string", "rules": "nullable" },
+    { "name": "image", "type": "image", "style": "file", "rules": "required|image" },
+    { "name": "link", "type": "string", "rules": "nullable" },
+    { "name": "order", "type": "integer", "rules": "nullable|numeric" }
+]

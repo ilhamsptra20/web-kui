@@ -1,0 +1,5 @@
+[
+    { "name": "name_id", "type": "string", "rules": "required|string" },
+    { "name": "name_en", "type": "string", "rules": "nullable|string" },
+    { "name": "name_ar", "type": "string", "rules": "nullable|string" }
+]

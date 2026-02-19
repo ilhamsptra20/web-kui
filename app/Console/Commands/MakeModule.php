@@ -186,6 +186,7 @@ class MakeModule extends Command
                 $uploadLogic .= "        if (\$r->hasFile('{$f['name']}')) \$data['{$f['name']}'] = \$r->file('{$f['name']}')->store('modules/{$this->plural}', 'public');\n";
             }
         }
+        $authImport = $hasUserId ? "use Illuminate\Support\Facades\Auth;\n" : "";
         $authLogic = $hasUserId ? "        \$data['user_id'] = Auth::id();\n" : "";
 
         $relationCompact = count($relationVars) > 0 ? implode(', ', $relationVars) : "";
@@ -193,7 +194,7 @@ class MakeModule extends Command
 
         $dt = $this->option('datatable') ? "    public function list() {\n        return datatables()->of(\$this->service->listTable())->addIndexColumn()\n            ->addColumn('action', fn(\$row) => view('modules.{$this->singular}.action', compact('row'))->render())\n            ->rawColumns(['action'])->toJson();\n    }\n" : "";
         
-        $content = "<?php\n\nnamespace App\Http\Controllers;\n\nuse App\Http\Requests\{Store{$this->moduleName}Request, Update{$this->moduleName}Request};\nuse App\Services\Contracts\\{$this->moduleName}ServiceInterface;\n\nclass {$this->moduleName}Controller extends Controller {\n    protected \$service;\n\n    public function __construct({$this->moduleName}ServiceInterface \$service) { \$this->service = \$service; }\n\n    public function index() { return view('modules.{$this->singular}.index'); }\n\n{$dt}\n    public function create() { {$relationData}\n        return view('modules.{$this->singular}.form'" . ($relationCompact ? ", compact({$relationCompact})" : "") . ");\n    }\n\n    public function store(Store{$this->moduleName}Request \$r) {\n        \$data = \$r->validated();\n{$authLogic}{$uploadLogic}        \$this->service->store(\$data);\n        return redirect()->route('{$this->plural}.index');\n    }\n\n    public function edit(\$id) { \${$this->singular} = \$this->service->find(\$id); {$relationData}\n        return view('modules.{$this->singular}.form', compact({$editCompact}));\n    }\n\n    public function update(Update{$this->moduleName}Request \$r, \$id) {\n        \$data = \$r->validated();\n{$authLogic}{$uploadLogic}        \$this->service->update(\$id, \$data);\n        return redirect()->route('{$this->plural}.index');\n    }\n\n    public function destroy(\$id) { \$this->service->delete(\$id); return back(); }\n}";
+        $content = "<?php\n\nnamespace App\Http\Controllers;\n\nuse App\Http\Requests\{Store{$this->moduleName}Request, Update{$this->moduleName}Request};\nuse App\Services\Contracts\\{$this->moduleName}ServiceInterface;\n{$authImport}\nclass {$this->moduleName}Controller extends Controller {\n    protected \$service;\n\n    public function __construct({$this->moduleName}ServiceInterface \$service) { \$this->service = \$service; }\n\n    public function index() { return view('modules.{$this->singular}.index'); }\n\n{$dt}\n    public function create() { {$relationData}\n        return view('modules.{$this->singular}.form'" . ($relationCompact ? ", compact({$relationCompact})" : "") . ");\n    }\n\n    public function store(Store{$this->moduleName}Request \$r) {\n        \$data = \$r->validated();\n{$authLogic}{$uploadLogic}        \$this->service->store(\$data);\n        return redirect()->route('{$this->plural}.index');\n    }\n\n    public function edit(\$id) { \${$this->singular} = \$this->service->find(\$id); {$relationData}\n        return view('modules.{$this->singular}.form', compact({$editCompact}));\n    }\n\n    public function update(Update{$this->moduleName}Request \$r, \$id) {\n        \$data = \$r->validated();\n{$authLogic}{$uploadLogic}        \$this->service->update(\$id, \$data);\n        return redirect()->route('{$this->plural}.index');\n    }\n\n    public function destroy(\$id) { \$this->service->delete(\$id); return back(); }\n}";
         
         File::put(app_path("Http/Controllers/{$this->moduleName}Controller.php"), $content);
     }
@@ -253,15 +254,15 @@ class MakeModule extends Command
             
             if (isset($f['relation'])) {
                 $vName = Str::plural(Str::camel($f['relation']));
-                $fieldsHtml .= "            <x-form.select name='{$f['name']}' label='{$label}'>\n                @foreach(\${$vName} as \$item)\n                    <option value='{{ \$item->id }}' {{ (old('{$f['name']}', \${$this->singular}->{$f['name']} ?? '') == \$item->id) ? 'selected' : '' }}>{{ \$item->name }}</option>\n                @endforeach\n            </x-form.select>\n";
+                $fieldsHtml .= "    <x-form.select name='{$f['name']}' label='{$label}'>\n      <option value='' required selected>Select {$label}</option>\n      @foreach(\${$vName} as \$item)\n        <option value='{{ \$item->id }}' {{ (old('{$f['name']}', \${$this->singular}->{$f['name']} ?? '') == \$item->id) ? 'selected' : '' }}>{{ \$item->name }}</option>\n       @endforeach\n            </x-form.select>\n";
             } elseif ($f['type'] == 'image') {
-                $fieldsHtml .= "            <x-form.photo-upload label='{$label}' name='{$f['name']}' :value=\"\${$this->singular}->{$f['name']} ?? null\" rounded='circle' />\n";
+                $fieldsHtml .= "    <x-form.photo-upload label='{$label}' name='{$f['name']}' :value=\"\${$this->singular}->{$f['name']} ?? null\" rounded='circle' />\n";
             } else {
                 $fieldsHtml .= match($style) {
-                    'datepicker' => "            <x-form.datepicker name='{$f['name']}' label='{$label}' :value=\"\${$this->singular}->{$f['name']} ?? ''\" />\n",
-                    'switch'     => "            <x-form.switch name='{$f['name']}' label='{$label}' :checked=\"\${$this->singular}->{$f['name']} ?? false\" />\n",
-                    'textarea'   => "            <x-form.textarea name='{$f['name']}' label='{$label}'>{{ \${$this->singular}->{$f['name']} ?? '' }}</x-form.textarea>\n",
-                    default      => "            <x-form.input name='{$f['name']}' label='{$label}' :value=\"\${$this->singular}->{$f['name']} ?? ''\" floating divider />\n",
+                    'datepicker' => "   <x-form.datepicker name='{$f['name']}' label='{$label}' :value=\"\${$this->singular}->{$f['name']} ?? ''\" />\n",
+                    'switch'     => "   <x-form.switch name='{$f['name']}' label='{$label}' :checked=\"\${$this->singular}->{$f['name']} ?? false\" />\n",
+                    'textarea'   => "   <x-form.textarea name='{$f['name']}' label='{$label}'>{{ \${$this->singular}->{$f['name']} ?? '' }}</x-form.textarea>\n",
+                    default      => "   <x-form.input name='{$f['name']}' label='{$label}' :value=\"\${$this->singular}->{$f['name']} ?? ''\" floating divider />\n",
                 };
             }
         }

@@ -23,6 +23,11 @@ return [
 
         ['header' => 'Media & Gallery'],
         [
+            'title' => 'Page',
+            'icon'  => 'feather icon-folder',
+            'url'   => '/pages',
+        ],
+        [
             'title' => 'Album',
             'icon'  => 'feather icon-folder',
             'url'   => '/albums',
@@ -57,7 +62,7 @@ return [
         [
             'title' => 'Inbox',
             'icon'  => 'feather icon-mail',
-            'url'   => '/inbox',
+            'url'   => '/inboxes',
             'badge' => ['class' => 'badge-primary', 'text' => 'new'],
         ],
         ['header' => 'Team Manager'],

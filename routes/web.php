@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('auth.login');
+    return view('pages.marketing.index');
 });
 
 Auth::routes();
@@ -26,4 +26,5 @@ Route::middleware('auth')->group(function () {
     require __DIR__.'/modules/social_media.php';
     require __DIR__.'/modules/slider.php';
     require __DIR__.'/modules/setting.php';
+    require __DIR__.'/modules/page.php';
 });

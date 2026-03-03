@@ -1,0 +1,11 @@
+[
+    { "name": "user_id", "type": "uuid", "style": "select", "rules": "required", "relation": "user" },
+    { "name": "title_id", "type": "string", "style": "default", "rules": "required|string|max:255" },
+    { "name": "title_en", "type": "string", "style": "default", "rules": "nullable|string|max:255" },
+    { "name": "title_ar", "type": "string", "style": "default", "rules": "nullable|string|max:255" },
+    { "name": "slug", "type": "string", "style": "default", "rules": "required|string|max:255" },
+    { "name": "content_id", "type": "text", "style": "textarea", "rules": "required" },
+    { "name": "content_en", "type": "text", "style": "textarea", "rules": "nullable" },
+    { "name": "content_ar", "type": "text", "style": "textarea", "rules": "nullable" },
+    { "name": "status", "type": "boolean", "style": "switch", "rules": "boolean" }
+]

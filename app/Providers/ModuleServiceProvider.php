@@ -34,6 +34,8 @@ class ModuleServiceProvider extends ServiceProvider
         $this->app->bind(\App\Repositories\Contracts\SliderRepositoryInterface::class, \App\Repositories\SliderRepository::class);
         $this->app->bind(\App\Services\Contracts\SettingServiceInterface::class, \App\Services\SettingService::class);
         $this->app->bind(\App\Repositories\Contracts\SettingRepositoryInterface::class, \App\Repositories\SettingRepository::class);
+        $this->app->bind(\App\Services\Contracts\PageServiceInterface::class, \App\Services\PageService::class);
+        $this->app->bind(\App\Repositories\Contracts\PageRepositoryInterface::class, \App\Repositories\PageRepository::class);
         // MODULE_BINDINGS
     }
 }

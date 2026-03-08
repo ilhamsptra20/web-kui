@@ -1,0 +1,6 @@
+[
+    { "name": "name_id", "type": "string", "rules": "required" },
+    { "name": "slug", "type": "string", "rules": "required|unique:agendas,slug" },
+    { "name": "description_id", "type": "text", "style": "textarea", "rules": "nullable" },
+    { "name": "image", "type": "image", "style": "file", "rules": "nullable|image|max:2048" }
+]

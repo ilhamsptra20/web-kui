@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 class MakeModule extends Command
 {
     protected $signature = 'make:module {name} {--datatable} {--json=}';
-    protected $description = 'Professional Module Scaffolder with Advanced JSON Schema';
+    protected $description = 'Simple Laravel Module Scaffolder';
 
     protected string $moduleName;
     protected string $singular;
@@ -24,60 +24,42 @@ class MakeModule extends Command
 
         if ($this->option('json')) {
             $path = base_path("_dataApp/" . $this->option('json'));
+
             if (!File::exists($path)) {
-                $this->error("❌ Error: JSON file not found at {$path}");
+                $this->error("JSON not found : {$path}");
                 return 1;
             }
+
             $this->fields = json_decode(File::get($path), true);
         } else {
-            $this->fields = [['name' => 'name', 'type' => 'string', 'style' => 'default', 'rules' => 'required']];
+            $this->fields = [
+                ['name'=>'name','type'=>'string','rules'=>'required']
+            ];
         }
 
-        if (!$this->validateDependency()) {
-            return 1;
-        }
-
-        $this->components->info("🔨 Building module [{$this->moduleName}]...");
+        $this->info("Building module {$this->moduleName}");
 
         $this->generateFolders();
         $this->generateMigration();
         $this->generateModel();
-        $this->generateInterfaces();
-        $this->generateRepository();
-        $this->generateService();
         $this->generateRequests();
         $this->generateController();
         $this->generateRoutes();
         $this->generateViews();
-        $this->registerModuleBindings();
 
-        $this->info("🚀 Module [{$this->moduleName}] built successfully!");
+        $this->info("Module {$this->moduleName} created");
+
         return 0;
-    }
-
-    private function validateDependency(): bool
-    {
-        foreach ($this->fields as $field) {
-            if (isset($field['relation'])) {
-                $targetModel = ucfirst(Str::camel($field['relation']));
-                if (!File::exists(app_path("Models/{$targetModel}.php"))) {
-                    $this->error("Target Model [{$targetModel}] missing! Please build it first.");
-                    return false;
-                }
-            }
-        }
-        return true;
     }
 
     private function generateFolders(): void
     {
         $paths = [
-            "app/Services/Contracts",
-            "app/Repositories/Contracts",
             "app/Http/Requests",
             "routes/modules",
             "resources/views/modules/{$this->singular}"
         ];
+
         foreach ($paths as $path) {
             File::ensureDirectoryExists(base_path($path));
         }
@@ -127,6 +109,7 @@ return new class extends Migration {
 PHP;
         File::put(database_path("migrations/".date('Y_m_d_His')."_create_{$this->plural}_table.php"), $content);
     }
+
 
     private function generateModel(): void
     {
@@ -181,78 +164,6 @@ PHP;
         File::put(app_path("Models/{$this->moduleName}.php"), $content);
     }
 
-    private function generateInterfaces(): void
-    {
-        $repo = "<?php\n\nnamespace App\Repositories\Contracts;\n\ninterface {$this->moduleName}RepositoryInterface\n{\n    public function getQuery();\n    public function find(string \$id);\n    public function store(array \$data);\n    public function update(string \$id, array \$data);\n    public function delete(string \$id);\n}";
-        $service = "<?php\n\nnamespace App\Services\Contracts;\n\ninterface {$this->moduleName}ServiceInterface\n{\n    public function listTable();\n    public function find(string \$id);\n    public function store(array \$data);\n    public function update(string \$id, array \$data);\n    public function delete(string \$id);\n}";
-        
-        File::put(app_path("Repositories/Contracts/{$this->moduleName}RepositoryInterface.php"), $repo);
-        File::put(app_path("Services/Contracts/{$this->moduleName}ServiceInterface.php"), $service);
-    }
-
-    private function generateRepository(): void
-    {
-        $content = <<<PHP
-<?php
-
-namespace App\Repositories;
-
-use App\Models\\{$this->moduleName};
-use App\Repositories\Contracts\\{$this->moduleName}RepositoryInterface;
-
-class {$this->moduleName}Repository implements {$this->moduleName}RepositoryInterface 
-{
-    protected \$model;
-
-    public function __construct({$this->moduleName} \$model) 
-    { 
-        \$this->model = \$model; 
-    }
-
-    public function getQuery() { return \$this->model->query(); }
-    public function find(string \$id) { return \$this->model->findOrFail(\$id); }
-    public function store(array \$data) { return \$this->model->create(\$data); }
-    public function update(string \$id, array \$data) 
-    { 
-        \$row = \$this->find(\$id); 
-        \$row->update(\$data); 
-        return \$row; 
-    }
-    public function delete(string \$id) { return \$this->find(\$id)->delete(); }
-}
-PHP;
-        File::put(app_path("Repositories/{$this->moduleName}Repository.php"), $content);
-    }
-
-    private function generateService(): void
-    {
-        $content = <<<PHP
-<?php
-
-namespace App\Services;
-
-use App\Repositories\Contracts\\{$this->moduleName}RepositoryInterface;
-use App\Services\Contracts\\{$this->moduleName}ServiceInterface;
-
-class {$this->moduleName}Service implements {$this->moduleName}ServiceInterface 
-{
-    protected \$repo;
-
-    public function __construct({$this->moduleName}RepositoryInterface \$repo) 
-    { 
-        \$this->repo = \$repo; 
-    }
-
-    public function listTable() { return \$this->repo->getQuery(); }
-    public function find(string \$id) { return \$this->repo->find(\$id); }
-    public function store(array \$data) { return \$this->repo->store(\$data); }
-    public function update(string \$id, array \$data) { return \$this->repo->update(\$id, \$data); }
-    public function delete(string \$id) { return \$this->repo->delete(\$id); }
-}
-PHP;
-        File::put(app_path("Services/{$this->moduleName}Service.php"), $content);
-    }
-
     private function generateRequests(): void
     {
         foreach (['Store', 'Update'] as $t) {
@@ -273,104 +184,224 @@ PHP;
 
     private function generateController(): void
     {
-        $relationData = ""; $relationVars = []; $uploadLogic = "";
-        $hasUserId = collect($this->fields)->contains('name', 'user_id');
 
-        foreach ($this->fields as $f) {
-            if (isset($f['relation']) && $f['name'] !== 'user_id') {
-                $mTarget = ucfirst(Str::camel($f['relation']));
-                $vName = Str::plural(Str::camel($f['relation']));
-                $relationData .= "\n        \${$vName} = \\App\\Models\\{$mTarget}::all();";
-                $relationVars[] = "'{$vName}'";
+        $dt = "";
+
+        if($this->option('datatable')){
+
+        $dt = <<<PHP
+            public function list()
+            {
+                return datatables()
+                    ->of({$this->moduleName}::query())
+                    ->addIndexColumn()
+                    ->addColumn('action', fn(\$row)=>view('modules.{$this->singular}.action',compact('row'))->render())
+                    ->rawColumns(['action'])
+                    ->toJson();
             }
-            if ($f['type'] === 'image') {
-                $uploadLogic .= "        if (\$r->hasFile('{$f['name']}')) {\n            \$data['{$f['name']}'] = \$r->file('{$f['name']}')->store('modules/{$this->plural}', 'public');\n        }\n";
-            }
+
+        PHP;
         }
 
-        $authImport = $hasUserId ? "use Illuminate\Support\Facades\Auth;" : "";
-        $authLogic = $hasUserId ? "        \$data['user_id'] = Auth::id();\n" : "";
-
-        // --- FIX LOGIC COMPACT DISINI ---
-        $createCompact = count($relationVars) > 0 
-            ? ", compact(" . implode(', ', $relationVars) . ")" 
-            : "";
-        
-        $editVars = array_merge(["'{$this->singular}'"], $relationVars);
-        $editCompact = ", compact(" . implode(', ', $editVars) . ")";
-        // --------------------------------
-
-        $dt = $this->option('datatable') ? "    public function list() \n    {\n        return datatables()->of(\$this->service->listTable())->addIndexColumn()\n            ->addColumn('action', fn(\$row) => view('modules.{$this->singular}.action', compact('row'))->render())\n            ->rawColumns(['action'])->toJson();\n    }\n" : "";
-        
         $content = <<<PHP
 <?php
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\{Store{$this->moduleName}Request, Update{$this->moduleName}Request};
-use App\Services\Contracts\\{$this->moduleName}ServiceInterface;
-{$authImport}
+use App\Models\\{$this->moduleName};
+use App\Http\Requests\Store{$this->moduleName}Request;
+use App\Http\Requests\Update{$this->moduleName}Request;
 
-class {$this->moduleName}Controller extends Controller 
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+
+class {$this->moduleName}Controller extends Controller
 {
-    protected \$service;
 
-    public function __construct({$this->moduleName}ServiceInterface \$service) 
-    { 
-        \$this->service = \$service; 
-    }
-
-    public function index() 
-    { 
-        return view('modules.{$this->singular}.index'); 
-    }
-
-{$dt}
-    public function create() 
-    { {$relationData}
-        return view('modules.{$this->singular}.form'{$createCompact});
-    }
-
-    public function store(Store{$this->moduleName}Request \$r) 
+    public function index()
     {
-        \$data = \$r->validated();
-{$authLogic}{$uploadLogic}        \$this->service->store(\$data);
-        return redirect()->route('{$this->plural}.index');
+        return view('modules.{$this->singular}.index');
     }
 
-    public function edit(\$id) 
-    { 
-        \${$this->singular} = \$this->service->find(\$id); {$relationData}
-        return view('modules.{$this->singular}.form'{$editCompact});
-    }
-
-    public function update(Update{$this->moduleName}Request \$r, \$id) 
+    public function list()
     {
-        \$data = \$r->validated();
-{$authLogic}{$uploadLogic}        \$this->service->update(\$id, \$data);
-        return redirect()->route('{$this->plural}.index');
+        try {
+
+            return datatables()
+                ->of({$this->moduleName}::query())
+                ->addIndexColumn()
+                ->addColumn('action', fn(\$row) =>
+                    view('modules.{$this->singular}.action', compact('row'))->render()
+                )
+                ->rawColumns(['action'])
+                ->toJson();
+
+        } catch (\Throwable \$e) {
+
+            Log::error('{$this->moduleName} list error', [
+                'message' => \$e->getMessage()
+            ]);
+
+            return response()->json([
+                'message' => 'Failed to load data'
+            ],500);
+        }
     }
 
-    public function destroy(\$id) 
-    { 
-        \$this->service->delete(\$id); 
-        return back(); 
+    public function create()
+    {
+        return view('modules.{$this->singular}.form');
+    }
+
+    public function store(Store{$this->moduleName}Request \$request)
+    {
+        DB::beginTransaction();
+
+        try {
+
+            \$data = \$request->validated();
+
+            {$this->moduleName}::create(\$data);
+
+            DB::commit();
+
+            return redirect()
+                ->route('{$this->plural}.index')
+                ->with('success','Data created successfully');
+
+        } catch (\Throwable \$e) {
+
+            DB::rollBack();
+
+            Log::error('{$this->moduleName} store error',[
+                'message'=>\$e->getMessage(),
+                'data'=>\$request->all()
+            ]);
+
+            return back()
+                ->withInput()
+                ->with('error','Failed to create data');
+        }
+    }
+
+    public function edit(\$id)
+    {
+        try {
+
+            \${$this->singular} = {$this->moduleName}::findOrFail(\$id);
+
+            return view('modules.{$this->singular}.form', compact('{$this->singular}'));
+
+        } catch (\Throwable \$e) {
+
+            Log::warning('{$this->moduleName} edit error',[
+                'id'=>\$id
+            ]);
+
+            return redirect()
+                ->route('{$this->plural}.index')
+                ->with('error','Data not found');
+        }
+    }
+
+    public function update(Update{$this->moduleName}Request \$request, \$id)
+    {
+        DB::beginTransaction();
+
+        try {
+
+            \$data = \$request->validated();
+
+            \${$this->singular} = {$this->moduleName}::findOrFail(\$id);
+
+            \${$this->singular}->update(\$data);
+
+            DB::commit();
+
+            return redirect()
+                ->route('{$this->plural}.index')
+                ->with('success','Data updated');
+
+        } catch (\Throwable \$e) {
+
+            DB::rollBack();
+
+            Log::error('{$this->moduleName} update error',[
+                'id'=>\$id,
+                'message'=>\$e->getMessage()
+            ]);
+
+            return back()
+                ->withInput()
+                ->with('error','Update failed');
+        }
+    }
+
+    public function destroy(\$id)
+    {
+        DB::beginTransaction();
+
+        try {
+
+            \${$this->singular} = {$this->moduleName}::findOrFail(\$id);
+
+            \${$this->singular}->delete();
+
+            DB::commit();
+
+            return back()->with('success','Data deleted');
+
+        } catch (\Throwable \$e) {
+
+            DB::rollBack();
+
+            Log::error('{$this->moduleName} delete error',[
+                'id'=>\$id
+            ]);
+
+            return back()->with('error','Delete failed');
+        }
     }
 }
 PHP;
-        File::put(app_path("Http/Controllers/{$this->moduleName}Controller.php"), $content);
+
+        File::put(
+        app_path("Http/Controllers/{$this->moduleName}Controller.php"),
+        $content
+        );
     }
 
     private function generateRoutes(): void
     {
-        $dtRoute = $this->option('datatable') ? "Route::get('{$this->plural}/list', [{$this->moduleName}Controller::class, 'list'])->name('{$this->plural}.list');" : "";
-        $content = "<?php\n\nuse App\Http\Controllers\\{$this->moduleName}Controller;\nuse Illuminate\Support\Facades\Route;\n\n{$dtRoute}\nRoute::resource('{$this->plural}', {$this->moduleName}Controller::class)->parameters(['{$this->plural}' => 'uuid']);";
-        File::put(base_path("routes/modules/{$this->singular}.php"), $content);
-        
+
+        $dtRoute = "";
+
+        if($this->option('datatable')){
+        $dtRoute = "Route::get('{$this->plural}/list',[{$this->moduleName}Controller::class,'list'])->name('{$this->plural}.list');";
+        }
+
+$content = <<<PHP
+<?php
+
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\\{$this->moduleName}Controller;
+
+{$dtRoute}
+
+Route::resource('{$this->plural}',{$this->moduleName}Controller::class);
+PHP;
+
+        File::put(
+        base_path("routes/modules/{$this->singular}.php"),
+        $content
+        );
+
         $web = base_path('routes/web.php');
+
         $line = "require __DIR__.'/modules/{$this->singular}.php';";
-        if (!Str::contains(File::get($web), $line)) {
-            File::append($web, "\n".$line);
+
+        if(!Str::contains(File::get($web),$line)){
+        File::append($web,"\n".$line);
         }
     }
 
@@ -398,7 +429,7 @@ PHP;
 
         // Index View
         $dt = $this->option('datatable') ? "<x-table.datatable-script id='{$this->singular}-table' :url=\"route('{$this->plural}.list')\" :columns=\"[['data'=>'DT_RowIndex'],['data'=>'{$displayFieldName}'],['data'=>'action']]\" :order=\"[1, 'asc']\" />" : "";
-        $index = "@extends('layouts.app')\n\n@section('content')\n<div class='card'>\n    <div class='card-header'>\n        <h4 class='card-title'>{$this->moduleName}</h4>\n        <a href='{{ route('{$this->plural}.create') }}' class='btn btn-primary'>Add New</a>\n    </div>\n    <div class='card-body'>\n        <div class='table-responsive'>\n            <table class='table' id='{$this->singular}-table'>\n                <thead>\n                    <tr>\n                        <th>No</th>\n                        <th>{$displayLabel}</th>\n                        <th>Action</th>\n                    </tr>\n                </thead>\n            </table>\n        </div>\n    </div>\n</div>\n{$dt}\n@endsection";
+        $index = "@extends('layouts.app')\n@section('title', 'Daftar {$this->moduleName}')\n\n@section('content')\n<div class='card'>\n    <div class='card-header'>\n        <h4 class='card-title'>{$this->moduleName}</h4>\n        <a href='{{ route('{$this->plural}.create') }}' class='btn btn-primary'>Add New</a>\n    </div>\n    <div class='card-body'>\n        <div class='table-responsive'>\n            <table class='table' id='{$this->singular}-table'>\n                <thead>\n                    <tr>\n                        <th>No</th>\n                        <th>{$displayLabel}</th>\n                        <th>Action</th>\n                    </tr>\n                </thead>\n            </table>\n        </div>\n    </div>\n</div>\n{$dt}\n@endsection";
         File::put(base_path("{$path}/index.blade.php"), $index);
 
         // Form View
@@ -422,34 +453,8 @@ PHP;
                 };
             }
         }
-        $form = "@php \$isEdit = isset(\${$this->singular}); @endphp\n@extends('layouts.app')\n\n@section('content')\n<div class='card'>\n    <div class='card-body'>\n        <form action=\"{{ \$isEdit ? route('{$this->plural}.update', \${$this->singular}->id) : route('{$this->plural}.store') }}\" method='POST' {$enctype} novalidate>\n            @csrf\n            @if(\$isEdit) @method('PUT') @endif\n\n{$fieldsHtml}\n            <div class='mt-3'>\n                <button type='submit' class='btn btn-primary'>Save Data</button>\n                <a href='{{ route('{$this->plural}.index') }}' class='btn btn-outline-secondary'>Back</a>\n            </div>\n        </form>\n    </div>\n</div>\n@endsection";
+        $form = "@php \$isEdit = isset(\${$this->singular}); @endphp\n@extends('layouts.app')\n@section('title', (\$isEdit ? 'Edit' : 'Tambah') . ' {$this->moduleName}')\n\n@section('content')\n<div class='card'>\n    <div class='card-body'>\n        <form action=\"{{ \$isEdit ? route('{$this->plural}.update', \${$this->singular}->id) : route('{$this->plural}.store') }}\" method='POST' {$enctype} novalidate>\n            @csrf\n            @if(\$isEdit) @method('PUT') @endif\n\n{$fieldsHtml}\n            <div class='mt-3'>\n                <button type='submit' class='btn btn-primary'>Save Data</button>\n                <a href='{{ route('{$this->plural}.index') }}' class='btn btn-outline-secondary'>Back</a>\n            </div>\n        </form>\n    </div>\n</div>\n@endsection";
         File::put(base_path("{$path}/form.blade.php"), $form);
     }
 
-    private function registerModuleBindings(): void
-    {
-        $path = app_path('Providers/ModuleServiceProvider.php');
-        $binding = "\$this->app->bind(\\App\\Services\\Contracts\\{$this->moduleName}ServiceInterface::class, \\App\\Services\\{$this->moduleName}Service::class);\n        \$this->app->bind(\\App\\Repositories\\Contracts\\{$this->moduleName}RepositoryInterface::class, \\App\\Repositories\\{$this->moduleName}Repository::class);\n        // MODULE_BINDINGS";
-        
-        if (!File::exists($path)) {
-            File::put($path, "<?php\n\nnamespace App\Providers;\n\nuse Illuminate\Support\ServiceProvider;\n\nclass ModuleServiceProvider extends ServiceProvider\n{\n    public function register(): void\n    {\n        // MODULE_BINDINGS\n    }\n}");
-            $this->registerToBootstrap();
-        }
-
-        $content = File::get($path);
-        if (!Str::contains($content, "{$this->moduleName}ServiceInterface")) {
-            File::put($path, str_replace('// MODULE_BINDINGS', $binding, $content));
-        }
-    }
-
-    private function registerToBootstrap(): void
-    {
-        $path = base_path('bootstrap/providers.php');
-        if (File::exists($path)) {
-            $content = File::get($path);
-            if (!Str::contains($content, 'ModuleServiceProvider::class')) {
-                File::put($path, str_replace('];', "    App\Providers\ModuleServiceProvider::class,\n];", $content));
-            }
-        }
-    }
 }

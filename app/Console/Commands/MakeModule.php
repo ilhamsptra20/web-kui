@@ -183,27 +183,35 @@ PHP;
     }
 
     private function generateController(): void
-    {
+{
+    $relationLoad = "";
+    $relationVars = [];
+    $uploadLogic = "";
+    $hasUserId = collect($this->fields)->contains('name', 'user_id');
 
-        $dt = "";
-
-        if($this->option('datatable')){
-
-        $dt = <<<PHP
-            public function list()
-            {
-                return datatables()
-                    ->of({$this->moduleName}::query())
-                    ->addIndexColumn()
-                    ->addColumn('action', fn(\$row)=>view('modules.{$this->singular}.action',compact('row'))->render())
-                    ->rawColumns(['action'])
-                    ->toJson();
-            }
-
-        PHP;
+    foreach ($this->fields as $field) {
+        if (isset($field['relation']) && $field['name'] !== 'user_id') {
+            $model = ucfirst(Str::camel($field['relation']));
+            $var   = Str::plural(Str::camel($field['relation']));
+            $relationLoad .= "        \${$var} = \\App\\Models\\{$model}::query()->orderBy('name')->get();\n";
+            $relationVars[] = "'{$var}'";
         }
 
-        $content = <<<PHP
+        if ($field['type'] === 'image') {
+            $uploadLogic .= "                if(\$request->hasFile('{$field['name']}')){\n                    \$data['{$field['name']}'] = \$request->file('{$field['name']}')->store('modules/{$this->plural}','public');\n                }\n";
+        }
+    }
+
+    // Refactored compact logic into 1-line
+    $relationCompactCreate = count($relationVars) ? ", compact(" . implode(',', $relationVars) . ")" : "";
+    $relationCompactEdit = count($relationVars) ? ", compact('{$this->singular}'," . implode(',', $relationVars) . ")" : ", compact('{$this->singular}')";
+    
+    $authImport = $hasUserId ? "use Illuminate\Support\Facades\Auth;" : "";
+    $authLogic  = $hasUserId ? "                \$data['user_id'] = Auth::id();" : "";
+
+    $dt = $this->option('datatable') ? "    public function list()\n    {\n        return datatables()->of({$this->moduleName}::query())->addIndexColumn()->addColumn('action', fn(\$row)=>view('modules.{$this->singular}.action',compact('row'))->render())->rawColumns(['action'])->toJson();\n    }\n" : "";
+
+    $content = <<<PHP
 <?php
 
 namespace App\Http\Controllers;
@@ -211,165 +219,90 @@ namespace App\Http\Controllers;
 use App\Models\\{$this->moduleName};
 use App\Http\Requests\Store{$this->moduleName}Request;
 use App\Http\Requests\Update{$this->moduleName}Request;
-
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+{$authImport}
 
 class {$this->moduleName}Controller extends Controller
 {
-
     public function index()
     {
         return view('modules.{$this->singular}.index');
     }
 
-    public function list()
-    {
-        try {
-
-            return datatables()
-                ->of({$this->moduleName}::query())
-                ->addIndexColumn()
-                ->addColumn('action', fn(\$row) =>
-                    view('modules.{$this->singular}.action', compact('row'))->render()
-                )
-                ->rawColumns(['action'])
-                ->toJson();
-
-        } catch (\Throwable \$e) {
-
-            Log::error('{$this->moduleName} list error', [
-                'message' => \$e->getMessage()
-            ]);
-
-            return response()->json([
-                'message' => 'Failed to load data'
-            ],500);
-        }
-    }
-
+{$dt}
     public function create()
     {
-        return view('modules.{$this->singular}.form');
+{$relationLoad}
+        return view('modules.{$this->singular}.form'{$relationCompactCreate});
     }
 
     public function store(Store{$this->moduleName}Request \$request)
     {
         DB::beginTransaction();
-
         try {
-
             \$data = \$request->validated();
-
+{$authLogic}
+{$uploadLogic}
             {$this->moduleName}::create(\$data);
-
             DB::commit();
-
-            return redirect()
-                ->route('{$this->plural}.index')
-                ->with('success','Data created successfully');
-
-        } catch (\Throwable \$e) {
-
+            return redirect()->route('{$this->plural}.index')->with('success','Data created');
+        } catch(\Throwable \$e) {
             DB::rollBack();
-
-            Log::error('{$this->moduleName} store error',[
-                'message'=>\$e->getMessage(),
-                'data'=>\$request->all()
-            ]);
-
-            return back()
-                ->withInput()
-                ->with('error','Failed to create data');
+            Log::error('{$this->moduleName} store error',['message'=>\$e->getMessage(),'data'=>\$request->all()]);
+            return back()->withInput()->with('error','Failed create data');
         }
     }
 
     public function edit(\$id)
     {
         try {
-
             \${$this->singular} = {$this->moduleName}::findOrFail(\$id);
-
-            return view('modules.{$this->singular}.form', compact('{$this->singular}'));
-
-        } catch (\Throwable \$e) {
-
-            Log::warning('{$this->moduleName} edit error',[
-                'id'=>\$id
-            ]);
-
-            return redirect()
-                ->route('{$this->plural}.index')
-                ->with('error','Data not found');
+{$relationLoad}
+            return view('modules.{$this->singular}.form'{$relationCompactEdit});
+        } catch(\Throwable \$e) {
+            Log::warning('{$this->moduleName} edit error',['id'=>\$id]);
+            return redirect()->route('{$this->plural}.index')->with('error','Data not found');
         }
     }
 
     public function update(Update{$this->moduleName}Request \$request, \$id)
     {
         DB::beginTransaction();
-
         try {
-
             \$data = \$request->validated();
-
+{$authLogic}
+{$uploadLogic}
             \${$this->singular} = {$this->moduleName}::findOrFail(\$id);
-
             \${$this->singular}->update(\$data);
-
             DB::commit();
-
-            return redirect()
-                ->route('{$this->plural}.index')
-                ->with('success','Data updated');
-
-        } catch (\Throwable \$e) {
-
+            return redirect()->route('{$this->plural}.index')->with('success','Data updated');
+        } catch(\Throwable \$e) {
             DB::rollBack();
-
-            Log::error('{$this->moduleName} update error',[
-                'id'=>\$id,
-                'message'=>\$e->getMessage()
-            ]);
-
-            return back()
-                ->withInput()
-                ->with('error','Update failed');
+            Log::error('{$this->moduleName} update error',['id'=>\$id,'message'=>\$e->getMessage()]);
+            return back()->withInput()->with('error','Update failed');
         }
     }
 
     public function destroy(\$id)
     {
         DB::beginTransaction();
-
         try {
-
             \${$this->singular} = {$this->moduleName}::findOrFail(\$id);
-
             \${$this->singular}->delete();
-
             DB::commit();
-
             return back()->with('success','Data deleted');
-
-        } catch (\Throwable \$e) {
-
+        } catch(\Throwable \$e) {
             DB::rollBack();
-
-            Log::error('{$this->moduleName} delete error',[
-                'id'=>\$id
-            ]);
-
+            Log::error('{$this->moduleName} delete error',['id'=>\$id]);
             return back()->with('error','Delete failed');
         }
     }
 }
 PHP;
 
-        File::put(
-        app_path("Http/Controllers/{$this->moduleName}Controller.php"),
-        $content
-        );
-    }
+    File::put(app_path("Http/Controllers/{$this->moduleName}Controller.php"), $content);
+}
 
     private function generateRoutes(): void
     {

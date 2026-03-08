@@ -358,8 +358,8 @@ PHP;
         $displayLabel = Str::title(str_replace('_', ' ', $displayFieldName));
         
         // Action View
-        File::put(base_path("{$path}/action.blade.php"), "<div class='btn-group'><a href='{{ route('{$this->plural}.edit', \$row->id) }}' class='btn btn-sm btn-primary'><i class='feather icon-edit'></i></a><button type='button' class='btn btn-sm btn-danger' onclick=\"handleDelete('{{ route('{$this->plural}.destroy', \$row->id) }}')\"><i class='feather icon-trash'></i></button></div>");
-
+        File::put(base_path("{$path}/action.blade.php"), "<div class=\"btn-group\">\n\t<a href=\"{{ route('{$this->plural}.edit', \$row->id) }}\" class=\"btn btn-sm btn-primary\">\n\t\t<i class=\"feather icon-edit\"></i>\n\t</a>\n\t<button type=\"button\" class=\"btn btn-sm btn-danger\" onclick=\"handleDelete('{{ route('{$this->plural}.destroy', \$row->id) }}')\">\n\t\t<i class=\"feather icon-trash\"></i>\n\t</button>\n</div>");
+        
         // Index View
         $dt = $this->option('datatable') ? "<x-table.datatable-script id='{$this->singular}-table' :url=\"route('{$this->plural}.list')\" :columns=\"[['data'=>'DT_RowIndex'],['data'=>'{$displayFieldName}'],['data'=>'action']]\" :order=\"[1, 'asc']\" />" : "";
         $index = "@extends('layouts.app')\n@section('title', 'Daftar {$this->moduleName}')\n\n@section('content')\n<div class='card'>\n    <div class='card-header'>\n        <h4 class='card-title'>{$this->moduleName}</h4>\n        <a href='{{ route('{$this->plural}.create') }}' class='btn btn-primary'>Add New</a>\n    </div>\n    <div class='card-body'>\n        <div class='table-responsive'>\n            <table class='table' id='{$this->singular}-table'>\n                <thead>\n                    <tr>\n                        <th>No</th>\n                        <th>{$displayLabel}</th>\n                        <th>Action</th>\n                    </tr>\n                </thead>\n            </table>\n        </div>\n    </div>\n</div>\n{$dt}\n@endsection";

@@ -376,7 +376,7 @@ PHP;
                 $vName = Str::plural(Str::camel($f['relation']));
                 $fieldsHtml .= "        <x-form.select name='{$f['name']}' label='{$label}'>\n            <option value='' required selected>Select {$label}</option>\n            @foreach(\${$vName} as \$item)\n                <option value='{{ \$item->id }}' {{ (old('{$f['name']}', \${$this->singular}->{$f['name']} ?? '') == \$item->id) ? 'selected' : '' }}>{{ \$item->name }}</option>\n            @endforeach\n        </x-form.select>\n";
             } elseif ($f['type'] === 'image') {
-                $fieldsHtml .= "        <x-form.photo-upload label='{$label}' name='{$f['name']}' :value=\"\${$this->singular}->{$f['name']} ?? null\" rounded='circle' />\n";
+                $fieldsHtml .= "        <x-form.photo-upload label='{$label}' name='{$f['name']}' :value=\"\${$this->singular}->{$f['name']} ?? null\" />\n";
             } else {
                 $fieldsHtml .= match($style) {
                     'datepicker' => "        <x-form.datepicker name='{$f['name']}' label='{$label}' :value=\"\${$this->singular}->{$f['name']} ?? ''\" />\n",

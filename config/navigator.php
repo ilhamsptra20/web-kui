@@ -81,7 +81,7 @@ return [
         [
             'title' => 'Social Media',
             'icon'  => 'feather icon-share-2',
-            'url'   => '/social-media',
+            'url'   => '/social_media',
         ],
         [
             'title' => 'Setting',

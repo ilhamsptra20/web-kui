@@ -3,41 +3,52 @@
     'name' => 'photo',
     'value' => null,
     'readonly' => false,
-    'size' => 150,
-    'rounded' => 'xl', // circle | xl | none
+    'size' => null,        // null = full width, atau angka px (e.g. 150)
+    'height' => null,      // null = sama dengan width (square), atau angka px
+    'rounded' => 'xl',     // circle | xl | none
 ])
 
 @php
     $previewId = $name . '_preview';
-    $inputId = $name . '_input';
+    $inputId   = $name . '_input';
 
     $roundedClass = match($rounded) {
-        'circle' => 'rounded',
-        'none' => '',
-        default => 'rounded-' . $rounded,
+        'circle' => 'rounded-circle',
+        'none'   => '',
+        default  => 'rounded-' . $rounded,
     };
 
-    $imageSrc = $value 
-        ? asset('storage/' . $value) 
-        : 'https://via.placeholder.com/'.$size.'?text=Upload';
+    // Kalau size di-set, pakai fixed px; kalau tidak, full width
+    $isFixed = $size !== null;
+
+    $imgStyle = $isFixed
+        ? "width:{$size}px; height:" . ($height ?? $size) . "px; object-fit:cover; cursor:" . ($readonly ? 'default' : 'pointer') . ";"
+        : "width:100%; height:" . ($height ? "{$height}px" : '200px') . "; object-fit:cover; cursor:" . ($readonly ? 'default' : 'pointer') . ";";
+
+    $wrapperClass = $isFixed ? 'd-inline-block' : 'd-block';
+
+    $placeholderSize = $size ?? 400;
+    $imageSrc = $value
+        ? asset('storage/' . $value)
+        : "https://via.placeholder.com/{$placeholderSize}?text=Upload";
 @endphp
 
 <div class="mb-4">
 
     <label class="d-block mb-2 fw-semibold">{{ $label }}</label>
 
-    <div class="position-relative d-inline-block">
+    <div class="position-relative {{ $wrapperClass }}">
 
         <img
             id="{{ $previewId }}"
             src="{{ $imageSrc }}"
             class="{{ $roundedClass }} border"
-            style="width:{{ $size }}px; height:{{ $size }}px; object-fit:cover; cursor:{{ $readonly ? 'default' : 'pointer' }};"
+            style="{{ $imgStyle }}"
             alt="Photo Preview"
         >
 
         @unless($readonly)
-            <input 
+            <input
                 type="file"
                 name="{{ $name }}"
                 id="{{ $inputId }}"
@@ -57,7 +68,7 @@
 @unless($readonly)
 <script>
 (function(){
-    const input = document.getElementById('{{ $inputId }}');
+    const input   = document.getElementById('{{ $inputId }}');
     const preview = document.getElementById('{{ $previewId }}');
 
     if (!input || !preview) return;

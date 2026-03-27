@@ -1,10 +1,20 @@
 <?php
 
+use App\Http\Controllers\MarketingController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('pages.marketing.index');
+Route::get('/', [MarketingController::class, 'index']);
+Route::get('/about', function () {
+    return view('pages.marketing.about');
+});
+
+Route::get('/articles', function () {
+    return view('pages.marketing.articles.index');
+});
+
+Route::get('/articles-detail', function () {
+    return view('pages.marketing.articles.show');
 });
 
 Auth::routes();

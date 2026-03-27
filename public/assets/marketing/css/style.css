@@ -1976,7 +1976,7 @@ body {
 .hero-area.style-two {
   background-image: url(../img/hero/hero-bg-2.jpg);
   border-radius: 15px;
-  padding: 215px 0 0;
+  /* padding: 215px 0 0; */
   margin-left: 12px;
   margin-right: 12px;
 }

@@ -689,8 +689,8 @@
     margin-top: -68px;
   }
   .hero-area.style-two {
-    margin-top: -50px;
-    padding: 120px 0 0;
+    margin-top: 10px;
+    /* padding: 120px 0 0; */
   }
   .hero-area.style-two .blur-text.style-one {
     font-size: 50px;
@@ -1056,7 +1056,7 @@
 }
 @media only screen and (min-width: 992px) {
   .hero-area.style-one, .hero-area.style-two {
-    margin-top: -102px;
+    /* margin-top: -102px; */
   }
   .hero-area.style-three {
     margin-top: -102px;

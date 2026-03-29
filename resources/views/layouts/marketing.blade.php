@@ -8,18 +8,18 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         
         <!-- Link of CSS files -->
-        <link rel="stylesheet" href="assets/marketing/css/bootstrap.min.css">
-        <link rel="stylesheet" href="assets/marketing/css/swiper-bundle.min.css">
-        <link rel="stylesheet" href="assets/marketing/css/scrollcue.min.css">
-        <link rel="stylesheet" href="assets/marketing/css/remixicon.css">
-        <link rel="stylesheet" href="assets/marketing/css/header.css">
-        <link rel="stylesheet" href="assets/marketing/css/style.css">
-        <link rel="stylesheet" href="assets/marketing/css/footer.css">
-        <link rel="stylesheet" href="assets/marketing/css/responsive.css">
-        <link rel="stylesheet" href="assets/marketing/css/dark-theme.css">
+        <link rel="stylesheet" href="{{ asset('assets/marketing/css/bootstrap.min.css') }}">
+        <link rel="stylesheet" href="{{ asset('assets/marketing/css/swiper-bundle.min.css') }}">
+        <link rel="stylesheet" href="{{ asset('assets/marketing/css/scrollcue.min.css') }}">
+        <link rel="stylesheet" href="{{ asset('assets/marketing/css/remixicon.css') }}">
+        <link rel="stylesheet" href="{{ asset('assets/marketing/css/header.css') }}">
+        <link rel="stylesheet" href="{{ asset('assets/marketing/css/style.css') }}">
+        <link rel="stylesheet" href="{{ asset('assets/marketing/css/footer.css') }}">
+        <link rel="stylesheet" href="{{ asset('assets/marketing/css/responsive.css') }}">
+        <link rel="stylesheet" href="{{ asset('assets/marketing/css/dark-theme.css') }}">
         
         <title>Aixio - Technology & AI Startup HTML Template</title>
-        <link rel="icon" type="image/png" href="assets/marketing/img/favicon.png">
+        <link rel="icon" type="image/png" href="{{ asset('assets/marketing/img/favicon.png') }}">
         @stack('styles')
     </head>
     <body>
@@ -57,8 +57,8 @@
                     <div class="container-fluid">
                         <div class="navbar-wrapper d-flex justify-content-between align-items-center">
                             <a href="index.html" class="navbar-brand">
-                                <img src="assets/marketing/img/logo.png" alt="Logo" class="logo-light">
-                                <img src="assets/marketing/img/logo-white.png" alt="Logo" class="logo-dark">
+                                <img src="{{ asset('assets/marketing/img/logo.png') }}" alt="Logo" class="logo-light">
+                                <img src="{{ asset('assets/marketing/img/logo-white.png') }}" alt="Logo" class="logo-dark">
                             </a>
                             <div class="menu-area mx-auto">
                                 <div class="overlay"></div>
@@ -159,11 +159,11 @@
                                                 <i class="ri-more-fill"></i>
                                             </button>
                                             <div class="dropdown-menu dropdown-menu-centered mobile-option-list top-1 border-0" data-bs-popper="static">
-                                                <a href="login.html" class="btn style-three fw-semibold position-relative round-oval">Get In Touch<span class="position-absolute top-0 end-0 h-100 d-flex flex-column align-items-center justify-content-center"><img src="assets/marketing/img/icons/right-arrow-white.svg" alt="Icon"></span></a>
+                                                <a href="login.html" class="btn style-three fw-semibold position-relative round-oval">Get In Touch<span class="position-absolute top-0 end-0 h-100 d-flex flex-column align-items-center justify-content-center"><img src="{{ asset('assets/marketing/img/icons/right-arrow-white.svg') }}" alt="Icon"></span></a>
                                             </div>
                                         </div>
                                         <button  class="search-btn bg-transparent border-0 d-flex flex-wrap align-items-center dropdown-toggle text-center p-0 transition" type="button" data-bs-toggle="dropdown" aria-expanded="true">
-                                                <img src="assets/marketing/img/icons/search.svg" alt="Search Icon">
+                                                <img src="{{ asset('assets/marketing/img/icons/search.svg') }}" alt="Search Icon">
                                         </button>
                                         <div class="search-dropdown dropdown-menu dropdown-menu-right top-1 border-0" data-bs-popper="static">
                                              <form class="search-popup position-relative" action="#">
@@ -174,7 +174,7 @@
                                     </div>
                                 </div>
                                 <div class="option-item d-lg-block d-none">
-                                    <a href="contact.html" class="btn style-three fw-semibold position-relative round-oval">Get In Touch<span class="position-absolute top-0 end-0 h-100 d-flex flex-column align-items-center justify-content-center"><img src="assets/marketing/img/icons/right-arrow-white.svg" alt="Icon"></span></a>
+                                    <a href="contact.html" class="btn style-three fw-semibold position-relative round-oval">Get In Touch<span class="position-absolute top-0 end-0 h-100 d-flex flex-column align-items-center justify-content-center"><img src="{{ asset('assets/marketing/img/icons/right-arrow-white.svg') }}" alt="Icon"></span></a>
                                 </div>
                                 <div class="option-item d-lg-none">
                                     <button type="button" class="menu-mobile-trigger">
@@ -198,7 +198,7 @@
                         <div class="row justify-content-center mb-40">
                             <div class="col-lg-2 col-md-6" data-cue="slideInUp">
                                 <div class="footer-widget mb-30">
-                                    <a href="index.html" class="logo"><img src="assets/marketing/img/logo-white.png" alt="Logo"></a>
+                                    <a href="index.html" class="logo"><img src="{{ asset('assets/marketing/img/logo-white.png') }}" alt="Logo"></a>
                                 </div>
                             </div>
                             <div class="col-lg-3 col-md-6">
@@ -218,16 +218,16 @@
                                     <h3 class="footer-widget-title text-white fs-18 fw-semibold">Address</h3>
                                     <ul class="contact-info list-unstyled mb-0">
                                         <li class="position-relative">
-                                            <img src="assets/marketing/img/icons/pin-small.svg" alt="Icon">
+                                            <img src="{{ asset('assets/marketing/img/icons/pin-small.svg') }}" alt="Icon">
                                             <span class="text-white fw-medium">Address :</span> 952 Bad Hill St, Asheville, NC 28803, USA
                                         </li>
                                         <li class="position-relative">
-                                            <img src="assets/marketing/img/icons/mail-small.svg" alt="Icon">
+                                            <img src="{{ asset('assets/marketing/img/icons/mail-small.svg') }}" alt="Icon">
                                             <span class="text-white fw-medium d-block">Email :</span>
                                             <a href="https://templates.hibotheme.com/cdn-cgi/l/email-protection#34575b5a4055574074555d4c5d5b1a575b59"><span class="__cf_email__" data-cfemail="c5a6aaabb1a4a6b185a4acbdacaaeba6aaa8">[email&#160;protected]</span></a>
                                         </li>
                                         <li class="position-relative">
-                                            <img src="assets/marketing/img/icons/phone-small.svg" alt="Icon">
+                                            <img src="{{ asset('assets/marketing/img/icons/phone-small.svg') }}" alt="Icon">
                                             <span class="text-white fw-medium d-block">Phone :</span> 
                                             <a href="tel:96768678869">+96 76867 8869</a>
                                         </li>
@@ -239,7 +239,7 @@
                                     <h3 class="text-white fs-20 font-secondary fw-medium mb-12">Subscribe To Our Newsletter</h3>
                                     <form action="#" class="newsletter-form position-relative">
                                         <input type="email" class="fs-15 w-100 bg-transparent text-white outline-0" placeholder="Enter Your Email">
-                                        <button class="position-absolute bg-transparent border-0 end-0"><img src="assets/marketing/img/icons/plane-small.svg" alt="Icon"></button>
+                                        <button class="position-absolute bg-transparent border-0 end-0"><img src="{{ asset('assets/marketing/img/icons/plane-small.svg') }}" alt="Icon"></button>
                                     </form>
                                     <div class="post-share d-flex flex-wrap align-items-center">
                                         <span class="text-white fw-medium me-2">Follow Us :</span>
@@ -256,7 +256,7 @@
                     </div>
                     <div class="footer-bottom position-relative overflow-hidden z-1" data-cue="fadIn">
                         <div class="container-fluid position-relative px-xxl-4">
-                            <img src="assets/marketing/img/logo-large.png" alt="Logo">
+                            <img src="{{ asset('assets/marketing/img/logo-large.png') }}" alt="Logo">
                             <p class="copyright-text position-absolute bg_primary round-oval d-inline-block text-white text-center mb-0" ><i class="ri-copyright-line"></i><span class="text_secondary fw-semibold">Aixio </span> is Proudly Owned by <a href="https://hibotheme.com/" target="_blank" class="link style-one fw-semibold">HiboTheme</a></p>
                         </div>
                     </div>
@@ -273,19 +273,19 @@
         </div>
 
         <!-- Link of JS files -->
-        <script data-cfasync="false" src="assets/marketing/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
-        <script src="assets/marketing/js/bootstrap.bundle.min.js"></script>
-        <script src="assets/marketing/js/megamenu.js"></script>
-        <script src="assets/marketing/js/swiper-bundle.min.js"></script>
-        <script src="assets/marketing/js/fslightbox.js"></script>
-        <script src="assets/marketing/js/gsap.min.js"></script>
-        <script src="assets/marketing/js/scrollTrigger.min.js"></script>
-        <script src="assets/marketing/js/lenis.min.js"></script>
-        <script src="assets/marketing/js/scrollToPlugin.js"></script>
-        <script src="assets/marketing/js/SplitText.min.js"></script>
-        <script src="assets/marketing/js/customEase.js"></script>
-        <script src="assets/marketing/js/scrollcue.min.js"></script>
-        <script src="assets/marketing/js/main.js"></script>
+        <script data-cfasync="false" src="{{ asset('assets/marketing/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js') }}"></script>
+        <script src="{{ asset('assets/marketing/js/bootstrap.bundle.min.js') }}"></script>
+        <script src="{{ asset('assets/marketing/js/megamenu.js') }}"></script>
+        <script src="{{ asset('assets/marketing/js/swiper-bundle.min.js') }}"></script>
+        <script src="{{ asset('assets/marketing/js/fslightbox.js') }}"></script>
+        <script src="{{ asset('assets/marketing/js/gsap.min.js') }}"></script>
+        <script src="{{ asset('assets/marketing/js/scrollTrigger.min.js') }}"></script>
+        <script src="{{ asset('assets/marketing/js/lenis.min.js') }}"></script>
+        <script src="{{ asset('assets/marketing/js/scrollToPlugin.js') }}"></script>
+        <script src="{{ asset('assets/marketing/js/SplitText.min.js') }}"></script>
+        <script src="{{ asset('assets/marketing/js/customEase.js') }}"></script>
+        <script src="{{ asset('assets/marketing/js/scrollcue.min.js') }}"></script>
+        <script src="{{ asset('assets/marketing/js/main.js') }}"></script>
         @stack('scripts')
     </body>
 

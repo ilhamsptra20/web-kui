@@ -1,182 +1,465 @@
 @extends('layouts.marketing')
 
 @section('content')
-<!-- Breadcrumb Start -->
+
+{{--
+    ============================================================
+    VARIABEL DARI ArticleDetailController@show($slug) :
+    ============================================================
+
+    $breadcrumb  — ['title', 'menus' => [['label','url'],...]]
+
+    $article = [
+        'category', 'category_url',
+        'author', 'author_url',
+        'date', 'date_url',
+        'title',
+        'hero_image',
+        'content' => [
+            // type: paragraph | heading | bullets | blockquote | images
+            ['type'=>'paragraph', 'text'=>'...'],
+            ['type'=>'heading',   'level'=>'h6', 'text'=>'...'],
+            ['type'=>'bullets',   'items'=>[...]],
+            ['type'=>'blockquote','text'=>'...','author'=>'...','position'=>'...'],
+            ['type'=>'images',    'images'=>[['src','alt'],...]],
+        ],
+        'prev'  => ['label', 'url'],
+        'next'  => ['label', 'url'],
+        'tags'  => [['label','url'],...],
+        'share' => [['icon','url','label'],...],
+    ];
+
+    $comments = [
+        [
+            'id','avatar','name','date','text',
+            'replies' => [['id','avatar','name','date','text'],...],
+        ],
+        ...
+    ];
+
+    $relatedPosts = [
+        ['image','category','category_url','author','author_url','date','date_url','title','url'],
+        ...
+    ];
+    ============================================================
+--}}
+
+<!-- =============================================
+     BREADCRUMB START
+     ============================================= -->
 <div class="breadcrumb-area bg-f round-20 position-relative z-1">
     <div class="container text-center">
+
+        @if(!empty($breadcrumb['menus']))
         <ul class="br-menu text-center bg_secondary d-inline-block list-unstyled mb-15">
-            <li class="position-relative fs-13 fw-semibold ls-1 d-inline-block"><a href="index.html">HOME</a></li>
-            <li class="position-relative fs-13 fw-semibold ls-1 d-inline-block"><a href="blog-right-sidebar.html">BLOG</a></li>
-            <li class="position-relative fs-13 fw-semibold ls-1 d-inline-block">BLOG SINGLE</li>
+            @foreach($breadcrumb['menus'] as $menu)
+            <li class="position-relative fs-13 fw-semibold ls-1 d-inline-block">
+                @if(!empty($menu['url']))
+                    <a href="{{ $menu['url'] }}">{{ $menu['label'] }}</a>
+                @else
+                    {{ $menu['label'] }}
+                @endif
+            </li>
+            @endforeach
         </ul>
-        <h2 class="section-title style-one fw-medium font-secondary text-black text-center mb-6">Blog Single</h2>
+        @endif
+
+        <h2 class="section-title style-one fw-medium font-secondary text-black text-center mb-6">
+            {{ $breadcrumb['title'] ?? 'Blog Single' }}
+        </h2>
     </div>
 </div>
-<!-- Breadcrumb End -->
+<!-- BREADCRUMB END -->
 
-<!-- Blog Details Section Start -->
+<!-- =============================================
+     ARTIKEL DETAIL START
+     ============================================= -->
 <div class="container style-one ptb-130">
     <div class="row">
         <div class="col-xl-8 offset-xl-2">
+
+            <!-- ── HEADER ARTIKEL ── -->
             <div class="blog-desc mb-55">
                 <ul class="blog-metainfo list-unstyled mb-20">
-                    <li class="blog-category"><a href="posts-by-category.html" class="fs-15 text-white bg_primary round-oval">Startup</a></li>
-                    <li>By <a href="posts-by-author.html">Admin</a></li>
-                    <li><a href="posts-by-date.html">12 Jul, 2025</a></li>
+
+                    {{-- Category --}}
+                    @if(!empty($article['category']))
+                    <li class="blog-category">
+                        <a href="{{ $article['category_url'] ?? '#' }}"
+                           class="fs-15 text-white bg_primary round-oval">
+                            {{ $article['category'] }}
+                        </a>
+                    </li>
+                    @endif
+
+                    {{-- Author --}}
+                    <li>By
+                        <a href="{{ $article['author_url'] ?? '#' }}">
+                            {{ $article['author'] ?? 'Admin' }}
+                        </a>
+                    </li>
+
+                    {{-- Date --}}
+                    <li>
+                        <a href="{{ $article['date_url'] ?? '#' }}">
+                            {{ $article['date'] ?? '-' }}
+                        </a>
+                    </li>
                 </ul>
-                <h1 class="font-secondary fw-medium pb-3">How Predictive AI Is Transforming Decision-Making In Business</h1>
+
+                {{-- Judul --}}
+                <h1 class="font-secondary fw-medium pb-3">
+                    {{ $article['title'] ?? 'Judul artikel belum diisi' }}
+                </h1>
+
+                {{-- Hero Image --}}
+                @if(!empty($article['hero_image']))
                 <div class="single-img round-10 mb-30">
-                    <img src="assets/marketing/img/blog/single-blog-1.jpg" alt="Image" class="round-10">
+                    <img src="{{ $article['hero_image'] }}"
+                         alt="{{ $article['title'] ?? 'Article Image' }}"
+                         class="round-10 w-100"
+                         style="max-height: 480px; object-fit: cover;">
                 </div>
-                <div class="single-para">
-                    <p>Predictive AI is no longer a futuristic concept—it's a practical tool reshaping how organizations operate. From forecasting demand to preventing equipment failures, businesses are using AI to make decisions that are smarter, and backed by real data. In this article, we’ll explore how predictive AI is changing business</p>
-                </div>
-                <div class="single-para">
-                    <h6>Benefits of Using Predictive AI</h6>
-                    <p>AI offers businesses a powerful way to anticipate future outcomes and make smarter, faster decisions By analyzing historical patterns and real-time data, it enables companies to reduce costs, minimize</p>
-                    <ul class="feature-list style-one list-unstyled mb-0">
-                        <li class="position-relative fw-medium text-title"><i class="ri-arrow-right-line"></i>Anticipates future trends and outcomes with high accuracy</li>
-                        <li class="position-relative fw-medium text-title"><i class="ri-arrow-right-line"></i>Reduces operational costs through smarter planning</li>
-                        <li class="position-relative fw-medium text-title"><i class="ri-arrow-right-line"></i>Enhances decision-making speed and confidence</li>
-                        <li class="position-relative fw-medium text-title"><i class="ri-arrow-right-line"></i>Improves customer retention with proactive engagement</li>
-                        <li class="position-relative fw-medium text-title"><i class="ri-arrow-right-line"></i>Minimizes risk by identifying issues before they escalate</li>
-                    </ul>
-                </div>
-                <div class="wp-blockquote round-10">
-                    <p class="text-title fw-medium">"Aixio’s development team is fast, responsive, and highly skilled. Their AI app streamlined our loan approval process."</p>
-                    <div class="d-flex flex-wrap align-items-center justify-content-between">
-                        <div class="client-info">
-                            <h5 class="fs-18 fw-semibold mb-1">Sarah Bennett</h5>
-                            <span class="fs-15">CEO, FinCore Finance</span>
+                @endif
+
+                <!-- ── CONTENT BLOCKS ── -->
+                @if(!empty($article['content']))
+                    @foreach($article['content'] as $block)
+
+                        {{-- PARAGRAPH --}}
+                        @if($block['type'] === 'paragraph')
+                        <div class="single-para">
+                            <p>{{ $block['text'] ?? '' }}</p>
                         </div>
-                        <img src="assets/marketing/img/icons/quote-white-large.svg" alt="Icon">
-                    </div>
-                </div>
-                <div class="single-para">
-                    <h6>Challenges and Considerations</h6>
-                    <p>Business leaders to move from reactive decision-making to proactive, insight-driven strategies. As models improve and data pipelines mature,</p>
-                    <ul class="feature-list style-one list-unstyled mb-0">
-                        <li class="position-relative fw-medium text-title"><i class="ri-arrow-right-line"></i>Data quality and availability</li>
-                        <li class="position-relative fw-medium text-title"><i class="ri-arrow-right-line"></i>Model bias and fairness</li>
-                        <li class="position-relative fw-medium text-title"><i class="ri-arrow-right-line"></i>Integration with legacy systems</li>
-                        <li class="position-relative fw-medium text-title"><i class="ri-arrow-right-line"></i>Ensuring explain ability and compliance</li>
-                    </ul>
-                </div>
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="single-img round-10 mb-30">
-                            <img src="assets/marketing/img/blog/single-blog-2.jpg" alt="Image" class="round-10">
+
+                        {{-- HEADING --}}
+                        @elseif($block['type'] === 'heading')
+                        <div class="single-para">
+                            @php $tag = $block['level'] ?? 'h6'; @endphp
+                            <{{ $tag }}>{{ $block['text'] ?? '' }}</{{ $tag }}>
                         </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="single-img round-10 mb-30">
-                            <img src="assets/marketing/img/blog/single-blog-3.jpg" alt="Image" class="round-10">
+
+                        {{-- BULLET LIST --}}
+                        @elseif($block['type'] === 'bullets' && !empty($block['items']))
+                        <div class="single-para">
+                            <ul class="feature-list style-one list-unstyled mb-0">
+                                @foreach($block['items'] as $item)
+                                <li class="position-relative fw-medium text-title">
+                                    <i class="ri-arrow-right-line"></i>{{ $item }}
+                                </li>
+                                @endforeach
+                            </ul>
                         </div>
-                    </div>
-                </div>
-                <div class="single-para">
-                    <h6>Conclusion</h6>
-                    <p>Predictive AI empowers business leaders to move from reactive decision-making to proactive, insight-driven strategies. As models improve and data pipelines mature, companies that embrace AI will lead their industries with greater clarity and speed.</p>
-                </div>
+
+                        {{-- BLOCKQUOTE --}}
+                        @elseif($block['type'] === 'blockquote')
+                        <div class="wp-blockquote round-10">
+                            <p class="text-title fw-medium">
+                                {{ $block['text'] ?? '' }}
+                            </p>
+                            @if(!empty($block['author']) || !empty($block['position']))
+                            <div class="d-flex flex-wrap align-items-center justify-content-between">
+                                <div class="client-info">
+                                    @if(!empty($block['author']))
+                                    <h5 class="fs-18 fw-semibold mb-1">{{ $block['author'] }}</h5>
+                                    @endif
+                                    @if(!empty($block['position']))
+                                    <span class="fs-15">{{ $block['position'] }}</span>
+                                    @endif
+                                </div>
+                                <img src="assets/marketing/img/icons/quote-white-large.svg" alt="Quote">
+                            </div>
+                            @endif
+                        </div>
+
+                        {{-- DOUBLE IMAGE --}}
+                        @elseif($block['type'] === 'images' && !empty($block['images']))
+                        <div class="row">
+                            @foreach($block['images'] as $img)
+                            <div class="col-md-6">
+                                <div class="single-img round-10 mb-30">
+                                    <img src="{{ $img['src'] }}"
+                                         alt="{{ $img['alt'] ?? 'Article Image' }}"
+                                         class="round-10 w-100"
+                                         style="height: 220px; object-fit: cover;">
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+
+                        @endif
+                    @endforeach
+                @else
+                    <p class="text-muted fst-italic">Konten artikel masih kosong.</p>
+                @endif
+                <!-- ── END CONTENT BLOCKS ── -->
+
             </div>
+            <!-- ── END HEADER ARTIKEL ── -->
+
+            <!-- ── PREV / NEXT ── -->
             <div class="post-pagination d-flex flex-wrap align-items-center justify-content-between mb-50">
-                <a href="blog-right-sidebar.html" class="prev-post fs-xxl-18 fs-xx-14 fw-medium text-title hover-text-primary transition w-50"><i class="ri-arrow-left-line"></i>Prev Article</a>
-                <a href="blog-right-sidebar.html" class="next-post fs-xxl-18 fs-xx-14 fw-medium text-title hover-text-primary transition w-50 text-end">Next Article<i class="ri-arrow-right-line"></i></a>
+                @if(!empty($article['prev']))
+                    <a href="{{ $article['prev']['url'] ?? '#' }}"
+                       class="prev-post fs-xxl-18 fs-xx-14 fw-medium text-title hover-text-primary transition w-50">
+                        <i class="ri-arrow-left-line"></i>{{ $article['prev']['label'] ?? 'Prev Article' }}
+                    </a>
+                @else
+                    <span class="w-50"></span>
+                @endif
+
+                @if(!empty($article['next']))
+                    <a href="{{ $article['next']['url'] ?? '#' }}"
+                       class="next-post fs-xxl-18 fs-xx-14 fw-medium text-title hover-text-primary transition w-50 text-end">
+                        {{ $article['next']['label'] ?? 'Next Article' }}<i class="ri-arrow-right-line"></i>
+                    </a>
+                @endif
             </div>
+
+            <!-- ── TAGS & SHARE ── -->
             <div class="post-metaoption round-5 mb-50">
                 <div class="row align-items-center">
+
+                    {{-- Tags --}}
                     <div class="col-md-6">
                         <div class="post-tags d-flex flex-wrap align-items-center mb-sm-10">
                             <span class="fw-medium text-title me-2">Tags:</span>
+                            @if(!empty($article['tags']))
                             <ul class="list-unstyled mb-0">
-                                <li class="d-inline-block me-1"><a href="posts-by-tag.html" class="text-para hover-text-primary transition">AI Robotics</a>,</li>
-                                <li class="d-inline-block me-1"><a href="posts-by-tag.html" class="text-para hover-text-primary transition">System</a></li>
+                                @foreach($article['tags'] as $i => $tag)
+                                <li class="d-inline-block me-1">
+                                    <a href="{{ $tag['url'] ?? '#' }}"
+                                       class="text-para hover-text-primary transition">
+                                        {{ $tag['label'] }}
+                                    </a>@if(!$loop->last),@endif
+                                </li>
+                                @endforeach
                             </ul>
+                            @else
+                            <span class="text-muted fst-italic small">Tidak ada tag.</span>
+                            @endif
                         </div>
                     </div>
+
+                    {{-- Share --}}
                     <div class="col-md-6">
                         <div class="post-share d-flex flex-wrap align-items-center justify-content-md-end">
                             <span class="fw-medium text-title me-2">Share:</span>
+                            @if(!empty($article['share']))
                             <ul class="social-profile style-three list-unstyled mb-0">
-                                <li><a href="https://www.facebook.com/" target="_blank" class="d-flex flex-column align-items-center justify-content-center rounded-circle"><i class="ri-facebook-fill"></i></a></li>
-                                <li><a href="https://x.com/?lang=en" target="_blank" class="d-flex flex-column align-items-center justify-content-center rounded-circle"><i class="ri-twitter-x-line"></i></a></li>
-                                <li><a href="https://www.linkedin.com/" target="_blank" class="d-flex flex-column align-items-center justify-content-center rounded-circle"><i class="ri-linkedin-fill"></i></a></li>
-                                <li><a href="https://www.instagram.com/" target="_blank" class="d-flex flex-column align-items-center justify-content-center rounded-circle"><i class="ri-instagram-line"></i></a></li>
+                                @foreach($article['share'] as $social)
+                                @php
+                                    // Ganti {url} dengan URL artikel saat ini
+                                    $shareUrl = str_replace('{url}', urlencode(url()->current()), $social['url']);
+                                @endphp
+                                <li>
+                                    <a href="{{ $shareUrl }}"
+                                       target="_blank"
+                                       rel="noopener noreferrer"
+                                       title="{{ $social['label'] ?? '' }}"
+                                       class="d-flex flex-column align-items-center justify-content-center rounded-circle">
+                                        <i class="{{ $social['icon'] }}"></i>
+                                    </a>
+                                </li>
+                                @endforeach
                             </ul>
+                            @endif
                         </div>
                     </div>
+
                 </div>
             </div>
+
+            <!-- ── KOMENTAR ── -->
+            @if(!empty($comments) && count($comments) > 0)
             <div class="comment-item-wrap mb-55">
+
+                @foreach($comments as $comment)
+
+                {{-- Komentar utama --}}
                 <div class="comment-item d-flex flex-wrap">
                     <div class="comment-author-img round-5">
-                        <img src="assets/marketing/img/blog/avatar-1.jpg" alt="Image" class="round-5">
+                        @if(!empty($comment['avatar']))
+                            <img src="{{ $comment['avatar'] }}" alt="{{ $comment['name'] ?? 'Avatar' }}"
+                                 class="round-5" style="width:60px; height:60px; object-fit:cover;">
+                        @else
+                            <div class="round-5 bg-light d-flex align-items-center justify-content-center"
+                                 style="width:60px; height:60px;">
+                                <i class="ri-user-line text-muted fs-20"></i>
+                            </div>
+                        @endif
                     </div>
                     <div class="comment-author-info">
-                        <h5 class="fs-16 fw-semibold font-primary text-title mb-12">Sarah Wilson<span class="comment-date fw-medium text-para">3 days ago</span></h5>
-                        <p class="comment-text">Business owners face increasing pressure to manage cash flow, reduce tax burdens, and plan for sustainable growth. Whether you're just launching your business or scaling an existing operation, making the right financial moves</p>
+                        <h5 class="fs-16 fw-semibold font-primary text-title mb-12">
+                            {{ $comment['name'] ?? 'Anonymous' }}
+                            <span class="comment-date fw-medium text-para">{{ $comment['date'] ?? '' }}</span>
+                        </h5>
+                        <p class="comment-text">{{ $comment['text'] ?? '' }}</p>
                         <a href="#cmt-form" class="reply-btn text_primary link-hover-primary fw-medium">Reply</a>
                     </div>
                 </div>
-                <div class="comment-item d-flex flex-wrap reply">
-                    <div class="comment-author-img round-5">
-                        <img src="assets/marketing/img/blog/avatar-2.jpg" alt="Image" class="round-5">
-                    </div>
-                    <div class="comment-author-info">
-                        <h5 class="fs-16 fw-semibold font-primary text-title mb-12">Charles Vaughan <span class="comment-date fw-medium text-para">2 days ago</span></h5>
-                        <p class="comment-text">The instructors were highly knowledgeable, and the course content was top-notch. I gained valuable insights and hands-on experience</p>
-                        <a href="#cmt-form" class="reply-btn text_primary link-hover-primary fw-medium">Reply</a>
-                    </div>
-                </div>
-                <div class="comment-item d-flex flex-wrap">
-                    <div class="comment-author-img round-5">
-                        <img src="assets/marketing/img/blog/avatar-3.jpg" alt="Image" class="round-5">
-                    </div>
-                    <div class="comment-author-info">
-                        <h5 class="fs-16 fw-semibold font-primary text-title mb-12">Machel Vaun<span class="comment-date fw-medium text-para">3 day ago</span></h5>
-                        <p class="comment-text">This course is a very applicable. Professor Ng explains precisely each algorithm and even tries to give an intuition for mathematical and statistic concepts behind each algorithm. Thank you very much.</p>
-                        <a href="#cmt-form" class="reply-btn text_primary link-hover-primary fw-medium">Reply</a>
-                    </div>
-                </div>
-            </div>
-                <div class="comment-form-box round-10">
-                    <form action="#" class="comment-form style-one round-10" id="cmt-form">
-                        <div class="row gx-xl-3">
-                            <div class="col-12">
-                            <h3 class="fs-20 fw-semibold mb-18"> Add A Comment</h3>
+
+                {{-- Replies --}}
+                @if(!empty($comment['replies']))
+                    @foreach($comment['replies'] as $reply)
+                    <div class="comment-item d-flex flex-wrap reply">
+                        <div class="comment-author-img round-5">
+                            @if(!empty($reply['avatar']))
+                                <img src="{{ $reply['avatar'] }}" alt="{{ $reply['name'] ?? 'Avatar' }}"
+                                     class="round-5" style="width:60px; height:60px; object-fit:cover;">
+                            @else
+                                <div class="round-5 bg-light d-flex align-items-center justify-content-center"
+                                     style="width:60px; height:60px;">
+                                    <i class="ri-user-line text-muted fs-20"></i>
+                                </div>
+                            @endif
                         </div>
+                        <div class="comment-author-info">
+                            <h5 class="fs-16 fw-semibold font-primary text-title mb-12">
+                                {{ $reply['name'] ?? 'Anonymous' }}
+                                <span class="comment-date fw-medium text-para">{{ $reply['date'] ?? '' }}</span>
+                            </h5>
+                            <p class="comment-text">{{ $reply['text'] ?? '' }}</p>
+                            <a href="#cmt-form" class="reply-btn text_primary link-hover-primary fw-medium">Reply</a>
+                        </div>
+                    </div>
+                    @endforeach
+                @endif
+
+                @endforeach
+
+            </div>
+            @endif
+            <!-- ── END KOMENTAR ── -->
+
+            <!-- ── FORM KOMENTAR ── -->
+            <div class="comment-form-box round-10" id="cmt-form">
+                <form action=""
+                      method="POST"
+                      class="comment-form style-one round-10">
+                    @csrf
+                    <div class="row gx-xl-3">
+
+                        <div class="col-12">
+                            <h3 class="fs-20 fw-semibold mb-18">Add A Comment</h3>
+                        </div>
+
                         <div class="col-md-6">
                             <div class="form-group position-relative mb-20">
-                                <input type="text" required class="w-100 ht-52 round-5 bg-white text-para border-0" placeholder="Name">
+                                <input type="text" name="name" required
+                                       value="{{ old('name') }}"
+                                       class="w-100 ht-52 round-5 bg-white text-para border-0"
+                                       placeholder="Name">
+                                @error('name')
+                                    <span class="text-danger fs-13">{{ $message }}</span>
+                                @enderror
                             </div>
                         </div>
+
                         <div class="col-md-6">
                             <div class="form-group mb-20">
-                                <input type="email" placeholder="Email" required class="w-100 ht-52 round-5 bg-white text-para border-0">
+                                <input type="email" name="email" required
+                                       value="{{ old('email') }}"
+                                       class="w-100 ht-52 round-5 bg-white text-para border-0"
+                                       placeholder="Email">
+                                @error('email')
+                                    <span class="text-danger fs-13">{{ $message }}</span>
+                                @enderror
                             </div>
                         </div>
+
                         <div class="col-12">
                             <div class="form-group mb-20">
-                                <textarea name="messages" id="messages" cols="30" rows="10" placeholder="Comment"  class="w-100 round-20 bg-white text-para border-0 resize-0"></textarea>
+                                <textarea name="comment" id="comment" cols="30" rows="10"
+                                          required
+                                          placeholder="Write your comment..."
+                                          class="w-100 round-20 bg-white text-para border-0 resize-0">{{ old('comment') }}</textarea>
+                                @error('comment')
+                                    <span class="text-danger fs-13">{{ $message }}</span>
+                                @enderror
                             </div>
                         </div>
+
                         <div class="col-12">
                             <div class="form-check checkbox style-two mb-25">
-                                <input class="form-check-input" type="checkbox" id="test_2"
-                                >
-                                <label class="form-check-label" for="test_2">
+                                <input class="form-check-input" type="checkbox"
+                                       name="save_info" id="save_info"
+                                       {{ old('save_info') ? 'checked' : '' }}>
+                                <label class="form-check-label" for="save_info">
                                     Save my name, email, and website in this browser for the next time I comment.
                                 </label>
                             </div>
                             <div class="col-xl-5 col-md-6">
-                                <button class="btn style-three fw-semibold position-relative round-oval" type="submit">Post A Comment<span class="position-absolute top-0 end-0 h-100 d-flex flex-column align-items-center justify-content-center"><img src="assets/marketing/img/icons/right-arrow-white.svg" alt="Icon"></span></button>
+                                <button class="btn style-three fw-semibold position-relative round-oval"
+                                        type="submit">
+                                    Post A Comment
+                                    <span class="position-absolute top-0 end-0 h-100 d-flex flex-column align-items-center justify-content-center">
+                                        <img src="assets/marketing/img/icons/right-arrow-white.svg" alt="Icon">
+                                    </span>
+                                </button>
                             </div>
                         </div>
+
                     </div>
                 </form>
             </div>
+            <!-- ── END FORM KOMENTAR ── -->
+
+            <!-- ── RELATED POSTS ── -->
+            @if(!empty($relatedPosts) && count($relatedPosts) > 0)
+            <div class="related-posts mt-80">
+                <h3 class="fs-24 fw-semibold mb-30">Related Articles</h3>
+                <div class="row">
+                    @foreach($relatedPosts as $index => $related)
+                    <div class="col-md-4" data-cue="slideInUp" data-delay="{{ $index * 100 }}">
+                        <div class="blog-card style-one img-hover-wrap round-10 mb-30">
+                            <div class="blog-img position-relative img-hover overflow-hidden round-10">
+                                @if(!empty($related['image']))
+                                    <img src="{{ $related['image'] }}"
+                                         alt="{{ $related['title'] ?? 'Related' }}"
+                                         class="transition round-10"
+                                         style="width:100%; height:180px; object-fit:cover;">
+                                @else
+                                    <div class="round-10 bg-light d-flex align-items-center justify-content-center"
+                                         style="height:180px; border:2px dashed #ccc;">
+                                        <i class="ri-image-line text-muted fs-24"></i>
+                                    </div>
+                                @endif
+                            </div>
+                            <div class="blog-info">
+                                <div class="d-flex flex-wrap align-items-center justify-content-between">
+                                    @if(!empty($related['category']))
+                                    <a class="blog-category fs-15 fw-medium d-inline-block round-oval"
+                                       href="{{ $related['category_url'] ?? '#' }}">
+                                        {{ $related['category'] }}
+                                    </a>
+                                    @endif
+                                    <ul class="blog-metainfo list-unstyled">
+                                        <li>By <a href="{{ $related['author_url'] ?? '#' }}">{{ $related['author'] ?? 'Admin' }}</a></li>
+                                        <li><a href="{{ $related['date_url'] ?? '#' }}">{{ $related['date'] ?? '-' }}</a></li>
+                                    </ul>
+                                </div>
+                                <h3 class="fs-18 fw-semibold">
+                                    <a href="{{ $related['url'] ?? '#' }}"
+                                       class="text-black link-hover-primary transition">
+                                        {{ $related['title'] ?? 'Judul belum ada' }}
+                                    </a>
+                                </h3>
+                                <a href="{{ $related['url'] ?? '#' }}" class="link style-two fw-semibold">
+                                    Read More<i class="ri-arrow-right-line"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+            <!-- ── END RELATED POSTS ── -->
+
         </div>
     </div>
 </div>
-<!-- Blog Details Section End -->
+<!-- ARTIKEL DETAIL END -->
+
 @endsection

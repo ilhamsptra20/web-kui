@@ -1,6 +1,7 @@
 <?php
 
-use App\Http\Controllers\MarketingController;
+use App\Http\Controllers\Marketing\ArticleController;
+use App\Http\Controllers\Marketing\MarketingController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -9,13 +10,13 @@ Route::get('/about', function () {
     return view('pages.marketing.about');
 });
 
-Route::get('/articles', function () {
-    return view('pages.marketing.articles.index');
-});
+Route::get('/articles', [ArticleController::class, 'index']);
+Route::get('/articles/{slug}', [ArticleController::class, 'show']);
+Route::get('/articles/category/{category}', [ArticleController::class, 'index']);
+Route::get('/articles/tag/{tag}', [ArticleController::class, 'index']);
 
-Route::get('/articles-detail', function () {
-    return view('pages.marketing.articles.show');
-});
+// Route::post('/blog/{slug}/comment', [CommentController::class, 'store'])->name('article.comment.store');
+
 
 Auth::routes();
 

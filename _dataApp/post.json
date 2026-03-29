@@ -9,7 +9,7 @@
     { "name": "content_id", "type": "text", "style": "textarea", "rules": "required" },
     { "name": "content_en", "type": "text", "style": "textarea", "rules": "nullable" },
     { "name": "content_ar", "type": "text", "style": "textarea", "rules": "nullable" },
-    { "name": "status", "type": "string", "style": "select", "rules": "required|in:draft,published" },
+    { "name": "status", "type": "string", "style": "radio", "rules": "required|in:draft,published" },
     { "name": "meta_title", "type": "string", "rules": "nullable" },
     { "name": "meta_description", "type": "string", "rules": "nullable" }
 ]

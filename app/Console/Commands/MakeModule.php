@@ -338,56 +338,153 @@ PHP;
         }
     }
 
-    private function generateViews(): void
-    {
-        $path = "resources/views/modules/{$this->singular}";
-        $hasImage = collect($this->fields)->contains('type', 'image');
-        $enctype = $hasImage ? 'enctype="multipart/form-data"' : '';
+private function generateViews(): void
+{
+    $path = "resources/views/modules/{$this->singular}";
+    $hasImage = collect($this->fields)->contains('type', 'image');
+    $enctype = $hasImage ? 'enctype="multipart/form-data"' : '';
 
-        $fieldsCollection = collect($this->fields);
-        $displayField = $fieldsCollection->firstWhere('name', 'name');
+    $fieldsCollection = collect($this->fields);
+    $displayField = $fieldsCollection->firstWhere('name', 'name');
 
-        if (!$displayField) {
-            $displayField = $fieldsCollection->first(function ($f) {
-                return $f['type'] !== 'image' && !Str::endsWith($f['name'], '_id');
-            });
-        }
-
-        $displayField = $displayField ?? $this->fields[0];
-        $displayFieldName = $displayField['name'];
-        $displayLabel = Str::title(str_replace('_', ' ', $displayFieldName));
-        
-        // Action View
-        File::put(base_path("{$path}/action.blade.php"), "<div class=\"btn-group\">\n\t<a href=\"{{ route('{$this->plural}.edit', \$row->id) }}\" class=\"btn btn-sm btn-primary\">\n\t\t<i class=\"feather icon-edit\"></i>\n\t</a>\n\t<button type=\"button\" class=\"btn btn-sm btn-danger\" onclick=\"handleDelete('{{ route('{$this->plural}.destroy', \$row->id) }}')\">\n\t\t<i class=\"feather icon-trash\"></i>\n\t</button>\n</div>");
-        
-        // Index View
-        $dt = $this->option('datatable') ? "<x-table.datatable-script id='{$this->singular}-table' :url=\"route('{$this->plural}.list')\" :columns=\"[['data'=>'DT_RowIndex'],['data'=>'{$displayFieldName}'],['data'=>'action']]\" :order=\"[1, 'asc']\" />" : "";
-        $index = "@extends('layouts.app')\n@section('title', 'Daftar {$this->moduleName}')\n\n@section('content')\n<div class='card'>\n    <div class='card-header'>\n        <h4 class='card-title'>{$this->moduleName}</h4>\n        <a href='{{ route('{$this->plural}.create') }}' class='btn btn-primary'>Add New</a>\n    </div>\n    <div class='card-body'>\n        <div class='table-responsive'>\n            <table class='table' id='{$this->singular}-table'>\n                <thead>\n                    <tr>\n                        <th>No</th>\n                        <th>{$displayLabel}</th>\n                        <th>Action</th>\n                    </tr>\n                </thead>\n            </table>\n        </div>\n    </div>\n</div>\n{$dt}\n@endsection";
-        File::put(base_path("{$path}/index.blade.php"), $index);
-
-        // Form View
-        $fieldsHtml = "";
-        foreach ($this->fields as $f) {
-            if (in_array($f['name'], ['slug', 'user_id'])) continue;
-            $label = Str::title(str_replace('_', ' ', $f['name']));
-            $style = $f['style'] ?? 'default';
-            
-            if (isset($f['relation'])) {
-                $vName = Str::plural(Str::camel($f['relation']));
-                $fieldsHtml .= "        <x-form.select name='{$f['name']}' label='{$label}'>\n            <option value='' required selected>Select {$label}</option>\n            @foreach(\${$vName} as \$item)\n                <option value='{{ \$item->id }}' {{ (old('{$f['name']}', \${$this->singular}->{$f['name']} ?? '') == \$item->id) ? 'selected' : '' }}>{{ \$item->name }}</option>\n            @endforeach\n        </x-form.select>\n";
-            } elseif ($f['type'] === 'image') {
-                $fieldsHtml .= "        <x-form.photo-upload label='{$label}' name='{$f['name']}' :value=\"\${$this->singular}->{$f['name']} ?? null\" />\n";
-            } else {
-                $fieldsHtml .= match($style) {
-                    'datepicker' => "        <x-form.datepicker name='{$f['name']}' label='{$label}' :value=\"\${$this->singular}->{$f['name']} ?? ''\" />\n",
-                    'switch'     => "        <x-form.switch name='{$f['name']}' label='{$label}' :checked=\"\${$this->singular}->{$f['name']} ?? false\" />\n",
-                    'textarea'   => "        <x-form.textarea name='{$f['name']}' label='{$label}'>{{ \${$this->singular}->{$f['name']} ?? '' }}</x-form.textarea>\n",
-                    default      => "        <x-form.input name='{$f['name']}' label='{$label}' :value=\"\${$this->singular}->{$f['name']} ?? ''\" floating divider />\n",
-                };
-            }
-        }
-        $form = "@php \$isEdit = isset(\${$this->singular}); @endphp\n@extends('layouts.app')\n@section('title', (\$isEdit ? 'Edit' : 'Tambah') . ' {$this->moduleName}')\n\n@section('content')\n<div class='card'>\n    <div class='card-body'>\n        <form action=\"{{ \$isEdit ? route('{$this->plural}.update', \${$this->singular}->id) : route('{$this->plural}.store') }}\" method='POST' {$enctype} novalidate>\n            @csrf\n            @if(\$isEdit) @method('PUT') @endif\n\n{$fieldsHtml}\n            <div class='mt-3'>\n                <button type='submit' class='btn btn-primary'>Save Data</button>\n                <a href='{{ route('{$this->plural}.index') }}' class='btn btn-outline-secondary'>Back</a>\n            </div>\n        </form>\n    </div>\n</div>\n@endsection";
-        File::put(base_path("{$path}/form.blade.php"), $form);
+    if (!$displayField) {
+        $displayField = $fieldsCollection->first(function ($f) {
+            return $f['type'] !== 'image' && !Str::endsWith($f['name'], '_id');
+        });
     }
 
+    $displayField     = $displayField ?? $this->fields[0];
+    $displayFieldName = $displayField['name'];
+    $displayLabel     = Str::title(str_replace('_', ' ', $displayFieldName));
+
+    // Action View
+    File::put(base_path("{$path}/action.blade.php"),
+        "<div class=\"btn-group\">\n\t<a href=\"{{ route('{$this->plural}.edit', \$row->id) }}\" class=\"btn btn-sm btn-primary\">\n\t\t<i class=\"feather icon-edit\"></i>\n\t</a>\n\t<button type=\"button\" class=\"btn btn-sm btn-danger\" onclick=\"handleDelete('{{ route('{$this->plural}.destroy', \$row->id) }}')\">\n\t\t<i class=\"feather icon-trash\"></i>\n\t</button>\n</div>"
+    );
+
+    // Index View
+    $dt = $this->option('datatable')
+        ? "<x-table.datatable-script id='{$this->singular}-table' :url=\"route('{$this->plural}.list')\" :columns=\"[['data'=>'DT_RowIndex'],['data'=>'{$displayFieldName}'],['data'=>'action']]\" :order=\"[1, 'asc']\" />"
+        : "";
+
+    $index = "@extends('layouts.app')\n@section('title', 'Daftar {$this->moduleName}')\n\n@section('content')\n<div class='card'>\n    <div class='card-header'>\n        <h4 class='card-title'>{$this->moduleName}</h4>\n        <a href='{{ route('{$this->plural}.create') }}' class='btn btn-primary'>Add New</a>\n    </div>\n    <div class='card-body'>\n        <div class='table-responsive'>\n            <table class='table' id='{$this->singular}-table'>\n                <thead>\n                    <tr>\n                        <th>No</th>\n                        <th>{$displayLabel}</th>\n                        <th>Action</th>\n                    </tr>\n                </thead>\n            </table>\n        </div>\n    </div>\n</div>\n{$dt}\n@endsection";
+    File::put(base_path("{$path}/index.blade.php"), $index);
+
+    // Form View — fields
+    $fieldsHtml = "";
+    foreach ($this->fields as $f) {
+        if (in_array($f['name'], ['slug', 'user_id'])) continue;
+
+        $label      = Str::title(str_replace('_', ' ', $f['name']));
+        $style      = $f['style'] ?? 'default';
+        $isRequired = isset($f['rules']) && Str::contains($f['rules'], 'required');
+        $reqProp    = $isRequired ? ' required' : '';
+
+        if (isset($f['relation'])) {
+            $vName        = Str::plural(Str::camel($f['relation']));
+            $fieldsHtml  .= "        <x-form.select name='{$f['name']}' label='{$label}'{$reqProp}>\n"
+                          . "            <option value='' selected>Select {$label}</option>\n"
+                          . "            @foreach(\${$vName} as \$item)\n"
+                          . "                <option value='{{ \$item->id }}' {{ (old('{$f['name']}', \${$this->singular}->{$f['name']} ?? '') == \$item->id) ? 'selected' : '' }}>{{ \$item->name }}</option>\n"
+                          . "            @endforeach\n"
+                          . "        </x-form.select>\n";
+        } elseif ($f['type'] === 'image') {
+            $fieldsHtml .= "        <x-form.photo-upload label='{$label}' name='{$f['name']}' :value=\"\${$this->singular}->{$f['name']} ?? null\"{$reqProp} />\n";
+        } else {
+            $fieldsHtml .= match($style) {
+                'datepicker' => "        <x-form.datepicker name='{$f['name']}' label='{$label}' :value=\"\${$this->singular}->{$f['name']} ?? ''\"{$reqProp} />\n",
+                'switch'     => "        <x-form.switch name='{$f['name']}' label='{$label}' :checked=\"\${$this->singular}->{$f['name']} ?? false\"{$reqProp} />\n",
+                'textarea'   => "        <x-form.textarea name='{$f['name']}' label='{$label}'{$reqProp}>{{ \${$this->singular}->{$f['name']} ?? '' }}</x-form.textarea>\n",
+                'radio'      => (function() use ($f, $label) {
+                                    $options = $this->extractInOptions($f['rules'] ?? '');
+
+                                    return "        <label class='form-label'>{$label}</label>\n"
+                                        . "        <div class='d-flex gap-3'>\n"
+                                        . "            @foreach(" . json_encode($options) . " as \$opt)\n"
+                                        . "                <div class='form-check'>\n"
+                                        . "                    <input class='form-check-input' type='radio' name='{$f['name']}' value='{{ \$opt }}'\n"
+                                        . "                        {{ old('{$f['name']}', \${$this->singular}->{$f['name']} ?? '') == \$opt ? 'checked' : '' }}>\n"
+                                        . "                    <label class='form-check-label'>{{ ucfirst(\$opt) }}</label>\n"
+                                        . "                </div>\n"
+                                        . "            @endforeach\n"
+                                        . "        </div>\n";
+                                })(),
+                default      => "        <x-form.input name='{$f['name']}' label='{$label}' :value=\"\${$this->singular}->{$f['name']} ?? ''\"{$reqProp} floating divider />\n",
+            };
+        }
+    }
+
+    // SweetAlert untuk server error + Bootstrap client-side validation
+    $validationScript = <<<'BLADE'
+
+@if(session('error'))
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        Swal.fire({
+            icon: 'error',
+            title: 'Gagal!',
+            text: '{{ session('error') }}',
+            confirmButtonColor: '#dc3545'
+        });
+    });
+</script>
+@endif
+
+<script>
+(() => {
+    const form = document.querySelector('form[novalidate]');
+    if (!form) return;
+    form.addEventListener('submit', function(e) {
+        if (!form.checkValidity()) {
+            e.preventDefault();
+            e.stopPropagation();
+            form.classList.add('was-validated');
+            Swal.fire({
+                icon: 'warning',
+                title: 'Form Tidak Lengkap',
+                text: 'Harap isi semua field yang wajib diisi.',
+                confirmButtonColor: '#0d6efd',
+                confirmButtonText: 'Oke, saya perbaiki'
+            });
+        } else {
+            form.classList.add('was-validated');
+        }
+    });
+})();
+</script>
+BLADE;
+
+    $form = "@php \$isEdit = isset(\${$this->singular}); @endphp\n"
+          . "@extends('layouts.app')\n"
+          . "@section('title', (\$isEdit ? 'Edit' : 'Tambah') . ' {$this->moduleName}')\n\n"
+          . "@section('content')\n"
+          . "<div class='card'>\n"
+          . "    <div class='card-body'>\n"
+          . "        <form action=\"{{ \$isEdit ? route('{$this->plural}.update', \${$this->singular}->id) : route('{$this->plural}.store') }}\" method='POST' {$enctype} novalidate>\n"
+          . "            @csrf\n"
+          . "            @if(\$isEdit) @method('PUT') @endif\n\n"
+          . $fieldsHtml
+          . "\n            <div class='mt-3'>\n"
+          . "                <button type='submit' class='btn btn-primary'>Save Data</button>\n"
+          . "                <a href='{{ route('{$this->plural}.index') }}' class='btn btn-outline-secondary'>Back</a>\n"
+          . "            </div>\n"
+          . "        </form>\n"
+          . "    </div>\n"
+          . "</div>\n"
+          . $validationScript
+          . "\n@endsection";
+
+    File::put(base_path("{$path}/form.blade.php"), $form);
+}
+
+private function extractInOptions(string $rules): array
+{
+    preg_match('/in:([^|]+)/', $rules, $matches);
+
+    if (!isset($matches[1])) {
+        return [];
+    }
+
+    return array_map('trim', explode(',', $matches[1]));
+}
 }

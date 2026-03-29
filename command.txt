@@ -1,0 +1,15 @@
+php artisan make:module Agenda --datatable --json=agenda.json
+php artisan make:module Album --datatable --json=album.json
+php artisan make:module Announcement --datatable --json=announcement.json
+php artisan make:module Category --datatable --json=category.json
+php artisan make:module Gallery --datatable --json=gallery.json
+php artisan make:module Inbox --datatable --json=inbox.json
+php artisan make:module Lembaga --datatable --json=lembaga.json
+php artisan make:module Page --datatable --json=page.json
+php artisan make:module Position --datatable --json=position.json
+php artisan make:module Post --datatable --json=post.json
+php artisan make:module Setting --datatable --json=setting.json
+php artisan make:module Slider --datatable --json=slider.json
+php artisan make:module SocialMedia --datatable --json=social_media.json
+php artisan make:module Team --datatable --json=team.json
+php artisan make:module Video --datatable --json=video.json

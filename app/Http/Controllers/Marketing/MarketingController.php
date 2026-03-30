@@ -160,12 +160,72 @@ class MarketingController extends Controller
             ],
         ];
 
+        // ============================================================
+        // ACCREDITATION & PARTNER LEMBAGA
+        // ============================================================
+        $accreditation = [
+            'subtitle'    => 'AKREDITASI & LEMBAGA',
+            'title'       => 'Diakui Dan Tersertifikasi Oleh Lembaga Terpercaya',
+            'strip_label' => 'Tersertifikasi',
+            'items'    => [
+                [
+                    'logo'  => 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/ISO_Logo_%28Red_square%29.svg/200px-ISO_Logo_%28Red_square%29.svg.png',
+                    'name'  => 'ISO/IEC 27001',
+                    'label' => 'Certified',
+                    'url'   => 'https://www.iso.org',
+                ],
+                [
+                    'logo'  => 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/SOC2_Logo.png/200px-SOC2_Logo.png',
+                    'name'  => 'SOC 2 Type II',
+                    'label' => 'Compliant',
+                    'url'   => null,
+                ],
+                [
+                    'logo'  => 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Logo_of_the_GDPR.png/200px-Logo_of_the_GDPR.png',
+                    'name'  => 'GDPR Compliant',
+                    'label' => 'EU Standard',
+                    'url'   => null,
+                ],
+                [
+                    'logo'  => 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Microsoft_logo_%282012%29.svg/200px-Microsoft_logo_%282012%29.svg.png',
+                    'name'  => 'Microsoft Partner',
+                    'label' => 'Gold Partner',
+                    'url'   => 'https://www.microsoft.com',
+                ],
+                [
+                    'logo'  => 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Amazon_Web_Services_Logo.svg/200px-Amazon_Web_Services_Logo.svg.png',
+                    'name'  => 'AWS Partner',
+                    'label' => 'Advanced Tier',
+                    'url'   => 'https://aws.amazon.com',
+                ],
+                [
+                    'logo'  => 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/200px-Google_2015_logo.svg.png',
+                    'name'  => 'Google Cloud Partner',
+                    'label' => 'Premier',
+                    'url'   => 'https://cloud.google.com',
+                ],
+                [
+                    'logo'  => 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/CMMI_logo.png/200px-CMMI_logo.png',
+                    'name'  => 'CMMI Level 3',
+                    'label' => 'Certified',
+                    'url'   => null,
+                ],
+                [
+                    'logo'  => 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/NIST_logo.svg/200px-NIST_logo.svg.png',
+                    'name'  => 'NIST Framework',
+                    'label' => 'Aligned',
+                    'url'   => 'https://www.nist.gov',
+                ],
+            ],
+        ];
+
         return view('pages.marketing.index', compact(
             'heroSlides',
             'about',
             'blogSection',
             'blogPosts',
-            'gallery'
+            'gallery',
+            'accreditation'
         ));
     }
 }

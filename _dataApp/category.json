@@ -1,9 +1,5 @@
 [
-    {
-        "name": "title",
-        "type": "string",
-        "length": 255,
-        "style": "default",
-        "rules": "required|string|min:5"
-    }
+    { "name": "title_id", "type": "string", "length": 255, "style": "default", "rules": "required|string|min:5" },
+    { "name": "title_en", "type": "string", "length": 255, "style": "default", "rules": "nullable|string|min:5" },
+    { "name": "title_ar", "type": "string", "length": 255, "style": "default", "rules": "nullable|string|min:5" }
 ]

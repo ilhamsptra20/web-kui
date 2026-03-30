@@ -78,8 +78,8 @@
                         <div class="hero-bg-overlay position-absolute top-0 start-0 w-100 h-100 z-0"></div>
 
                         {{-- Decorative blur text (dari template asli) --}}
-                        <span class="blur-text style-one position-absolute z-1">UNIVERSITAS</span>
-                        <span class="blur-text style-two position-absolute z-1">JUANDA</span>
+                        <span class="blur-text style-one position-absolute z-1">CYBERSECURITY</span>
+                        <span class="blur-text style-two position-absolute z-1">SOLUTION</span>
 
                         {{-- Section shape bawah --}}
                         <img src="assets/marketing/img/hero/section-shape-1.png" alt="Shape"
@@ -88,7 +88,7 @@
                         <div class="container-fluid position-relative z-2">
                             <div class="row align-items-center" style="min-height: 680px;">
                                 <div class="col-xl-6 col-lg-7 col-md-9">
-                                    <div class="hero-content p-5">
+                                    <div class="hero-content py-5">
 
                                         @if(!empty($slide['subtitle']))
                                         <h6 class="section-subtitle style-two bg_secondary fs-13 fw-semibold ls-1 d-inline-flex align-items-center gap-2 round-oval mb-20"
@@ -167,6 +167,61 @@
                 <div class="hero-progress-fill"></div>
             </div>
 
+            {{-- ══ ACCREDITATION STRIP — DESKTOP ONLY (absolute overlay) ══ --}}
+            @if(!empty($accreditation['items']) && count($accreditation['items']) > 0)
+            <div class="accreditation-strip position-absolute d-none d-md-block">
+                <div class="accreditation-strip-inner d-flex align-items-center">
+
+                    {{-- Label kiri --}}
+                    <div class="accreditation-strip-label flex-shrink-0 d-none d-lg-flex flex-column justify-content-center px-4">
+                        <span class="text-white fw-semibold fs-13 ls-1 text-uppercase" style="opacity:.7;">
+                            {{ $accreditation['strip_label'] ?? 'Tersertifikasi' }}
+                        </span>
+                        <span class="text-white fs-11" style="opacity:.45;">& Diakui Oleh</span>
+                    </div>
+
+                    {{-- Divider --}}
+                    <div class="accreditation-strip-divider d-none d-lg-block flex-shrink-0"></div>
+
+                    {{-- Swiper logo strip --}}
+                    <div class="swiper accreditation-strip-slider flex-grow-1 overflow-hidden">
+                        <div class="swiper-wrapper align-items-center">
+                            @foreach($accreditation['items'] as $item)
+                            <div class="swiper-slide accreditation-strip-slide">
+                                <div class="accreditation-strip-item d-flex flex-column align-items-center justify-content-center gap-1 position-relative"
+                                     title="{{ $item['name'] ?? '' }}">
+
+                                    @if(!empty($item['logo']))
+                                        <img src="{{ $item['logo'] }}"
+                                             alt="{{ $item['name'] ?? 'Logo' }}"
+                                             class="accreditation-strip-logo">
+                                    @else
+                                        <div class="accreditation-strip-logo-placeholder d-flex align-items-center justify-content-center">
+                                            <i class="ri-award-line text-white" style="font-size:1.4rem; opacity:.5;"></i>
+                                        </div>
+                                    @endif
+
+                                    @if(!empty($item['name']))
+                                    <span class="accreditation-strip-name text-white text-center fw-medium"
+                                          style="font-size:10px; opacity:.7; line-height:1.2; max-width:80px;">
+                                        {{ $item['name'] }}
+                                    </span>
+                                    @endif
+
+                                    @if(!empty($item['url']))
+                                        <a href="{{ $item['url'] }}" target="_blank" rel="noopener"
+                                           class="position-absolute top-0 start-0 w-100 h-100 z-1"></a>
+                                    @endif
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            @endif
+            {{-- ══ END ACCREDITATION STRIP ══ --}}
         </div>
 
     @else
@@ -177,7 +232,7 @@
             <div class="container-fluid position-relative z-2">
                 <div class="row align-items-center" style="min-height: 680px;">
                     <div class="col-lg-7">
-                        <div class="hero-content p-5">
+                        <div class="hero-content py-5">
                             <h6 class="section-subtitle style-two bg_secondary fs-13 fw-semibold ls-1 d-inline-flex align-items-center gap-2 round-oval mb-20">
                                 <img src="assets/marketing/img/icons/lock.svg" alt="Icon">
                                 KONTEN SLIDER MASIH KOSONG
@@ -197,6 +252,50 @@
 
 </div>
 <!-- HERO SLIDER SECTION END -->
+
+{{-- ══ ACCREDITATION — MOBILE ONLY (section biasa) ══ --}}
+@if(!empty($accreditation['items']) && count($accreditation['items']) > 0)
+<div class="accreditation-mobile-section d-block d-md-none bg_primary py-40 round-10">
+    <div class="container">
+        <p class="text-white fw-semibold fs-13 text-center mb-20 ls-1 text-uppercase" style="opacity:.65;">
+            {{ $accreditation['strip_label'] ?? 'Tersertifikasi & Diakui Oleh' }}
+        </p>
+        <div class="swiper accreditation-mobile-slider">
+            <div class="swiper-wrapper align-items-center">
+                @foreach($accreditation['items'] as $item)
+                <div class="swiper-slide">
+                    <div class="d-flex flex-column align-items-center justify-content-center gap-2 text-center px-2 position-relative">
+                        @if(!empty($item['logo']))
+                            <div class="accreditation-mobile-logo-wrap d-flex align-items-center justify-content-center mx-auto">
+                                <img src="{{ $item['logo'] }}"
+                                     alt="{{ $item['name'] ?? 'Logo' }}"
+                                     class="accreditation-mobile-logo">
+                            </div>
+                        @endif
+                        @if(!empty($item['name']))
+                        <span class="text-white fw-medium" style="font-size:11px; opacity:.75; line-height:1.3;">
+                            {{ $item['name'] }}
+                        </span>
+                        @endif
+                        @if(!empty($item['label']))
+                        <span class="bg_secondary fs-11 fw-semibold text-black round-oval px-2 py-1">
+                            {{ $item['label'] }}
+                        </span>
+                        @endif
+                        @if(!empty($item['url']))
+                            <a href="{{ $item['url'] }}" target="_blank" rel="noopener"
+                               class="position-absolute top-0 start-0 w-100 h-100 z-1"></a>
+                        @endif
+                    </div>
+                </div>
+                @endforeach
+            </div>
+            <div class="accreditation-mobile-pagination d-flex justify-content-center mt-20 gap-1"></div>
+        </div>
+    </div>
+</div>
+@endif
+{{-- ══ END ACCREDITATION MOBILE ══ --}}
 
 
 <!-- =============================================
@@ -268,7 +367,7 @@
 
         {{-- Header row: judul kiri, nav kanan --}}
         <div class="row align-items-end mb-40">
-            <div class="col-lg-7 col-md-8">
+            <div class="col-lg-6 col-md-8">
                 <span class="section-subtitle style-two fs-13 fw-medium ls-1 d-inline-block bg_secondary text-title round-oval mb-15" data-cue="slideInUp">
                     <img src="assets/marketing/img/icons/lock.svg" alt="Icon">
                     {{ $blogSection['subtitle'] ?? 'BLOG & NEWS' }}
@@ -276,6 +375,25 @@
                 <h2 class="section-title style-one fw-medium text-title mb-0" data-cue="slideInUp" data-delay="200">
                     {{ $blogSection['title'] ?? 'Expert Tips And Trends In Cloud Security' }}
                 </h2>
+            </div>
+            <div class="col-lg-6 col-md-4 d-flex align-items-center justify-content-md-end gap-3 mt-md-0 mt-20" data-cue="slideInUp" data-delay="300">
+                {{-- Prev / Next --}}
+                <button class="blog-slider-prev border-0 d-flex align-items-center justify-content-center rounded-circle transition flex-shrink-0">
+                    <img src="assets/marketing/img/icons/left-arrow-black.svg" alt="Prev">
+                </button>
+                <div class="blog-slider-pagination"></div>
+                <button class="blog-slider-next border-0 d-flex align-items-center justify-content-center rounded-circle transition flex-shrink-0">
+                    <img src="assets/marketing/img/icons/right-arrow-black.svg" alt="Next">
+                </button>
+                @if(!empty($blogSection['see_all_url']))
+                <a href="{{ $blogSection['see_all_url'] }}"
+                   class="btn style-two fw-semibold position-relative round-oval ms-2 d-none d-lg-inline-flex">
+                    {{ $blogSection['see_all_text'] ?? 'View All' }}
+                    <span class="position-absolute top-0 end-0 h-100 d-flex flex-column align-items-center justify-content-center">
+                        <img src="assets/marketing/img/icons/right-arrow-white.svg" alt="Icon">
+                    </span>
+                </a>
+                @endif
             </div>
         </div>
 
@@ -378,31 +496,19 @@
     </div>
 
     {{-- Tombol lihat semua - mobile only --}}
-    <div class="d-flex flex-column justify-between align-items-center mt-5 gap-4">
-        <div class="d-flex align-items-center justify-content-md-end gap-3 mt-md-0 mt-20 w-25" data-cue="slideInUp" data-delay="300">
-            {{-- Prev / Next --}}
-            <button class="blog-slider-prev border-0 d-flex align-items-center justify-content-center rounded-circle transition flex-shrink-0">
-                <img src="assets/marketing/img/icons/left-arrow-black.svg" alt="Prev">
-            </button>
-            <div class="blog-slider-pagination"></div>
-            <button class="blog-slider-next border-0 d-flex align-items-center justify-content-center rounded-circle transition flex-shrink-0">
-                <img src="assets/marketing/img/icons/right-arrow-black.svg" alt="Next">
-            </button>
+    @if(!empty($blogSection['see_all_url']))
+    <div class="container style-one">
+        <div class="text-center mt-30 d-lg-none">
+            <a href="{{ $blogSection['see_all_url'] }}"
+               class="btn style-two fw-semibold position-relative round-oval">
+                {{ $blogSection['see_all_text'] ?? 'Lihat Semua Artikel' }}
+                <span class="position-absolute top-0 end-0 h-100 d-flex flex-column align-items-center justify-content-center">
+                    <img src="assets/marketing/img/icons/right-arrow-white.svg" alt="Icon">
+                </span>
+            </a>
         </div>
-        @if(!empty($blogSection['see_all_url']))
-        <div class="container style-one">
-            <div class="text-center mt-30">
-                <a href="{{ $blogSection['see_all_url'] }}"
-                   class="btn style-two fw-semibold position-relative round-oval">
-                    {{ $blogSection['see_all_text'] ?? 'Lihat Semua Artikel' }}
-                    <span class="position-absolute top-0 end-0 h-100 d-flex flex-column align-items-center justify-content-center">
-                        <img src="assets/marketing/img/icons/right-arrow-white.svg" alt="Icon">
-                    </span>
-                </a>
-            </div>
-        </div>
-        @endif
     </div>
+    @endif
 </div>
 <!-- BLOG SECTION END -->
 
@@ -631,7 +737,17 @@
     /* =============================================
        BLOG SLIDER
        ============================================= */
-
+    
+    .swiper-horizontal>
+    .swiper-pagination-bullets, 
+    .swiper-pagination-bullets.swiper-pagination-horizontal, 
+    .swiper-pagination-custom, 
+    .swiper-pagination-fraction {
+        bottom: var(--swiper-pagination-bottom, 8px);
+        top: var(--swiper-pagination-top, auto);
+        left: 0;
+        width: auto;
+    }
     /* Outer wrapper: overflow visible ke kanan buat efek peek */
     .blog-slider-outer {
         padding-left: calc((100vw - 1320px) / 2);  /* align kiri sama container */
@@ -735,7 +851,147 @@
         width: 24px;
         border-radius: 4px;
     }
-    .gallery-item:hover .gallery-overlay {
+
+    /* =============================================
+       ACCREDITATION STRIP — DESKTOP (absolute overlay di hero)
+       ============================================= */
+
+    /* Strip wrapper — nempel di bottom hero, di atas progress bar */
+    .accreditation-strip {
+        height: 76px;
+        bottom: 50px; /* tepat di atas progress bar 3px */
+        width: 70%;
+        right: 0;
+        background: rgba(8, 8, 25, 0.55);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border-top: 1px solid rgba(255, 255, 255, 0.10);
+        z-index: 10;
+    }
+
+    .accreditation-strip-inner {
+        height: 76px;
+        overflow: hidden;
+    }
+
+    /* Label kiri */
+    .accreditation-strip-label {
+        min-width: 130px;
+        height: 100%;
+        border-right: 1px solid rgba(255,255,255,0.10);
+    }
+
+    /* Divider vertikal */
+    .accreditation-strip-divider {
+        width: 1px;
+        height: 40px;
+        background: rgba(255,255,255,0.10);
+        flex-shrink: 0;
+    }
+
+    /* Swiper strip — tiap item */
+    .accreditation-strip-slider {
+        height: 76px;
+        padding: 0 20px;
+    }
+
+    .accreditation-strip-slide {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .accreditation-strip-item {
+        padding: 8px 10px;
+        border-radius: 10px;
+        transition: background 0.25s ease;
+        cursor: default;
+    }
+
+    .accreditation-strip-item:hover {
+        background: rgba(255,255,255,0.08);
+    }
+
+    /* Logo di dalam strip */
+    .accreditation-strip-logo {
+        height: 30px;
+        max-width: 70px;
+        object-fit: contain;
+        filter: brightness(0) invert(1);
+        opacity: 0.75;
+        transition: opacity 0.25s ease;
+    }
+
+    .accreditation-strip-item:hover .accreditation-strip-logo {
+        opacity: 1;
+    }
+
+    .accreditation-strip-logo-placeholder {
+        width: 34px;
+        height: 34px;
+    }
+
+    /* Nama lembaga kecil di bawah logo */
+    .accreditation-strip-name {
+        display: block;
+        opacity: 0;
+        transform: translateY(4px);
+        transition: opacity 0.25s ease, transform 0.25s ease;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .accreditation-strip-item:hover .accreditation-strip-name {
+        opacity: 0.65;
+        transform: translateY(0);
+    }
+
+    /* =============================================
+       ACCREDITATION — MOBILE SECTION
+       ============================================= */
+    .accreditation-mobile-section {
+        margin-top: 0;
+    }
+
+    .accreditation-mobile-logo-wrap {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.12);
+        border: 1px solid rgba(255,255,255,0.18);
+        overflow: hidden;
+    }
+
+    .accreditation-mobile-logo {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        padding: 10px;
+        filter: brightness(0) invert(1);
+        opacity: 0.85;
+    }
+
+    .accreditation-mobile-pagination .swiper-pagination-bullet {
+        width: 6px;
+        height: 6px;
+        background: rgba(255,255,255,0.35);
+        opacity: 1;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        display: inline-block;
+    }
+
+    .accreditation-mobile-pagination .swiper-pagination-bullet-active {
+        background: #fff;
+        width: 18px;
+        border-radius: 3px;
+    }
+
+    /* =============================================
+       GALLERY HOVER
+       ============================================= */
         opacity: 1 !important;
     }
 
@@ -796,7 +1052,50 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // ── Blog Slider ──────────────────────────────
+    // ── Accreditation Strip (desktop) ────────────
+    if (document.querySelector('.accreditation-strip-slider')) {
+        new Swiper('.accreditation-strip-slider', {
+            loop          : true,
+            speed         : 500,
+            autoplay      : {
+                delay               : 2500,
+                disableOnInteraction: false,
+                pauseOnMouseEnter   : true,
+            },
+            slidesPerView : 4,
+            spaceBetween  : 8,
+            allowTouchMove: true,
+            breakpoints: {
+                768:  { slidesPerView: 5,  spaceBetween: 10 },
+                992:  { slidesPerView: 6,  spaceBetween: 12 },
+                1200: { slidesPerView: 7,  spaceBetween: 14 },
+                1400: { slidesPerView: 8,  spaceBetween: 16 },
+            },
+        });
+    }
+
+    // ── Accreditation Mobile ──────────────────────
+    if (document.querySelector('.accreditation-mobile-slider')) {
+        new Swiper('.accreditation-mobile-slider', {
+            loop          : true,
+            speed         : 500,
+            autoplay      : {
+                delay               : 2800,
+                disableOnInteraction: false,
+            },
+            slidesPerView : 3,
+            spaceBetween  : 16,
+            pagination    : {
+                el       : '.accreditation-mobile-pagination',
+                clickable: true,
+            },
+            breakpoints: {
+                480: { slidesPerView: 4, spaceBetween: 16 },
+            },
+        });
+    }
+
+
     if (document.querySelector('.blog-slider-main')) {
         new Swiper('.blog-slider-main', {
             loop          : true,

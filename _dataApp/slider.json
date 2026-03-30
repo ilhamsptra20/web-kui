@@ -1,6 +1,21 @@
 [
-    { "name": "title_id", "type": "string", "rules": "nullable" },
+    { "name": "subtitle_id", "type": "string", "rules": "nullable|string|max:255" },
+    { "name": "subtitle_en", "type": "string", "rules": "nullable|string|max:255" },
+    { "name": "subtitle_ar", "type": "string", "rules": "nullable|string|max:255" },
+
+    { "name": "title_id", "type": "text", "rules": "nullable" },
+    { "name": "title_en", "type": "text", "rules": "nullable" },
+    { "name": "title_ar", "type": "text", "rules": "nullable" },
+
+    { "name": "description_id", "type": "text", "rules": "nullable" },
+    { "name": "description_en", "type": "text", "rules": "nullable" },
+    { "name": "description_ar", "type": "text", "rules": "nullable" },
+
+    { "name": "btn_text_id", "type": "string", "rules": "nullable|string|max:100" },
+    { "name": "btn_text_en", "type": "string", "rules": "nullable|string|max:100" },
+    { "name": "btn_text_ar", "type": "string", "rules": "nullable|string|max:100" },
+
+    { "name": "btn_url", "type": "string", "rules": "nullable|string|max:255" },
     { "name": "image", "type": "image", "style": "file", "rules": "required|image" },
-    { "name": "link", "type": "string", "rules": "nullable" },
     { "name": "order", "type": "integer", "rules": "nullable|numeric" }
 ]

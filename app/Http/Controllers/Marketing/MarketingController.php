@@ -3,6 +3,12 @@
 namespace App\Http\Controllers\Marketing;
 
 use App\Http\Controllers\Controller;
+use App\Models\Slider;
+use App\Models\Post;
+use App\Models\Category;
+use App\Models\Album;
+use App\Models\Gallery;
+use App\Models\Lembaga; // akreditasi
 
 class MarketingController extends Controller
 {
@@ -11,38 +17,19 @@ class MarketingController extends Controller
         // ============================================================
         // HERO SLIDER
         // ============================================================
-        $heroSlides = [
-            [
-                'subtitle'    => 'SMARTER SECURITY, POWERED BY AI!',
-                'title'       => 'AI-Powered <span class="text_primary fw-bold">Cybersecurity</span> For A Safer Digital World',
-                'description' => 'Protect your business with real-time threat detection, predictive analytics, and autonomous defense systems that never sleep.',
-                'btn_text'    => 'Get Started',
-                'btn_url'     => '/contact',
-                'image'       => 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=900&q=80',
-                'bg_class'    => 'bg-f',
-            ],
-            [
-                'subtitle'    => 'ZERO TRUST ARCHITECTURE',
-                'title'       => 'Protect Every <span class="text_primary fw-bold">Endpoint</span> With Intelligent Access Control',
-                'description' => 'Our zero trust model ensures every user, device, and connection is continuously verified before access is granted.',
-                'btn_text'    => 'Learn More',
-                'btn_url'     => '/services',
-                'image'       => 'https://images.unsplash.com/photo-1563986768494-4dee2763ff3f?w=900&q=80',
-                'bg_class'    => 'bg-f',
-            ],
-            [
-                'subtitle'    => 'CLOUD SECURITY & MONITORING',
-                'title'       => 'Seamless <span class="text_primary fw-bold">Cloud Defense</span> Across AWS, Azure & Google Cloud',
-                'description' => 'Monitor, detect, and respond to threats across all your cloud environments from a single unified dashboard.',
-                'btn_text'    => 'Explore Platform',
-                'btn_url'     => '/platform',
-                'image'       => 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=900&q=80',
-                'bg_class'    => 'bg-f',
-            ],
-        ];
+        $heroSlides = Slider::orderBy('order')
+            ->get()
+            ->map(fn($s) => [
+                'subtitle'    => $s->trans('subtitle'),
+                'title'       => $s->trans('title'),
+                'description' => $s->trans('description'),
+                'btn_text'    => $s->trans('btn_text'),
+                'btn_url'     => $s->btn_url,
+                'image'       => $s->image,
+            ]);
 
         // ============================================================
-        // ABOUT
+        // ABOUT (static / from config — tidak ada model khusus)
         // ============================================================
         $about = [
             'description' => 'We are a cybersecurity-first company, using AI innovation to help businesses detect threats, prevent breaches, and respond autonomously — at machine speed.',
@@ -66,157 +53,64 @@ class MarketingController extends Controller
 
         // ============================================================
         // BLOG POSTS
+        // Ambil post yang sudah published, beserta relasi category & user
         // ============================================================
-        $blogPosts = [
-            [
-                'image'        => 'https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=600&q=80',
-                'category'     => 'Cybersecurity',
-                'category_url' => '/blog/category/cybersecurity',
-                'author'       => 'Admin',
-                'author_url'   => '/posts-by-author',
-                'date'         => '12 Aug, 2025',
-                'date_url'     => '/posts-by-date',
-                'title'        => 'How AI Is Revolutionizing Cybersecurity Defense Systems',
-                'url'          => '/blog/ai-revolutionizing-cybersecurity',
+        $blogPosts = Post::with(['category', 'user'])
+            ->where('status', 'published')
+            ->latest()
+            ->take(4)
+            ->get()
+            ->map(fn($post) => [
+                'image'          => $post->image,
+                'category'       => $post->category?->trans('title'),
+                'category_url'   => '/blog/category/' . $post->category?->slug,
+                'author'         => $post->user?->name ?? 'Admin',
+                'author_url'     => '/posts-by-author',
+                'date'           => $post->created_at->format('d M, Y'),
+                'date_url'       => '/posts-by-date',
+                'title'          => $post->trans('title'),
+                'url'            => '/blog/' . $post->slug,
                 'read_more_text' => 'Read More',
-            ],
-            [
-                'image'        => 'https://images.unsplash.com/photo-1510511459019-5dda7724fd87?w=600&q=80',
-                'category'     => 'Technology',
-                'category_url' => '/blog/category/technology',
-                'author'       => 'Admin',
-                'author_url'   => '/posts-by-author',
-                'date'         => '16 Aug, 2025',
-                'date_url'     => '/posts-by-date',
-                'title'        => 'Top 10 Cyber Security Threats Every Business Should Watch In 2025',
-                'url'          => '/blog/top-10-cybersecurity-threats-2025',
-                'read_more_text' => 'Read More',
-            ],
-            [
-                'image'        => 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=600&q=80',
-                'category'     => 'Cloud',
-                'category_url' => '/blog/category/cloud',
-                'author'       => 'Admin',
-                'author_url'   => '/posts-by-author',
-                'date'         => '22 Aug, 2025',
-                'date_url'     => '/posts-by-date',
-                'title'        => 'Cloud Security Best Practices for Multi-Platform Environments',
-                'url'          => '/blog/cloud-security-best-practices',
-                'read_more_text' => 'Read More',
-            ],
-            [
-                'image'        => 'https://images.unsplash.com/photo-1639322537228-f710d846310a?w=600&q=80',
-                'category'     => 'Zero Trust',
-                'category_url' => '/blog/category/zero-trust',
-                'author'       => 'Admin',
-                'author_url'   => '/posts-by-author',
-                'date'         => '25 Aug, 2025',
-                'date_url'     => '/posts-by-date',
-                'title'        => 'The Benefits Of Zero Trust Architecture For Modern Enterprises',
-                'url'          => '/blog/zero-trust-architecture-benefits',
-                'read_more_text' => 'Read More',
-            ],
-        ];
+            ]);
 
         // ============================================================
         // GALLERY
+        // Ambil semua album beserta galeri-nya (eager load)
         // ============================================================
+        $galleryItems = Gallery::with('album')
+            ->latest()
+            ->take(6)
+            ->get()
+            ->map(fn($g) => [
+                'image'   => $g->image,
+                'caption' => $g->trans('title'),
+                'url'     => '/gallery/' . $g->album?->slug,
+            ]);
+
         $gallery = [
             'subtitle'     => 'OUR GALLERY',
             'title'        => 'A Glimpse Into Our Security Operations Center',
             'see_all_url'  => '/gallery',
             'see_all_text' => 'View Full Gallery',
-            'items'        => [
-                [
-                    'image'   => 'https://images.unsplash.com/photo-1581092787765-e3feb951d987?w=800&q=80',
-                    'caption' => 'SOC Operations Center',
-                    'url'     => '/gallery/soc-operations',
-                ],
-                [
-                    'image'   => 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&q=80',
-                    'caption' => 'Threat Analysis Dashboard',
-                    'url'     => '/gallery/threat-analysis',
-                ],
-                [
-                    'image'   => 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=600&q=80',
-                    'caption' => 'Team Collaboration',
-                    'url'     => '/gallery/team',
-                ],
-                [
-                    'image'   => 'https://images.unsplash.com/photo-1551808525-51a94da548ce?w=600&q=80',
-                    'caption' => 'Network Monitoring',
-                    'url'     => '/gallery/network-monitoring',
-                ],
-                [
-                    'image'   => 'https://images.unsplash.com/photo-1573164713988-8665fc963095?w=800&q=80',
-                    'caption' => 'AI Research Lab',
-                    'url'     => '/gallery/ai-lab',
-                ],
-                [
-                    'image'   => 'https://images.unsplash.com/photo-1563206767-5b18f218e8de?w=600&q=80',
-                    'caption' => 'Incident Response Room',
-                    'url'     => '/gallery/incident-response',
-                ],
-            ],
+            'items'        => $galleryItems,
         ];
 
         // ============================================================
         // ACCREDITATION & PARTNER LEMBAGA
         // ============================================================
+        $lembagaItems = Lembaga::all()
+            ->map(fn($l) => [
+                'logo'  => $l->image,
+                'name'  => $l->trans('name'),
+                'label' => null, // tidak ada field label di schema, sesuaikan jika ada
+                'url'   => null, // tidak ada field url di schema, sesuaikan jika ada
+            ]);
+
         $accreditation = [
             'subtitle'    => 'AKREDITASI & LEMBAGA',
             'title'       => 'Diakui Dan Tersertifikasi Oleh Lembaga Terpercaya',
             'strip_label' => 'Tersertifikasi',
-            'items'    => [
-                [
-                    'logo'  => 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/ISO_Logo_%28Red_square%29.svg/200px-ISO_Logo_%28Red_square%29.svg.png',
-                    'name'  => 'ISO/IEC 27001',
-                    'label' => 'Certified',
-                    'url'   => 'https://www.iso.org',
-                ],
-                [
-                    'logo'  => 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/SOC2_Logo.png/200px-SOC2_Logo.png',
-                    'name'  => 'SOC 2 Type II',
-                    'label' => 'Compliant',
-                    'url'   => null,
-                ],
-                [
-                    'logo'  => 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Logo_of_the_GDPR.png/200px-Logo_of_the_GDPR.png',
-                    'name'  => 'GDPR Compliant',
-                    'label' => 'EU Standard',
-                    'url'   => null,
-                ],
-                [
-                    'logo'  => 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Microsoft_logo_%282012%29.svg/200px-Microsoft_logo_%282012%29.svg.png',
-                    'name'  => 'Microsoft Partner',
-                    'label' => 'Gold Partner',
-                    'url'   => 'https://www.microsoft.com',
-                ],
-                [
-                    'logo'  => 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Amazon_Web_Services_Logo.svg/200px-Amazon_Web_Services_Logo.svg.png',
-                    'name'  => 'AWS Partner',
-                    'label' => 'Advanced Tier',
-                    'url'   => 'https://aws.amazon.com',
-                ],
-                [
-                    'logo'  => 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/200px-Google_2015_logo.svg.png',
-                    'name'  => 'Google Cloud Partner',
-                    'label' => 'Premier',
-                    'url'   => 'https://cloud.google.com',
-                ],
-                [
-                    'logo'  => 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/CMMI_logo.png/200px-CMMI_logo.png',
-                    'name'  => 'CMMI Level 3',
-                    'label' => 'Certified',
-                    'url'   => null,
-                ],
-                [
-                    'logo'  => 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/NIST_logo.svg/200px-NIST_logo.svg.png',
-                    'name'  => 'NIST Framework',
-                    'label' => 'Aligned',
-                    'url'   => 'https://www.nist.gov',
-                ],
-            ],
+            'items'       => $lembagaItems,
         ];
 
         return view('pages.marketing.index', compact(

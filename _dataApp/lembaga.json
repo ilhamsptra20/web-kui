@@ -1,6 +1,10 @@
 [
     { "name": "name_id", "type": "string", "rules": "required" },
+    { "name": "name_en", "type": "string", "rules": "nullable" },
+    { "name": "name_ar", "type": "string", "rules": "nullable" },
     { "name": "slug", "type": "string", "rules": "required|unique:agendas,slug" },
     { "name": "description_id", "type": "text", "style": "textarea", "rules": "nullable" },
+    { "name": "description_en", "type": "text", "style": "textarea", "rules": "nullable" },
+    { "name": "description_ar", "type": "text", "style": "textarea", "rules": "nullable" },
     { "name": "image", "type": "image", "style": "file", "rules": "nullable|image|max:2048" }
 ]

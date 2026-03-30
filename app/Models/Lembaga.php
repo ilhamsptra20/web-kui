@@ -1,0 +1,26 @@
+<?php
+
+namespace App\Models;
+
+use App\Traits\HasTranslation;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
+
+class Lembaga extends Model 
+{
+    use HasUuids, HasSlug, HasTranslation;
+
+    protected $keyType = 'string';
+    public $incrementing = false;
+    protected $fillable = ['name_id', 'slug', 'description_id', 'image'];
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('name_id')
+            ->saveSlugsTo('slug');
+    }
+
+}

@@ -183,7 +183,7 @@
                         {{-- Thumbnail --}}
                         <div class="blog-img position-relative img-hover overflow-hidden round-10">
                             @if(!empty($post['image']))
-                                <img src="{{ $post['image'] }}"
+                                <img src="{{ asset("storage/" . $post['image']) }}"
                                      alt="{{ $post['title'] ?? 'Blog Image' }}"
                                      class="transition round-10"
                                      style="width:100%; height:230px; object-fit:cover;">

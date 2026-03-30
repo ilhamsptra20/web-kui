@@ -2,48 +2,6 @@
 
 @section('content')
 
-{{--
-    ============================================================
-    VARIABEL DARI ArticleDetailController@show($slug) :
-    ============================================================
-
-    $breadcrumb  — ['title', 'menus' => [['label','url'],...]]
-
-    $article = [
-        'category', 'category_url',
-        'author', 'author_url',
-        'date', 'date_url',
-        'title',
-        'hero_image',
-        'content' => [
-            // type: paragraph | heading | bullets | blockquote | images
-            ['type'=>'paragraph', 'text'=>'...'],
-            ['type'=>'heading',   'level'=>'h6', 'text'=>'...'],
-            ['type'=>'bullets',   'items'=>[...]],
-            ['type'=>'blockquote','text'=>'...','author'=>'...','position'=>'...'],
-            ['type'=>'images',    'images'=>[['src','alt'],...]],
-        ],
-        'prev'  => ['label', 'url'],
-        'next'  => ['label', 'url'],
-        'tags'  => [['label','url'],...],
-        'share' => [['icon','url','label'],...],
-    ];
-
-    $comments = [
-        [
-            'id','avatar','name','date','text',
-            'replies' => [['id','avatar','name','date','text'],...],
-        ],
-        ...
-    ];
-
-    $relatedPosts = [
-        ['image','category','category_url','author','author_url','date','date_url','title','url'],
-        ...
-    ];
-    ============================================================
---}}
-
 <!-- =============================================
      BREADCRUMB START
      ============================================= -->
@@ -115,7 +73,7 @@
                 {{-- Hero Image --}}
                 @if(!empty($article['hero_image']))
                 <div class="single-img round-10 mb-30">
-                    <img src="{{ $article['hero_image'] }}"
+                    <img src="{{ asset("storage/".$article['hero_image']) }}"
                          alt="{{ $article['title'] ?? 'Article Image' }}"
                          class="round-10 w-100"
                          style="max-height: 480px; object-fit: cover;">
@@ -124,71 +82,7 @@
 
                 <!-- ── CONTENT BLOCKS ── -->
                 @if(!empty($article['content']))
-                    @foreach($article['content'] as $block)
-
-                        {{-- PARAGRAPH --}}
-                        @if($block['type'] === 'paragraph')
-                        <div class="single-para">
-                            <p>{{ $block['text'] ?? '' }}</p>
-                        </div>
-
-                        {{-- HEADING --}}
-                        @elseif($block['type'] === 'heading')
-                        <div class="single-para">
-                            @php $tag = $block['level'] ?? 'h6'; @endphp
-                            <{{ $tag }}>{{ $block['text'] ?? '' }}</{{ $tag }}>
-                        </div>
-
-                        {{-- BULLET LIST --}}
-                        @elseif($block['type'] === 'bullets' && !empty($block['items']))
-                        <div class="single-para">
-                            <ul class="feature-list style-one list-unstyled mb-0">
-                                @foreach($block['items'] as $item)
-                                <li class="position-relative fw-medium text-title">
-                                    <i class="ri-arrow-right-line"></i>{{ $item }}
-                                </li>
-                                @endforeach
-                            </ul>
-                        </div>
-
-                        {{-- BLOCKQUOTE --}}
-                        @elseif($block['type'] === 'blockquote')
-                        <div class="wp-blockquote round-10">
-                            <p class="text-title fw-medium">
-                                {{ $block['text'] ?? '' }}
-                            </p>
-                            @if(!empty($block['author']) || !empty($block['position']))
-                            <div class="d-flex flex-wrap align-items-center justify-content-between">
-                                <div class="client-info">
-                                    @if(!empty($block['author']))
-                                    <h5 class="fs-18 fw-semibold mb-1">{{ $block['author'] }}</h5>
-                                    @endif
-                                    @if(!empty($block['position']))
-                                    <span class="fs-15">{{ $block['position'] }}</span>
-                                    @endif
-                                </div>
-                                <img src="assets/marketing/img/icons/quote-white-large.svg" alt="Quote">
-                            </div>
-                            @endif
-                        </div>
-
-                        {{-- DOUBLE IMAGE --}}
-                        @elseif($block['type'] === 'images' && !empty($block['images']))
-                        <div class="row">
-                            @foreach($block['images'] as $img)
-                            <div class="col-md-6">
-                                <div class="single-img round-10 mb-30">
-                                    <img src="{{ $img['src'] }}"
-                                         alt="{{ $img['alt'] ?? 'Article Image' }}"
-                                         class="round-10 w-100"
-                                         style="height: 220px; object-fit: cover;">
-                                </div>
-                            </div>
-                            @endforeach
-                        </div>
-
-                        @endif
-                    @endforeach
+                    {{ $article['content'] }}
                 @else
                     <p class="text-muted fst-italic">Konten artikel masih kosong.</p>
                 @endif
@@ -394,7 +288,7 @@
                                         type="submit">
                                     Post A Comment
                                     <span class="position-absolute top-0 end-0 h-100 d-flex flex-column align-items-center justify-content-center">
-                                        <img src="assets/marketing/img/icons/right-arrow-white.svg" alt="Icon">
+                                        <img src="{{ asset('assets/marketing/img/icons/right-arrow-white.svg') }}" alt="Icon">
                                     </span>
                                 </button>
                             </div>
@@ -415,7 +309,7 @@
                         <div class="blog-card style-one img-hover-wrap round-10 mb-30">
                             <div class="blog-img position-relative img-hover overflow-hidden round-10">
                                 @if(!empty($related['image']))
-                                    <img src="{{ $related['image'] }}"
+                                    <img src="{{ asset("storage/".$related['image']) }}"
                                          alt="{{ $related['title'] ?? 'Related' }}"
                                          class="transition round-10"
                                          style="width:100%; height:180px; object-fit:cover;">

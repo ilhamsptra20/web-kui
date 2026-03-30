@@ -2,62 +2,6 @@
 
 @section('content')
 
-{{--
-    ============================================================
-    VARIABEL YANG DIBUTUHKAN DARI CONTROLLER:
-    ============================================================
-
-    // HERO SLIDER
-    $heroSlides = [
-        [
-            'subtitle'    => 'SMARTER SECURITY, POWERED BY AI!',
-            'title'       => 'AI-Powered <span>Cybersecurity</span> For A Safer Digital World',
-            'description' => 'Protect your business with real-time threat detection...',
-            'btn_text'    => 'Get Started',
-            'btn_url'     => '/contact',
-            'image'       => 'assets/marketing/img/hero/hero-img-2.png',
-            'bg_class'    => 'bg-f', // optional: class tambahan per slide
-        ],
-        ...
-    ];
-
-    // ABOUT
-    $about = [
-        'description' => 'We Are a cybersecurity-first company...',
-        'btn_text'    => 'Learn More',
-        'btn_url'     => '/about-us',
-        'image'       => 'assets/marketing/img/about/about-img-2.jpg',
-        'subtitle'    => 'ABOUT US',
-        'title'       => 'Protecting What Matters Most Through Cutting Edge Intelligence',
-    ];
-
-    // BLOG POSTS
-    $blogPosts = [
-        [
-            'image'      => 'assets/marketing/img/blog/blog-4.jpg',
-            'author'     => 'Admin',
-            'author_url' => '/posts-by-author',
-            'date'       => '12 Aug, 2025',
-            'date_url'   => '/posts-by-date',
-            'title'      => 'How AI Is Revolutionizing Build Cybersecurity Defense Systems',
-            'url'        => '/blog/detail',
-        ],
-        ...
-    ];
-
-    // GALLERY
-    $gallery = [
-        'subtitle' => 'OUR GALLERY',
-        'title'    => 'A Glimpse Into Our Security Operations Center',
-        'items'    => [
-            ['image' => 'assets/marketing/img/gallery/gallery-1.jpg', 'caption' => 'SOC Operations'],
-            ['image' => 'assets/marketing/img/gallery/gallery-2.jpg', 'caption' => 'Threat Analysis'],
-            ...
-        ],
-    ];
-    ============================================================
---}}
-
 <!-- =============================================
      HERO SLIDER SECTION START
      ============================================= -->
@@ -72,14 +16,14 @@
 
                     {{-- Full BG Image --}}
                     <div class="hero-slide-inner position-relative overflow-hidden"
-                         style="background: url('{{ $slide['image'] ?? '' }}') center center / cover no-repeat;">
+                         style="background: url('{{ asset("/storage/" . ($slide['image'] ?? '')) }}') center center / cover no-repeat;">
 
                         {{-- Dark gradient overlay biar teks terbaca --}}
                         <div class="hero-bg-overlay position-absolute top-0 start-0 w-100 h-100 z-0"></div>
 
                         {{-- Decorative blur text (dari template asli) --}}
-                        <span class="blur-text style-one position-absolute z-1">CYBERSECURITY</span>
-                        <span class="blur-text style-two position-absolute z-1">SOLUTION</span>
+                        <span class="blur-text style-one position-absolute z-1">UNIVERSITAS</span>
+                        <span class="blur-text style-two position-absolute z-1">JUANDA</span>
 
                         {{-- Section shape bawah --}}
                         <img src="assets/marketing/img/hero/section-shape-1.png" alt="Shape"
@@ -88,7 +32,7 @@
                         <div class="container-fluid position-relative z-2">
                             <div class="row align-items-center" style="min-height: 680px;">
                                 <div class="col-xl-6 col-lg-7 col-md-9">
-                                    <div class="hero-content py-5">
+                                    <div class="hero-content p-5">
 
                                         @if(!empty($slide['subtitle']))
                                         <h6 class="section-subtitle style-two bg_secondary fs-13 fw-semibold ls-1 d-inline-flex align-items-center gap-2 round-oval mb-20"
@@ -192,8 +136,8 @@
                                      title="{{ $item['name'] ?? '' }}">
 
                                     @if(!empty($item['logo']))
-                                        <img src="{{ $item['logo'] }}"
-                                             alt="{{ $item['name'] ?? 'Logo' }}"
+                                        <img src="{{ asset("/storage/" . ($item['logo'] ?? '')) }}"
+                                             alt="{{ asset("/storage/" . ($item['name'] ?? 'Logo')) }}"
                                              class="accreditation-strip-logo">
                                     @else
                                         <div class="accreditation-strip-logo-placeholder d-flex align-items-center justify-content-center">
@@ -411,7 +355,7 @@
                         {{-- Thumbnail --}}
                         <div class="blog-img position-relative img-hover overflow-hidden round-10">
                             @if(!empty($post['image']))
-                                <img src="{{ $post['image'] }}"
+                                <img src="{{ asset("storage/" . $post['image']) }}"
                                      alt="{{ $post['title'] ?? 'Blog' }}"
                                      class="transition round-10 blog-card-thumb">
                             @else
@@ -542,7 +486,7 @@
                     <div class="{{ $colClass }} col-6" data-cue="slideInUp" data-delay="{{ ($index % 3) * 100 }}">
                         <div class="gallery-item img-hover-wrap round-10 overflow-hidden position-relative">
                             @if(!empty($item['image']))
-                                <img src="{{ $item['image'] }}"
+                                <img src="{{ asset("storage/" . $item['image']) }}"
                                      alt="{{ $item['caption'] ?? 'Gallery Image ' . ($index + 1) }}"
                                      class="w-100 transition round-10"
                                      style="height: {{ $isLarge ? '320px' : '220px' }}; object-fit: cover;">

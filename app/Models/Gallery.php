@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\HasTranslation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class Gallery extends Model 
 {
-    use HasUuids;
+    use HasUuids, HasTranslation;
 
     protected $keyType = 'string';
     public $incrementing = false;

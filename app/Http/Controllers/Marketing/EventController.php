@@ -37,7 +37,7 @@ class EventController extends Controller
             'title' => 'Detail Agenda',
             'menus' => [
                 ['label' => 'HOME',   'url' => '/'],
-                ['label' => 'AGENDA', 'url' => '/agenda'],
+                ['label' => 'AGENDA', 'url' => route('events-marketing')],
                 ['label' => strtoupper($agenda->trans('name')), 'url' => null],
             ],
         ];

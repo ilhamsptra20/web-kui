@@ -34,7 +34,7 @@ class MarketingController extends Controller
         $about = [
             'description' => 'We are a cybersecurity-first company, using AI innovation to help businesses detect threats, prevent breaches, and respond autonomously — at machine speed.',
             'btn_text'    => 'Learn More',
-            'btn_url'     => '/about-us',
+            'btn_url'     => route('about-marketing'),
             'image'       => 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=600&q=80',
             'subtitle'    => 'ABOUT US',
             'title'       => 'Protecting What Matters Most Through Cutting Edge Intelligence And Ethical Cyber Defense',
@@ -47,7 +47,7 @@ class MarketingController extends Controller
         $blogSection = [
             'subtitle'     => 'BLOG & NEWS',
             'title'        => 'Expert Tips And Trends In Cloud Security',
-            'see_all_url'  => '/blog',
+            'see_all_url'  => route('articles-marketing'),
             'see_all_text' => 'View All Articles',
         ];
 
@@ -63,13 +63,13 @@ class MarketingController extends Controller
             ->map(fn($post) => [
                 'image'          => $post->image,
                 'category'       => $post->category?->trans('title'),
-                'category_url'   => '/blog/category/' . $post->category?->slug,
+                'category_url'   => '/articles/category/' . $post->category?->slug,
                 'author'         => $post->user?->name ?? 'Admin',
                 'author_url'     => '/posts-by-author',
                 'date'           => $post->created_at->format('d M, Y'),
                 'date_url'       => '/posts-by-date',
                 'title'          => $post->trans('title'),
-                'url'            => '/blog/' . $post->slug,
+                'url'            => '/articles/' . $post->slug,
                 'read_more_text' => 'Read More',
             ]);
 
@@ -84,7 +84,7 @@ class MarketingController extends Controller
             ->map(fn($g) => [
                 'image'   => $g->image,
                 'caption' => $g->trans('title'),
-                'url'     => '/gallery/' . $g->album?->slug,
+                'url'     => route('gallery-marketing'),
             ]);
 
         $gallery = [

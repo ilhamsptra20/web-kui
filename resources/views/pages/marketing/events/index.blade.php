@@ -8,7 +8,7 @@
 <div class="breadcrumb-area bg-f round-20 position-relative z-1">
     <div class="container text-center">
         <ul class="br-menu text-center bg_secondary d-inline-block list-unstyled mb-15">
-            <li class="position-relative fs-13 fw-semibold ls-1 d-inline-block"><a href="index.html">HOME</a></li>
+            <li class="position-relative fs-13 fw-semibold ls-1 d-inline-block"><a href="{{ url('/') }}">HOME</a></li>
             <li class="position-relative fs-13 fw-semibold ls-1 d-inline-block">EVENTS</li>
         </ul>
         <h2 class="section-title style-one fw-medium font-secondary text-black text-center mb-6">Events</h2>
@@ -64,7 +64,7 @@
 
                                 {{-- Title --}}
                                 <h5 class="agenda-card__title fw-semibold font-secondary mb-15 lh-sm">
-                                    <a href="{{ route('agendas.show', $agenda->slug) }}"
+                                    <a href="{{ route('event.show-marketing', $agenda->slug) }}"
                                        class="text-black hover-primary text-decoration-none">
                                         {{ $agenda->trans('name') }}
                                     </a>
@@ -133,7 +133,7 @@
             @if ($agendas->hasPages())
                 <div class="row mt-20">
                     <div class="col-12 d-flex justify-content-center">
-                        {{ $agendas->links('components.pagination') }}
+                        {{ $agendas->links() }}
                     </div>
                 </div>
             @endif

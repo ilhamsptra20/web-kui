@@ -103,7 +103,7 @@
                     <div class="agenda-detail__nav d-flex justify-content-between gap-15 mt-30">
 
                         @if ($prev)
-                            <a href="{{ route('agendas.show', $prev->slug) }}"
+                            <a href="{{ route('event.show-marketing', $prev->slug) }}"
                                class="agenda-nav__item d-flex align-items-center gap-12 text-decoration-none p-20 bg-white round-10 flex-grow-1" style="max-width: 48%;">
                                 <i class="ri-arrow-left-line text_primary fs-20 flex-shrink-0"></i>
                                 <div class="overflow-hidden">
@@ -118,7 +118,7 @@
                         @endif
 
                         @if ($next)
-                            <a href="{{ route('agendas.show', $next->slug) }}"
+                            <a href="{{ route('event.show-marketing', $next->slug) }}"
                                class="agenda-nav__item d-flex align-items-center justify-content-end gap-12 text-decoration-none p-20 bg-white round-10 flex-grow-1 text-end" style="max-width: 48%;">
                                 <div class="overflow-hidden">
                                     <span class="d-block fs-12 fw-semibold ls-1 text-muted mb-4">AGENDA BERIKUTNYA</span>

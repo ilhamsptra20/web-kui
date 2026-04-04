@@ -18,22 +18,26 @@ class MakeModule extends Command
 
     public function handle(): int
     {
-        $this->moduleName = ucfirst($this->argument('name'));
+        $this->moduleName = Str::studly($this->argument('name'));
+
+        if (! preg_match('/^[A-Z][A-Za-z0-9]*$/', $this->moduleName)) {
+            $this->error('Module name must be a valid StudlyCase class name.');
+
+            return 1;
+        }
+
         $this->singular = Str::snake($this->moduleName);
         $this->plural = Str::plural($this->singular);
 
         if ($this->option('json')) {
-            $path = base_path("_dataApp/" . $this->option('json'));
+            $this->fields = $this->loadFieldsFromJson((string) $this->option('json'));
 
-            if (!File::exists($path)) {
-                $this->error("JSON not found : {$path}");
+            if ($this->fields === []) {
                 return 1;
             }
-
-            $this->fields = json_decode(File::get($path), true);
         } else {
             $this->fields = [
-                ['name'=>'name','type'=>'string','rules'=>'required']
+                ['name' => 'name', 'type' => 'string', 'rules' => 'required'],
             ];
         }
 
@@ -50,6 +54,67 @@ class MakeModule extends Command
         $this->info("Module {$this->moduleName} created");
 
         return 0;
+    }
+
+    private function loadFieldsFromJson(string $jsonFile): array
+    {
+        $file = basename($jsonFile);
+
+        if ($file !== $jsonFile) {
+            $this->error('JSON path must reference a file inside the _dataApp directory only.');
+
+            return [];
+        }
+
+        $path = base_path('_dataApp/' . $file);
+
+        if (! File::exists($path)) {
+            $this->error("JSON not found : {$path}");
+
+            return [];
+        }
+3
+        try {
+            $fields = json_decode(File::get($path), true, 512, JSON_THROW_ON_ERROR);
+        } catch (\JsonException $exception) {
+            $this->error("Invalid JSON schema: {$exception->getMessage()}");
+
+            return [];
+        }
+
+        if (! is_array($fields) || ! array_is_list($fields)) {
+            $this->error('JSON schema must be a list of field definitions.');
+
+            return [];
+        }
+
+        foreach ($fields as $index => $field) {
+            if (! is_array($field) || ! isset($field['name'], $field['type'])) {
+                $this->error("Field definition at index {$index} must contain at least name and type.");
+
+                return [];
+            }
+
+            if (! preg_match('/^[a-z][a-z0-9_]*$/', $field['name'])) {
+                $this->error("Invalid field name [{$field['name']}] in schema.");
+
+                return [];
+            }
+
+            if (! preg_match('/^[a-z][a-z0-9_]*$/', $field['type'])) {
+                $this->error("Invalid field type [{$field['type']}] in schema.");
+
+                return [];
+            }
+
+            if (isset($field['relation']) && ! preg_match('/^[a-z][a-z0-9_]*$/', $field['relation'])) {
+                $this->error("Invalid relation name [{$field['relation']}] in schema.");
+
+                return [];
+            }
+        }
+
+        return $fields;
     }
 
     private function generateFolders(): void
@@ -74,6 +139,16 @@ class MakeModule extends Command
 
             if ($type === 'image') {
                 $lines .= "            \$table->string('{$name}')->nullable();\n";
+                continue;
+            }
+
+            if ($name === 'user_id') {
+                $lines .= "            \$table->foreignId('user_id')->nullable();\n";
+                continue;
+            }
+
+            if (isset($f['relation']) && $type === 'uuid') {
+                $lines .= "            \$table->foreignUuid('{$name}')->nullable();\n";
                 continue;
             }
 
@@ -114,11 +189,31 @@ PHP;
     private function generateModel(): void
     {
         $hasSlug = collect($this->fields)->contains('name', 'slug');
+        $hasTranslations = collect($this->fields)->contains(function (array $field): bool {
+            return Str::endsWith($field['name'], ['_en', '_ar'])
+                || (
+                    Str::endsWith($field['name'], '_id')
+                    && ($field['type'] ?? null) !== 'uuid'
+                    && ! isset($field['relation'])
+                );
+        });
+
         $fillable = collect($this->fields)->map(fn($f) => "'{$f['name']}'")->implode(', ');
         $relations = "";
+        $casts = collect($this->fields)
+            ->map(function (array $field): ?string {
+                return match ($field['type']) {
+                    'boolean' => "'{$field['name']}' => 'boolean'",
+                    'datetime' => "'{$field['name']}' => 'datetime'",
+                    'integer' => "'{$field['name']}' => 'integer'",
+                    default => null,
+                };
+            })
+            ->filter()
+            ->implode(",\n            ");
 
-        $traits = ["HasUuids"];
-        $imports = ["use Illuminate\Database\Eloquent\Concerns\HasUuids;"];
+        $traits = [];
+        $imports = [];
 
         if ($hasSlug) {
             $traits[] = "HasSlug";
@@ -126,12 +221,26 @@ PHP;
             $imports[] = "use Spatie\Sluggable\SlugOptions;";
         }
 
-        $traitString = "use " . implode(', ', $traits) . ";";
+        if ($hasTranslations) {
+            $traits[] = "HasTranslation";
+            $imports[] = "use App\Traits\HasTranslation;";
+        }
+
+        $traitString = $traits !== [] ? 'use ' . implode(', ', $traits) . ';' : '';
         $importString = implode("\n", $imports);
         $slugMethod = "";
+        $castsMethod = $casts !== ''
+            ? "\n    protected function casts(): array\n    {\n        return [\n            {$casts},\n        ];\n    }\n"
+            : "";
 
         if ($hasSlug) {
-            $sourceField = collect($this->fields)->contains('name', 'name') ? 'name' : $this->fields[0]['name'];
+            $sourceField = collect($this->fields)
+                ->first(function (array $field): bool {
+                    return ! isset($field['relation'])
+                        && ! in_array($field['name'], ['slug', 'user_id'], true)
+                        && ($field['type'] ?? null) !== 'image';
+                })['name'] ?? $this->fields[0]['name'];
+
             $slugMethod = "\n    public function getSlugOptions(): SlugOptions\n    {\n        return SlugOptions::create()\n            ->generateSlugsFrom('{$sourceField}')\n            ->saveSlugsTo('slug');\n    }\n";
         }
 
@@ -148,17 +257,14 @@ PHP;
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 {$importString}
 
-class {$this->moduleName} extends Model 
+class {$this->moduleName} extends BaseUuidModel
 {
     {$traitString}
 
-    protected \$keyType = 'string';
-    public \$incrementing = false;
     protected \$fillable = [{$fillable}];
-{$slugMethod}{$relations}
+{$castsMethod}{$slugMethod}{$relations}
 }
 PHP;
         File::put(app_path("Models/{$this->moduleName}.php"), $content);
@@ -193,7 +299,7 @@ PHP;
         if (isset($field['relation']) && $field['name'] !== 'user_id') {
             $model = ucfirst(Str::camel($field['relation']));
             $var   = Str::plural(Str::camel($field['relation']));
-            $relationLoad .= "        \${$var} = \\App\\Models\\{$model}::query()->orderBy('name')->get();\n";
+            $relationLoad .= "        \${$var} = \\App\\Models\\{$model}::query()->latest()->get();\n";
             $relationVars[] = "'{$var}'";
         }
 
@@ -385,7 +491,7 @@ private function generateViews(): void
             $fieldsHtml  .= "        <x-form.select name='{$f['name']}' label='{$label}'{$reqProp}>\n"
                           . "            <option value='' selected>Select {$label}</option>\n"
                           . "            @foreach(\${$vName} as \$item)\n"
-                          . "                <option value='{{ \$item->id }}' {{ (old('{$f['name']}', \${$this->singular}->{$f['name']} ?? '') == \$item->id) ? 'selected' : '' }}>{{ \$item->name }}</option>\n"
+                          . "                <option value='{{ \$item->id }}' {{ (old('{$f['name']}', \${$this->singular}->{$f['name']} ?? '') == \$item->id) ? 'selected' : '' }}>{{ method_exists(\$item, 'trans') ? (\$item->trans('name') ?? \$item->trans('title') ?? \$item->id) : (\$item->name ?? \$item->title ?? \$item->id) }}</option>\n"
                           . "            @endforeach\n"
                           . "        </x-form.select>\n";
         } elseif ($f['type'] === 'image') {

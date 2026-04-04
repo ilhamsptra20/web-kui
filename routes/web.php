@@ -13,6 +13,7 @@ Route::get('/', [MarketingController::class, 'index']);
 Route::get('/about', function () {
     return view('pages.marketing.about');
 })->name('about-marketing');
+Route::view('/contact', 'pages.marketing.contact')->name('contact-marketing');
 
 Route::get('/articles', [ArticleController::class, 'index'])->name('articles-marketing');
 Route::get('/articles/{slug}', [ArticleController::class, 'show'])->name('article.show-marketing');
@@ -21,10 +22,6 @@ Route::get('/articles/tag/{tag}', [ArticleController::class, 'index'])->name('ar
 
 Route::get('/events', [EventController::class, 'index'])->name('events-marketing');
 Route::get('/events/{slug}', [EventController::class, 'show'])->name('event.show-marketing');
-
-Route::get('/announcement', function () {
-    return view('pages.marketing.announcements');
-})->name('announcements-marketing');
 
 Route::get('/announcement',      [AnnouncementController::class, 'index'])->name('announcements-marketing');
 Route::get('/announcement/{id}', [AnnouncementController::class, 'show'])->name('announcements.marketing.show');

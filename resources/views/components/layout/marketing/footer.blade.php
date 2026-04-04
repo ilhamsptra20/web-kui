@@ -3,7 +3,7 @@
         <div class="row justify-content-center mb-40">
             <div class="col-lg-2 col-md-6" data-cue="slideInUp">
                 <div class="footer-widget mb-30">
-                    <a href="index.html" class="logo"><img src="{{ asset('assets/logo/unida.png') }}" alt="Logo"></a>
+                    <a href="{{ url('/') }}" class="logo"><img src="{{ asset('assets/logo/unida.png') }}" alt="Logo"></a>
                 </div>
             </div>
             <div class="col-lg-3 col-md-6">

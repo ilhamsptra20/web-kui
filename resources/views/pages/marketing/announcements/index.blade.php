@@ -56,7 +56,7 @@
 
                                     <div class="d-flex align-items-start justify-content-between gap-10 mb-8 flex-wrap">
                                         <h6 class="fw-semibold font-secondary mb-0 lh-sm">
-                                            <a href="{{ route('announcements.show', $item->id) }}"
+                                            <a href="{{ route('announcements.marketing.show', $item->id) }}"
                                                class="text-black hover-primary text-decoration-none">
                                                 {{ $item->trans('title') }}
                                             </a>
@@ -83,7 +83,7 @@
                                                 <i class="{{ $item->fileIcon() }} fs-16"></i>
                                                 Unduh Lampiran
                                             </a>
-                                        @endif`
+                                        @endif
 
                                         <a href="{{ route('announcements.marketing.show', $item->id) }}"
                                            class="d-inline-flex align-items-center gap-6 fs-13 fw-semibold text_primary text-decoration-none ms-auto">
@@ -103,7 +103,7 @@
                     {{-- ============================================ --}}
                     @if ($announcements->hasPages())
                         <div class="d-flex justify-content-center mt-40">
-                            {{ $announcements->links('components.pagination') }}
+                            {{ $announcements->links() }}
                         </div>
                     @endif
 

@@ -91,7 +91,7 @@
                     <div class="announcement-detail__nav d-flex justify-content-between gap-15 mb-30">
 
                         @if ($prev)
-                            <a href="{{ route('announcements.show', $prev->id) }}"
+                            <a href="{{ route('announcements.marketing.show', $prev->id) }}"
                                class="announcement-nav__item d-flex align-items-center gap-12 text-decoration-none p-20 bg-white round-10 flex-grow-1"
                                style="max-width: 48%;">
                                 <i class="ri-arrow-left-line text_primary fs-20 flex-shrink-0"></i>
@@ -107,7 +107,7 @@
                         @endif
 
                         @if ($next)
-                            <a href="{{ route('announcements.show', $next->id) }}"
+                            <a href="{{ route('announcements.marketing.show', $next->id) }}"
                                class="announcement-nav__item d-flex align-items-center justify-content-end gap-12 text-decoration-none p-20 bg-white round-10 flex-grow-1 text-end"
                                style="max-width: 48%;">
                                 <div class="overflow-hidden">

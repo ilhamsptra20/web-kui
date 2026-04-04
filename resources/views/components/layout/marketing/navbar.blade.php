@@ -1,7 +1,7 @@
 <div class="navbar-area style-two position-relative" id="navbar">
     <div class="container-fluid">
         <div class="navbar-wrapper d-flex justify-content-between align-items-center">
-            <a href="{{ request()->is('/') ? 'active' : '' }}" class="navbar-brand">
+            <a href="{{ url('/') }}" class="navbar-brand">
                 <img src="{{ asset('assets/logo/unida.png') }}" alt="Logo" class="logo-light">
                 <img src="{{ asset('assets/logo/unida.png') }}" alt="Logo" class="logo-dark">
             </a>

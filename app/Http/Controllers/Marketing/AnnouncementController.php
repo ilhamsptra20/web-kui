@@ -20,8 +20,8 @@ class AnnouncementController extends Controller
             ],
         ];
 
-        $announcements = Announcement::
-            latest()
+        $announcements = Announcement::active()
+            ->latest()
             ->paginate(self::PER_PAGE);
 
         return view('pages.marketing.announcements.index', compact(
@@ -39,7 +39,7 @@ class AnnouncementController extends Controller
             'title' => 'Detail Pengumuman',
             'menus' => [
                 ['label' => 'HOME',          'url' => '/'],
-                ['label' => 'ANNOUNCEMENTS', 'url' => '/announcements'],
+                ['label' => 'ANNOUNCEMENTS', 'url' => route('announcements-marketing')],
                 ['label' => strtoupper(Str::limit($announcement->trans('title'), 30)), 'url' => null],
             ],
         ];

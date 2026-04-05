@@ -73,7 +73,7 @@ class MakeModule extends Command
 
             return [];
         }
-3
+
         try {
             $fields = json_decode(File::get($path), true, 512, JSON_THROW_ON_ERROR);
         } catch (\JsonException $exception) {

@@ -33,6 +33,7 @@ Route::middleware('track.visitors')->group(function () {
     Route::get('/announcement/{id}', [AnnouncementController::class, 'show'])->name('announcements.marketing.show');
 
     Route::get('/gallery', [GalleryController::class, 'index'])->name('gallery-marketing');
+    Route::get('/gallery/{album:slug}', [GalleryController::class, 'show'])->name('gallery.show-marketing');
 });
 
 // Route::post('/blog/{slug}/comment', [CommentController::class, 'store'])->name('article.comment.store');
@@ -74,7 +75,6 @@ Route::middleware('auth')->group(function () {
     $registerModuleRoutes('role.manage', __DIR__.'/modules/role.php');
     $registerModuleRoutes('permission.manage', __DIR__.'/modules/permission.php');
 });
-
 
 
 

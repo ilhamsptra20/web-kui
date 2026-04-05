@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateNavigationRequest;
 use App\Models\Navigation;
 use App\Support\Navigation\NavigationService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class NavigationController extends Controller
 {
@@ -16,19 +17,70 @@ class NavigationController extends Controller
 
     public function index()
     {
-        return view('modules.navigation.index');
+        $stats = [
+            'total' => 0,
+            'admin' => 0,
+            'marketing' => 0,
+            'active' => 0,
+        ];
+
+        if (Schema::hasTable('navigations')) {
+            $stats['total'] = Navigation::query()->count();
+            $stats['admin'] = Navigation::query()->where('area', Navigation::AREA_ADMIN)->count();
+            $stats['marketing'] = Navigation::query()->where('area', Navigation::AREA_MARKETING)->count();
+            $stats['active'] = Navigation::query()->where('is_active', true)->count();
+        }
+
+        return view('modules.navigation.index', compact('stats'));
     }
 
     public function list()
     {
+        if (! Schema::hasTable('navigations')) {
+            return datatables()->of(collect())->toJson();
+        }
+
         return datatables()
             ->of(Navigation::query()->with('parent')->select('navigations.*'))
             ->addIndexColumn()
-            ->addColumn('title', fn (Navigation $row): string => e($row->trans('title') ?? '-'))
+            ->addColumn('title', function (Navigation $row): string {
+                $icon = $row->icon ? "<i class=\"{$row->icon} mr-50\"></i>" : '';
+                $destination = $row->route_name ?: ($row->url ?: '-');
+                $meta = e($destination);
+                $title = e($row->trans('title') ?? '-');
+
+                return "<div class=\"d-flex align-items-start\">
+                            <div class=\"navigation-list-icon mr-1\">{$icon}</div>
+                            <div>
+                                <div class=\"font-weight-semibold\">{$title}</div>
+                                <small class=\"text-muted\">{$meta}</small>
+                            </div>
+                        </div>";
+            })
             ->addColumn('parent_label', fn (Navigation $row): string => e($row->parent?->trans('title') ?? '-'))
-            ->addColumn('area_label', fn (Navigation $row): string => e(Navigation::areaOptions()[$row->area] ?? $row->area))
-            ->addColumn('location_label', fn (Navigation $row): string => e(Navigation::locationOptions()[$row->location] ?? $row->location))
-            ->addColumn('type_label', fn (Navigation $row): string => e(Navigation::typeOptions()[$row->type] ?? $row->type))
+            ->addColumn('area_badge', function (Navigation $row): string {
+                $class = $row->area === Navigation::AREA_ADMIN ? 'badge-light-primary' : 'badge-light-success';
+                $label = e(Navigation::areaOptions()[$row->area] ?? $row->area);
+
+                return "<span class=\"badge {$class}\">{$label}</span>";
+            })
+            ->addColumn('location_badge', function (Navigation $row): string {
+                $class = match ($row->location) {
+                    Navigation::LOCATION_SIDEBAR => 'badge-light-primary',
+                    Navigation::LOCATION_NAVBAR => 'badge-light-warning',
+                    Navigation::LOCATION_FOOTER => 'badge-light-info',
+                    default => 'badge-light-secondary',
+                };
+                $label = e(Navigation::locationOptions()[$row->location] ?? $row->location);
+
+                return "<span class=\"badge {$class}\">{$label}</span>";
+            })
+            ->addColumn('type_badge', function (Navigation $row): string {
+                $class = $row->type === Navigation::TYPE_HEADER ? 'badge-light-dark' : 'badge-light-secondary';
+                $label = e(Navigation::typeOptions()[$row->type] ?? $row->type);
+
+                return "<span class=\"badge {$class}\">{$label}</span>";
+            })
             ->addColumn('status_badge', function (Navigation $row): string {
                 $class = $row->is_active ? 'badge-success' : 'badge-secondary';
                 $label = $row->is_active ? 'Active' : 'Inactive';
@@ -36,7 +88,7 @@ class NavigationController extends Controller
                 return "<span class=\"badge {$class}\">{$label}</span>";
             })
             ->addColumn('action', fn (Navigation $row): string => view('modules.navigation.action', compact('row'))->render())
-            ->rawColumns(['status_badge', 'action'])
+            ->rawColumns(['title', 'area_badge', 'location_badge', 'type_badge', 'status_badge', 'action'])
             ->toJson();
     }
 
@@ -121,12 +173,22 @@ class NavigationController extends Controller
             'areaOptions' => Navigation::areaOptions(),
             'locationOptions' => Navigation::locationOptions(),
             'typeOptions' => Navigation::typeOptions(),
-            'parentOptions' => $this->navigationService->parentOptions($navigation),
+            'parentNavigations' => $this->navigationService->parentNavigations($navigation),
+            'iconOptions' => collect(config('feather-icons', []))
+                ->mapWithKeys(fn (string $icon): array => ["feather icon-{$icon}" => $icon])
+                ->all(),
         ];
     }
 
     private function normalizeData(array $data, ?Navigation $navigation = null): array
     {
+        $data['area'] = $data['area'] ?? Navigation::AREA_ADMIN;
+        $data['location'] = $data['area'] === Navigation::AREA_ADMIN
+            ? Navigation::LOCATION_SIDEBAR
+            : ($data['location'] ?? Navigation::LOCATION_NAVBAR);
+        $data['type'] = $data['area'] === Navigation::AREA_MARKETING
+            ? Navigation::TYPE_LINK
+            : ($data['type'] ?? Navigation::TYPE_LINK);
         $data['parent_id'] = blank($data['parent_id'] ?? null) ? null : $data['parent_id'];
         $data['url'] = blank($data['url'] ?? null) ? null : $data['url'];
         $data['route_name'] = blank($data['route_name'] ?? null) ? null : $data['route_name'];
@@ -138,11 +200,19 @@ class NavigationController extends Controller
         $data['open_in_new_tab'] = (bool) ($data['open_in_new_tab'] ?? false);
 
         if (($data['type'] ?? null) === Navigation::TYPE_HEADER) {
+            $data['parent_id'] = null;
             $data['url'] = null;
             $data['route_name'] = null;
             $data['badge_text'] = null;
             $data['badge_class'] = null;
+            $data['icon'] = null;
             $data['open_in_new_tab'] = false;
+        }
+
+        if (($data['area'] ?? null) === Navigation::AREA_MARKETING) {
+            $data['badge_text'] = null;
+            $data['badge_class'] = null;
+            $data['icon'] = null;
         }
 
         if ($navigation && ($data['parent_id'] ?? null) === $navigation->id) {

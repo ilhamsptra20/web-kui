@@ -3,6 +3,7 @@
 namespace App\Support\Navigation;
 
 use App\Models\Navigation;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
 
@@ -90,6 +91,22 @@ class NavigationService
                 ),
             ])
             ->all();
+    }
+
+    public function parentNavigations(?Navigation $except = null): Collection
+    {
+        if (! $this->canUseDatabase()) {
+            return collect();
+        }
+
+        $query = Navigation::query()
+            ->ordered();
+
+        if ($except) {
+            $query->where('id', '!=', $except->getKey());
+        }
+
+        return $query->get();
     }
 
     public function clearCache(): void

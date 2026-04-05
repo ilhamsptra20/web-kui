@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\EditorImageController;
 use App\Http\Controllers\Helper\LanguageController;
 use App\Http\Controllers\Marketing\AnnouncementController;
 use App\Http\Controllers\Marketing\ArticleController;
@@ -39,5 +40,6 @@ Auth::routes();
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
+    Route::post('/editor-images', [EditorImageController::class, 'store'])->name('editor-images.store');
     // Add more authenticated routes here
 });

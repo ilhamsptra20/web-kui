@@ -6,9 +6,9 @@
     { "name": "title_ar", "type": "string", "length": 255, "rules": "nullable|string" },
     { "name": "slug", "type": "string", "rules": "required|unique:posts,slug" },
     { "name": "image", "type": "image", "style": "file", "rules": "nullable|image|max:2048" },
-    { "name": "content_id", "type": "text", "style": "textarea", "rules": "required" },
-    { "name": "content_en", "type": "text", "style": "textarea", "rules": "nullable" },
-    { "name": "content_ar", "type": "text", "style": "textarea", "rules": "nullable" },
+    { "name": "content_id", "type": "richtext", "style": "ckeditor", "rules": "required|string" },
+    { "name": "content_en", "type": "richtext", "style": "ckeditor", "rules": "nullable|string" },
+    { "name": "content_ar", "type": "richtext", "style": "ckeditor", "rules": "nullable|string" },
     { "name": "status", "type": "string", "style": "radio", "rules": "required|in:draft,published" },
     { "name": "meta_title", "type": "string", "rules": "nullable" },
     { "name": "meta_description", "type": "string", "rules": "nullable" }

@@ -6,6 +6,7 @@
         <!-- Required meta tags -->
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
         
         <!-- Link of CSS files -->
         <link rel="stylesheet" href="{{ asset('assets/marketing/css/bootstrap.min.css') }}">

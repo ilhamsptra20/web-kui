@@ -143,6 +143,14 @@ return [
                 'route_name' => 'events-marketing',
             ],
             [
+                'title' => 'Team',
+                'title_id' => 'Tim',
+                'title_en' => 'Team',
+                'title_ar' => 'الفريق',
+                'url' => '/team',
+                'route_name' => 'teams-marketing',
+            ],
+            [
                 'title' => 'Announcements',
                 'title_id' => 'Pengumuman',
                 'title_en' => 'Announcements',
@@ -183,6 +191,14 @@ return [
                 'title_ar' => 'الفعاليات',
                 'url' => '/events',
                 'route_name' => 'events-marketing',
+            ],
+            [
+                'title' => 'Team',
+                'title_id' => 'Tim',
+                'title_en' => 'Team',
+                'title_ar' => 'الفريق',
+                'url' => '/team',
+                'route_name' => 'teams-marketing',
             ],
             [
                 'title' => 'Announcements',

@@ -91,7 +91,7 @@
                 {{-- Description --}}
                 @if ($agenda->trans('description'))
                     <div class="agenda-detail__body bg-white round-10 p-40 mb-30">
-                        <h5 class="fw-semibold font-secondary mb-20">Deskripsi Agenda</h5>
+                        <h5 class="fw-semibold font-secondary mb-20">Informasi Agenda</h5>
                         <div class="fs-15 lh-lg text-muted">
                             {!! nl2br(e($agenda->trans('description'))) !!}
                         </div>

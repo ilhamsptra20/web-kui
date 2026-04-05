@@ -8,7 +8,7 @@
     ============================================================
 
     $breadcrumb = [
-        'title' => 'Blog',
+            'title' => 'Artikel & Berita',
         'menus' => [
             ['label' => 'HOME', 'url' => '/'],
             ['label' => 'BLOG', 'url' => null],  // null = active (tanpa link)
@@ -61,7 +61,7 @@
         @endif
 
         <h2 class="section-title style-one fw-medium font-secondary text-black text-center mb-6">
-            {{ $breadcrumb['title'] ?? 'Blog' }}
+            {{ $breadcrumb['title'] ?? 'Artikel & Berita' }}
         </h2>
 
     </div>
@@ -79,11 +79,11 @@
             <aside class="sidebar mt-lg-50">
 
                 {{-- Search --}}
-                <form action="/blog/search" method="GET"
+                <form action="{{ route('articles-marketing') }}" method="GET"
                       class="search-widget position-relative mb-30">
                     <input type="search" name="q"
-                           value="{{ request('q') }}"
-                           placeholder="Search articles..."
+                           value="{{ $search ?? request('q') }}"
+                           placeholder="Cari artikel atau berita..."
                            class="fw-medium w-100 ht-56 bg_primary border-0 round-5 text-white outline-0">
                     <button type="submit"
                             class="position-absolute bg-transparent top-0 end-0 h-100 d-flex flex-column align-items-center justify-content-center border-0">
@@ -93,15 +93,18 @@
 
                 {{-- Categories --}}
                 <div class="sidebar-widget category-widget round-5">
-                    <h3 class="sidebar-widget-title fs-18 fw-semibold text-black mb-20">Categories</h3>
+                    <h3 class="sidebar-widget-title fs-18 fw-semibold text-black mb-20">Kategori</h3>
                     @if(!empty($categories))
                     <ul class="list-unstyled mb-0">
                         @foreach($categories as $cat)
                         <li>
                             <a href="{{ $cat['url'] ?? '#' }}" class="position-relative">
-                                {{ $cat['label'] ?? 'Uncategorized' }}
+                                {{ $cat['label'] ?? 'Tanpa Kategori' }}
                                 @if(!empty($cat['count']))
                                     <span class="text-muted fs-13">({{ $cat['count'] }})</span>
+                                @endif
+                                @if(!empty($cat['active']))
+                                    <span class="text_primary fs-13 fw-semibold ms-1">Aktif</span>
                                 @endif
                                 <img src="assets/marketing/img/icons/right-arrow-blue.svg" alt="Icon">
                             </a>
@@ -109,20 +112,20 @@
                         @endforeach
                     </ul>
                     @else
-                    <p class="text-muted fst-italic small">Belum ada kategori.</p>
+                    <p class="text-muted fst-italic small">Belum ada kategori artikel.</p>
                     @endif
                 </div>
 
                 {{-- Recent Posts --}}
                 <div class="sidebar-widget round-5">
-                    <h3 class="sidebar-widget-title fs-18 fw-semibold text-black mb-20">Recent Posts</h3>
+                    <h3 class="sidebar-widget-title fs-18 fw-semibold text-black mb-20">Artikel Terbaru</h3>
                     @if(!empty($recentPosts))
                     <div class="rp-post-wrap">
                         @foreach($recentPosts as $rp)
                         <div class="rp-post-card d-flex flex-wrap align-items-center">
                             <div class="rp-post-img">
                                 @if(!empty($rp['thumb']))
-                                    <img src="{{ $rp['thumb'] }}" alt="Post Thumb"
+                                    <img src="{{ asset('storage/' . $rp['thumb']) }}" alt="Post Thumb"
                                          style="width:80px; height:70px; object-fit:cover; border-radius:6px;">
                                 @else
                                     <div style="width:80px;height:70px;background:#eee;border-radius:6px;
@@ -153,7 +156,7 @@
 
                 {{-- Tags --}}
                 <div class="sidebar-widget tags-widget round-5">
-                    <h3 class="sidebar-widget-title fs-18 fw-semibold text-title mb-22">Tags</h3>
+                    <h3 class="sidebar-widget-title fs-18 fw-semibold text-title mb-22">Tag</h3>
                     @if(!empty($tags))
                     <ul class="list-unstyled mb-0">
                         @foreach($tags as $tag)
@@ -210,7 +213,7 @@
                                     </a>
                                 @else
                                     <span class="blog-category fs-15 fw-medium d-inline-block round-oval text-muted fst-italic">
-                                        Uncategorized
+                                        Tanpa Kategori
                                     </span>
                                 @endif
 
@@ -238,7 +241,7 @@
                             </h3>
 
                             <a href="{{ $post['url'] ?? '#' }}" class="link style-two fw-semibold">
-                                Read More<i class="ri-arrow-right-line"></i>
+                                {{ $post['read_more_text'] ?? 'Baca Selengkapnya' }}<i class="ri-arrow-right-line"></i>
                             </a>
                         </div>
 
@@ -252,7 +255,15 @@
             <div class="text-center py-5">
                 <i class="ri-article-line" style="font-size:4rem; color:#ccc;"></i>
                 <h4 class="mt-3 text-muted fw-medium">Belum Ada Artikel</h4>
-                <p class="text-muted fst-italic">Artikel akan muncul di sini setelah ditambahkan melalui panel admin.</p>
+                <p class="text-muted fst-italic mb-0">
+                    @if(!empty($search))
+                        Tidak ada artikel yang cocok dengan pencarian "{{ $search }}".
+                    @elseif(!empty($activeCategory))
+                        Belum ada artikel yang dipublikasikan pada kategori {{ $activeCategory->trans('title') }}.
+                    @else
+                        Artikel, berita, dan informasi program internasional akan muncul di sini setelah dipublikasikan.
+                    @endif
+                </p>
             </div>
             @endif
 

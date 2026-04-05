@@ -3,20 +3,23 @@
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\EditorImageController;
 use App\Http\Controllers\Helper\LanguageController;
+use App\Http\Controllers\Marketing\AboutController;
 use App\Http\Controllers\Marketing\AnnouncementController;
 use App\Http\Controllers\Marketing\ArticleController;
+use App\Http\Controllers\Marketing\ContactController;
 use App\Http\Controllers\Marketing\EventController;
 use App\Http\Controllers\Marketing\GalleryController;
 use App\Http\Controllers\Marketing\MarketingController;
+use App\Http\Controllers\Marketing\TeamController as MarketingTeamController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
 Route::middleware('track.visitors')->group(function () {
     Route::get('/', [MarketingController::class, 'index']);
-    Route::get('/about', function () {
-        return view('pages.marketing.about');
-    })->name('about-marketing');
-    Route::view('/contact', 'pages.marketing.contact')->name('contact-marketing');
+    Route::get('/about', [AboutController::class, 'index'])->name('about-marketing');
+    Route::get('/team', [MarketingTeamController::class, 'index'])->name('teams-marketing');
+    Route::get('/team/{team:slug}', [MarketingTeamController::class, 'show'])->name('team.show-marketing');
+    Route::get('/contact', [ContactController::class, 'index'])->name('contact-marketing');
 
     Route::get('/articles', [ArticleController::class, 'index'])->name('articles-marketing');
     Route::get('/articles/{slug}', [ArticleController::class, 'show'])->name('article.show-marketing');
@@ -71,9 +74,6 @@ Route::middleware('auth')->group(function () {
     $registerModuleRoutes('role.manage', __DIR__.'/modules/role.php');
     $registerModuleRoutes('permission.manage', __DIR__.'/modules/permission.php');
 });
-
-
-
 
 
 

@@ -13,14 +13,15 @@ class EventController extends Controller
     public function index(Request $request)
     {
         $breadcrumb = [
-            'title' => 'Agenda',
+            'title' => 'Agenda & Kegiatan',
             'menus' => [
                 ['label' => 'HOME', 'url' => '/'],
                 ['label' => 'AGENDA', 'url' => null],
             ],
         ];
 
-        $agendas = Agenda::latest('start_date')
+        $agendas = Agenda::query()
+            ->orderBy('start_date')
             ->paginate(self::PER_PAGE);
 
         return view('pages.marketing.events.index', compact(
@@ -42,7 +43,6 @@ class EventController extends Controller
             ],
         ];
 
-        // Prev / Next
         $prev = Agenda::where('start_date', '<', $agenda->start_date)->latest('start_date')->first();
         $next = Agenda::where('start_date', '>', $agenda->start_date)->oldest('start_date')->first();
 

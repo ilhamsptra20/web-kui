@@ -29,5 +29,11 @@ class DatabaseSeeder extends Seeder
             NavigationSeeder::class,
             HomeSettingSeeder::class,
         ]);
+
+        if (app()->environment(['local', 'development'])) {
+            $this->call([
+                KuiUnidaDemoSeeder::class,
+            ]);
+        }
     }
 }

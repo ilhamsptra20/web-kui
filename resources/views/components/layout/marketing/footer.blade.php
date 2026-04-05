@@ -8,6 +8,7 @@
     $newsletterTitle = $footerContent['footer_newsletter_title'] ?? 'Subscribe To Our Newsletter';
     $newsletterPlaceholder = $footerContent['footer_newsletter_placeholder'] ?? 'Enter Your Email';
     $footerCopyright = $footerContent['footer_copyright'] ?? 'Copyright © 2026 Nabila Maulidia. All Rights Reserved.';
+    $socialLinks = $marketingSocialLinks ?? [];
 @endphp
 
 <footer class="footer-area style-one bg-black position-relative z-1 pt-130">
@@ -63,10 +64,13 @@
                     <div class="post-share d-flex flex-wrap align-items-center">
                         <span class="text-white fw-medium me-2">Follow Us :</span>
                         <ul class="social-profile style-one list-unstyled mb-0">
-                            <li><a href="https://www.facebook.com/" target="_blank" class="d-flex flex-column align-items-center justify-content-center rounded-circle"><i class="ri-facebook-fill"></i></a></li>
-                            <li><a href="https://x.com/?lang=en" target="_blank" class="d-flex flex-column align-items-center justify-content-center rounded-circle"><i class="ri-twitter-x-line"></i></a></li>
-                            <li><a href="https://www.instagram.com/" target="_blank" class="d-flex flex-column align-items-center justify-content-center rounded-circle"><i class="ri-instagram-line"></i></a></li>
-                            <li><a href="https://www.linkedin.com/" target="_blank" class="d-flex flex-column align-items-center justify-content-center rounded-circle"><i class="ri-linkedin-fill"></i></a></li>
+                            @foreach($socialLinks as $socialLink)
+                                <li>
+                                    <a href="{{ $socialLink['url'] ?? '#' }}" target="_blank" rel="noopener noreferrer" title="{{ $socialLink['title'] ?? 'Social Media' }}" class="d-flex flex-column align-items-center justify-content-center rounded-circle">
+                                        <i class="{{ $socialLink['icon'] ?? 'ri-global-line' }}"></i>
+                                    </a>
+                                </li>
+                            @endforeach
                         </ul>
                     </div>
                 </div>

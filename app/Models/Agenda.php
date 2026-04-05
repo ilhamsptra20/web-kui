@@ -28,4 +28,33 @@ class Agenda extends BaseUuidModel
             ->doNotGenerateSlugsOnUpdate();
     }
 
+    public function isUpcoming(): bool
+    {
+        return $this->start_date?->isFuture() ?? false;
+    }
+
+    public function isOngoing(): bool
+    {
+        if (! $this->start_date) {
+            return false;
+        }
+
+        $now = now();
+
+        if ($this->end_date) {
+            return $this->start_date <= $now && $this->end_date >= $now;
+        }
+
+        return $this->start_date->isSameDay($now);
+    }
+
+    public function isPast(): bool
+    {
+        if ($this->end_date) {
+            return $this->end_date->isPast();
+        }
+
+        return $this->start_date?->isPast() ?? false;
+    }
+
 }

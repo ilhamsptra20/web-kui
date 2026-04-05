@@ -28,72 +28,93 @@
 {{-- ============================================================ --}}
 {{-- ANNOUNCEMENT LIST --}}
 {{-- ============================================================ --}}
-<section class="announcement-area pt-100 pb-70">
+<section class="announcement-area pt-100 pb-80">
     <div class="container">
 
         @if ($announcements->isEmpty())
-            <div class="text-center py-60">
-                <i class="ri-notification-off-line fs-48 text-muted opacity-50 d-block mb-15"></i>
-                <p class="text-muted fs-16">Belum ada pengumuman saat ini.</p>
+            <div class="marketing-empty-state">
+                <div class="marketing-empty-state__card text-center mx-auto">
+                    <span class="marketing-empty-state__icon marketing-empty-state__icon--announcement">
+                        <i class="ri-megaphone-line"></i>
+                    </span>
+                    <span class="marketing-empty-state__eyebrow">PENGUMUMAN KUI UNIDA</span>
+                    <h3 class="marketing-empty-state__title">Belum Ada Pengumuman Aktif Saat Ini</h3>
+                    <p class="marketing-empty-state__description">
+                        Informasi resmi, pemberitahuan program, pembukaan pendaftaran, dan update penting dari Kantor Urusan Internasional Universitas Juanda akan muncul di sini setelah dipublikasikan.
+                    </p>
+                    <div class="marketing-empty-state__actions d-flex flex-wrap justify-content-center gap-3">
+                        <a href="{{ route('events-marketing') }}" class="btn style-two fw-semibold position-relative round-oval">
+                            Lihat Agenda KUI
+                            <span class="position-absolute top-0 end-0 h-100 d-flex flex-column align-items-center justify-content-center">
+                                <img src="{{ asset('assets/marketing/img/icons/right-arrow-white.svg') }}" alt="Icon">
+                            </span>
+                        </a>
+                        <a href="{{ url('/') }}" class="btn style-three fw-semibold position-relative round-oval">
+                            Kembali ke Beranda
+                            <span class="position-absolute top-0 end-0 h-100 d-flex flex-column align-items-center justify-content-center">
+                                <img src="{{ asset('assets/marketing/img/icons/right-arrow-white.svg') }}" alt="Icon">
+                            </span>
+                        </a>
+                    </div>
+                </div>
             </div>
         @else
-            <div class="row">
+            <div class="row p-5">
                 <div class="col-lg-10 offset-lg-1">
 
-                    {{-- List --}}
-                    <div class="announcement-list d-flex flex-column gap-15">
+                    <div class="announcement-list d-flex flex-column gap-4 gap-lg-4">
                         @foreach ($announcements as $item)
-                            <div class="announcement-item bg-white round-10 p-25 d-flex align-items-start gap-20">
+                            <div class="announcement-spotlight-card">
+                                <div class="announcement-spotlight-card__accent"></div>
 
-                                {{-- Icon --}}
-                                <div class="announcement-item__icon bg_primary_light round-8 p-15 flex-shrink-0 d-flex align-items-center justify-content-center"
-                                     style="width: 52px; height: 52px;">
-                                    <i class="ri-megaphone-line text_primary fs-22"></i>
-                                </div>
-
-                                {{-- Content --}}
-                                <div class="announcement-item__content flex-grow-1 overflow-hidden">
-
-                                    <div class="d-flex align-items-start justify-content-between gap-10 mb-8 flex-wrap">
-                                        <h6 class="fw-semibold font-secondary mb-0 lh-sm">
-                                            <a href="{{ route('announcements.marketing.show', $item->id) }}"
-                                               class="text-black hover-primary text-decoration-none">
-                                                {{ $item->trans('title') }}
-                                            </a>
-                                        </h6>
-                                        <span class="fs-12 text-muted fw-medium flex-shrink-0">
-                                            <i class="ri-calendar-line me-4"></i>
-                                            {{ $item->created_at->format('d M Y') }}
-                                        </span>
+                                <div class="announcement-spotlight-card__main">
+                                    <div class="announcement-spotlight-card__icon">
+                                        <i class="ri-megaphone-line"></i>
                                     </div>
 
-                                    @if ($item->trans('content'))
-                                        <p class="fs-14 text-muted lh-md mb-0">
-                                            {{ Str::limit(strip_tags($item->trans('content')), 120) }}
+                                    <div class="announcement-spotlight-card__content">
+                                        <div class="announcement-spotlight-card__header">
+                                            <div>
+                                                <span class="announcement-spotlight-card__eyebrow">Pengumuman Resmi</span>
+                                                <h5 class="announcement-spotlight-card__title">
+                                                    <a href="{{ route('announcements.marketing.show', $item->id) }}" class="text-decoration-none">
+                                                        {{ $item->trans('title') }}
+                                                    </a>
+                                                </h5>
+                                            </div>
+
+                                            <div class="announcement-spotlight-card__date">
+                                                <i class="ri-calendar-line"></i>
+                                                <span>{{ $item->created_at->format('d M Y') }}</span>
+                                            </div>
+                                        </div>
+
+                                        <p class="announcement-spotlight-card__excerpt">
+                                            {{ Str::limit(strip_tags($item->trans('content') ?: 'Pengumuman resmi KUI Universitas Juanda akan memuat informasi penting, jadwal, serta dokumen pendukung yang dapat diakses pada halaman detail.'), 180) }}
                                         </p>
-                                    @endif
 
-                                    {{-- Footer: file + read more --}}
-                                    <div class="d-flex align-items-center gap-15 mt-12 flex-wrap">
+                                        <div class="announcement-spotlight-card__footer">
+                                            <div class="announcement-spotlight-card__meta">
+                                                @if ($item->hasFile())
+                                                    <a href="{{ Storage::url($item->file_path) }}" target="_blank" class="announcement-spotlight-card__attachment">
+                                                        <i class="{{ $item->fileIcon() }}"></i>
+                                                        Lampiran Tersedia
+                                                    </a>
+                                                @else
+                                                    <span class="announcement-spotlight-card__plain-meta">
+                                                        <i class="ri-information-line"></i>
+                                                        Informasi internal KUI Unida
+                                                    </span>
+                                                @endif
+                                            </div>
 
-                                        @if ($item->hasFile())
-                                            <a href="{{ Storage::url($item->file_path) }}"
-                                               target="_blank"
-                                               class="d-inline-flex align-items-center gap-6 fs-13 fw-semibold text_primary text-decoration-none">
-                                                <i class="{{ $item->fileIcon() }} fs-16"></i>
-                                                Unduh Lampiran
+                                            <a href="{{ route('announcements.marketing.show', $item->id) }}" class="announcement-spotlight-card__link">
+                                                Baca Selengkapnya
+                                                <i class="ri-arrow-right-up-line"></i>
                                             </a>
-                                        @endif
-
-                                        <a href="{{ route('announcements.marketing.show', $item->id) }}"
-                                           class="d-inline-flex align-items-center gap-6 fs-13 fw-semibold text_primary text-decoration-none ms-auto">
-                                            Baca Selengkapnya
-                                            <i class="ri-arrow-right-line"></i>
-                                        </a>
-
+                                        </div>
                                     </div>
                                 </div>
-
                             </div>
                         @endforeach
                     </div>
@@ -115,3 +136,274 @@
 </section>
 
 @endsection
+
+@push('styles')
+<style>
+    .marketing-empty-state {
+        padding: 40px 0 70px;
+    }
+
+    .marketing-empty-state__card {
+        max-width: 760px;
+        padding: 54px 42px;
+        border-radius: 28px;
+        background: linear-gradient(135deg, #ffffff 0%, #f3f6fb 100%);
+        border: 1px solid #e8edf6;
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+    }
+
+    .marketing-empty-state__icon {
+        width: 86px;
+        height: 86px;
+        border-radius: 24px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 22px;
+        background: rgba(93, 95, 239, 0.12);
+        color: var(--primaryColor);
+        font-size: 38px;
+    }
+
+    .marketing-empty-state__icon--announcement {
+        background: rgba(255, 201, 61, 0.2);
+        color: #d78f00;
+    }
+
+    .marketing-empty-state__eyebrow {
+        display: inline-block;
+        margin-bottom: 14px;
+        padding: 9px 16px;
+        border-radius: 999px;
+        background: #d9ff31;
+        color: #111827;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 1px;
+    }
+
+    .marketing-empty-state__title {
+        margin-bottom: 14px;
+        color: #111827;
+        font-size: 38px;
+        font-weight: 600;
+        line-height: 1.2;
+    }
+
+    .marketing-empty-state__description {
+        max-width: 620px;
+        margin: 0 auto 30px;
+        color: #6b7280;
+        font-size: 16px;
+        line-height: 1.85;
+    }
+
+    .marketing-empty-state__actions .btn {
+        min-width: 220px;
+    }
+
+    .announcement-spotlight-card {
+        position: relative;
+        overflow: hidden;
+        border-radius: 24px;
+        background: linear-gradient(180deg, #ffffff 0%, #f8faff 100%);
+        border: 1px solid #ebeff6;
+        box-shadow: 0 18px 48px rgba(15, 23, 42, 0.08);
+        transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    }
+
+    .announcement-spotlight-card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(93, 95, 239, 0.18);
+        box-shadow: 0 22px 56px rgba(93, 95, 239, 0.12);
+    }
+
+    .announcement-spotlight-card__accent {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 6px;
+        height: 100%;
+        background: linear-gradient(180deg, #5d5fef 0%, #9092ff 100%);
+    }
+
+    .announcement-spotlight-card__main {
+        display: flex;
+        gap: 24px;
+        padding: 30px 32px 30px 36px;
+    }
+
+    .announcement-spotlight-card__icon {
+        width: 64px;
+        height: 64px;
+        min-width: 64px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(93, 95, 239, 0.1);
+        color: var(--primaryColor);
+        font-size: 28px;
+    }
+
+    .announcement-spotlight-card__content {
+        flex: 1 1 auto;
+    }
+
+    .announcement-spotlight-card__header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 18px;
+        margin-bottom: 18px;
+    }
+
+    .announcement-spotlight-card__eyebrow {
+        display: inline-flex;
+        align-items: center;
+        margin-bottom: 14px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: rgba(217, 255, 49, 0.22);
+        color: #111827;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.9px;
+        text-transform: uppercase;
+    }
+
+    .announcement-spotlight-card__title {
+        margin-bottom: 0;
+        font-size: 27px;
+        font-weight: 600;
+        line-height: 1.25;
+    }
+
+    .announcement-spotlight-card__title a {
+        color: #101828;
+    }
+
+    .announcement-spotlight-card__title a:hover {
+        color: var(--primaryColor);
+    }
+
+    .announcement-spotlight-card__date {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        border-radius: 999px;
+        background: #f3f6fb;
+        color: #667085;
+        font-size: 13px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .announcement-spotlight-card__date i {
+        color: var(--primaryColor);
+        font-size: 15px;
+    }
+
+    .announcement-spotlight-card__excerpt {
+        margin-bottom: 22px;
+        color: #667085;
+        font-size: 15px;
+        line-height: 1.95;
+    }
+
+    .announcement-spotlight-card__footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .announcement-spotlight-card__meta {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        flex-wrap: wrap;
+    }
+
+    .announcement-spotlight-card__attachment,
+    .announcement-spotlight-card__plain-meta {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        border-radius: 999px;
+        background: #f8fafc;
+        color: #475467;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .announcement-spotlight-card__attachment i,
+    .announcement-spotlight-card__plain-meta i {
+        color: var(--primaryColor);
+        font-size: 16px;
+    }
+
+    .announcement-spotlight-card__attachment:hover {
+        color: var(--primaryColor);
+        background: #eef2ff;
+    }
+
+    .announcement-spotlight-card__link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--primaryColor);
+        font-size: 14px;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .announcement-spotlight-card__link i {
+        font-size: 16px;
+        transition: transform 0.2s ease;
+    }
+
+    .announcement-spotlight-card__link:hover i {
+        transform: translate(3px, -3px);
+    }
+
+    @media (max-width: 767px) {
+        .marketing-empty-state__card {
+            padding: 36px 24px;
+        }
+
+        .marketing-empty-state__title {
+            font-size: 30px;
+        }
+
+        .marketing-empty-state__actions .btn {
+            width: 100%;
+            min-width: 0;
+        }
+
+        .announcement-spotlight-card__main {
+            flex-direction: column;
+            padding: 24px 22px 24px 26px;
+            gap: 18px;
+        }
+
+        .announcement-spotlight-card__header {
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .announcement-spotlight-card__title {
+            font-size: 22px;
+        }
+
+        .announcement-area {
+            padding-top: 82px;
+            padding-bottom: 68px;
+        }
+    }
+</style>
+@endpush

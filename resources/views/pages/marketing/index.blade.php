@@ -135,9 +135,9 @@
                                 <div class="accreditation-strip-item d-flex flex-column align-items-center justify-content-center gap-1 position-relative"
                                      title="{{ $item['name'] ?? '' }}">
 
-                                    @if(!empty($item['logo']))
-                                        <img src="{{ asset("/storage/" . ($item['logo'] ?? '')) }}"
-                                             alt="{{ asset("/storage/" . ($item['name'] ?? 'Logo')) }}"
+                                    @if(!empty($item['logo_url']))
+                                        <img src="{{ $item['logo_url'] }}"
+                                             alt="{{ $item['name'] ?? 'Logo' }}"
                                              class="accreditation-strip-logo">
                                     @else
                                         <div class="accreditation-strip-logo-placeholder d-flex align-items-center justify-content-center">
@@ -209,9 +209,9 @@
                 @foreach($accreditation['items'] as $item)
                 <div class="swiper-slide">
                     <div class="d-flex flex-column align-items-center justify-content-center gap-2 text-center px-2 position-relative">
-                        @if(!empty($item['logo']))
+                        @if(!empty($item['logo_url']))
                             <div class="accreditation-mobile-logo-wrap d-flex align-items-center justify-content-center mx-auto">
-                                <img src="{{ $item['logo'] }}"
+                                <img src="{{ $item['logo_url'] }}"
                                      alt="{{ $item['name'] ?? 'Logo' }}"
                                      class="accreditation-mobile-logo">
                             </div>
@@ -539,10 +539,10 @@
                              style="height: {{ $isLarge ? '320px' : '220px' }}; border: 2px dashed #ccc;">
                             <div class="text-center text-muted p-3">
                                 <i class="ri-image-add-line" style="font-size: 2rem;"></i>
-                                <p class="mt-1 fst-italic small">Galeri masih kosong</p>
+                                    <p class="mt-1 fst-italic small">Galeri KUI masih kosong</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
                 @endfor
             </div>
             <div class="text-center mt-30">

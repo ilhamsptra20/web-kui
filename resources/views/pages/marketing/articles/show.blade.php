@@ -23,7 +23,7 @@
         @endif
 
         <h2 class="section-title style-one fw-medium font-secondary text-black text-center mb-6">
-            {{ $breadcrumb['title'] ?? 'Blog Single' }}
+            {{ $breadcrumb['title'] ?? 'Detail Artikel' }}
         </h2>
     </div>
 </div>
@@ -81,10 +81,12 @@
                 @endif
 
                 <!-- ── CONTENT BLOCKS ── -->
-                @if(!empty($article['content']))
-                    {{ $article['content'] }}
+                @if(!empty($article['content_html']))
+                    <div class="article-content-rendered">
+                        {!! $article['content_html'] !!}
+                    </div>
                 @else
-                    <p class="text-muted fst-italic">Konten artikel masih kosong.</p>
+                    <p class="text-muted fst-italic">Konten artikel belum tersedia.</p>
                 @endif
                 <!-- ── END CONTENT BLOCKS ── -->
 
@@ -117,7 +119,7 @@
                     {{-- Tags --}}
                     <div class="col-md-6">
                         <div class="post-tags d-flex flex-wrap align-items-center mb-sm-10">
-                            <span class="fw-medium text-title me-2">Tags:</span>
+                            <span class="fw-medium text-title me-2">Tag:</span>
                             @if(!empty($article['tags']))
                             <ul class="list-unstyled mb-0">
                                 @foreach($article['tags'] as $i => $tag)
@@ -164,145 +166,19 @@
                 </div>
             </div>
 
-            <!-- ── KOMENTAR ── -->
-            @if(!empty($comments) && count($comments) > 0)
-            <div class="comment-item-wrap mb-55">
-
-                @foreach($comments as $comment)
-
-                {{-- Komentar utama --}}
-                <div class="comment-item d-flex flex-wrap">
-                    <div class="comment-author-img round-5">
-                        @if(!empty($comment['avatar']))
-                            <img src="{{ $comment['avatar'] }}" alt="{{ $comment['name'] ?? 'Avatar' }}"
-                                 class="round-5" style="width:60px; height:60px; object-fit:cover;">
-                        @else
-                            <div class="round-5 bg-light d-flex align-items-center justify-content-center"
-                                 style="width:60px; height:60px;">
-                                <i class="ri-user-line text-muted fs-20"></i>
-                            </div>
-                        @endif
-                    </div>
-                    <div class="comment-author-info">
-                        <h5 class="fs-16 fw-semibold font-primary text-title mb-12">
-                            {{ $comment['name'] ?? 'Anonymous' }}
-                            <span class="comment-date fw-medium text-para">{{ $comment['date'] ?? '' }}</span>
-                        </h5>
-                        <p class="comment-text">{{ $comment['text'] ?? '' }}</p>
-                        <a href="#cmt-form" class="reply-btn text_primary link-hover-primary fw-medium">Reply</a>
-                    </div>
-                </div>
-
-                {{-- Replies --}}
-                @if(!empty($comment['replies']))
-                    @foreach($comment['replies'] as $reply)
-                    <div class="comment-item d-flex flex-wrap reply">
-                        <div class="comment-author-img round-5">
-                            @if(!empty($reply['avatar']))
-                                <img src="{{ $reply['avatar'] }}" alt="{{ $reply['name'] ?? 'Avatar' }}"
-                                     class="round-5" style="width:60px; height:60px; object-fit:cover;">
-                            @else
-                                <div class="round-5 bg-light d-flex align-items-center justify-content-center"
-                                     style="width:60px; height:60px;">
-                                    <i class="ri-user-line text-muted fs-20"></i>
-                                </div>
-                            @endif
-                        </div>
-                        <div class="comment-author-info">
-                            <h5 class="fs-16 fw-semibold font-primary text-title mb-12">
-                                {{ $reply['name'] ?? 'Anonymous' }}
-                                <span class="comment-date fw-medium text-para">{{ $reply['date'] ?? '' }}</span>
-                            </h5>
-                            <p class="comment-text">{{ $reply['text'] ?? '' }}</p>
-                            <a href="#cmt-form" class="reply-btn text_primary link-hover-primary fw-medium">Reply</a>
-                        </div>
-                    </div>
-                    @endforeach
-                @endif
-
-                @endforeach
-
-            </div>
-            @endif
-            <!-- ── END KOMENTAR ── -->
-
-            <!-- ── FORM KOMENTAR ── -->
             <div class="comment-form-box round-10" id="cmt-form">
-                <form action=""
-                      method="POST"
-                      class="comment-form style-one round-10">
-                    @csrf
-                    <div class="row gx-xl-3">
-
-                        <div class="col-12">
-                            <h3 class="fs-20 fw-semibold mb-18">Add A Comment</h3>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="form-group position-relative mb-20">
-                                <input type="text" name="name" required
-                                       value="{{ old('name') }}"
-                                       class="w-100 ht-52 round-5 bg-white text-para border-0"
-                                       placeholder="Name">
-                                @error('name')
-                                    <span class="text-danger fs-13">{{ $message }}</span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="form-group mb-20">
-                                <input type="email" name="email" required
-                                       value="{{ old('email') }}"
-                                       class="w-100 ht-52 round-5 bg-white text-para border-0"
-                                       placeholder="Email">
-                                @error('email')
-                                    <span class="text-danger fs-13">{{ $message }}</span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="col-12">
-                            <div class="form-group mb-20">
-                                <textarea name="comment" id="comment" cols="30" rows="10"
-                                          required
-                                          placeholder="Write your comment..."
-                                          class="w-100 round-20 bg-white text-para border-0 resize-0">{{ old('comment') }}</textarea>
-                                @error('comment')
-                                    <span class="text-danger fs-13">{{ $message }}</span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="col-12">
-                            <div class="form-check checkbox style-two mb-25">
-                                <input class="form-check-input" type="checkbox"
-                                       name="save_info" id="save_info"
-                                       {{ old('save_info') ? 'checked' : '' }}>
-                                <label class="form-check-label" for="save_info">
-                                    Save my name, email, and website in this browser for the next time I comment.
-                                </label>
-                            </div>
-                            <div class="col-xl-5 col-md-6">
-                                <button class="btn style-three fw-semibold position-relative round-oval"
-                                        type="submit">
-                                    Post A Comment
-                                    <span class="position-absolute top-0 end-0 h-100 d-flex flex-column align-items-center justify-content-center">
-                                        <img src="{{ asset('assets/marketing/img/icons/right-arrow-white.svg') }}" alt="Icon">
-                                    </span>
-                                </button>
-                            </div>
-                        </div>
-
-                    </div>
-                </form>
+                <div class="comment-form style-one round-10">
+                    <h3 class="fs-20 fw-semibold mb-18">Interaksi Artikel</h3>
+                    <p class="text-muted mb-0">
+                        Fitur komentar publik belum diaktifkan. Jika Anda ingin menanyakan informasi lebih lanjut terkait program atau berita ini, silakan hubungi KUI Universitas Juanda melalui halaman kontak.
+                    </p>
+                </div>
             </div>
-            <!-- ── END FORM KOMENTAR ── -->
 
             <!-- ── RELATED POSTS ── -->
             @if(!empty($relatedPosts) && count($relatedPosts) > 0)
             <div class="related-posts mt-80">
-                <h3 class="fs-24 fw-semibold mb-30">Related Articles</h3>
+                <h3 class="fs-24 fw-semibold mb-30">Artikel Terkait</h3>
                 <div class="row">
                     @foreach($relatedPosts as $index => $related)
                     <div class="col-md-4" data-cue="slideInUp" data-delay="{{ $index * 100 }}">
@@ -340,7 +216,7 @@
                                     </a>
                                 </h3>
                                 <a href="{{ $related['url'] ?? '#' }}" class="link style-two fw-semibold">
-                                    Read More<i class="ri-arrow-right-line"></i>
+                                    {{ $related['read_more_text'] ?? 'Baca Selengkapnya' }}<i class="ri-arrow-right-line"></i>
                                 </a>
                             </div>
                         </div>
@@ -357,3 +233,50 @@
 <!-- ARTIKEL DETAIL END -->
 
 @endsection
+
+@push('styles')
+<style>
+    .article-content-rendered {
+        color: #5b647a;
+        font-size: 16px;
+        line-height: 1.9;
+    }
+
+    .article-content-rendered > * + * {
+        margin-top: 1rem;
+    }
+
+    .article-content-rendered h1,
+    .article-content-rendered h2,
+    .article-content-rendered h3,
+    .article-content-rendered h4,
+    .article-content-rendered h5,
+    .article-content-rendered h6 {
+        color: #111827;
+        font-weight: 600;
+        line-height: 1.3;
+        margin-top: 1.75rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .article-content-rendered ul,
+    .article-content-rendered ol {
+        padding-left: 1.25rem;
+    }
+
+    .article-content-rendered img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        border-radius: 16px;
+        margin: 1.5rem auto;
+    }
+
+    .article-content-rendered blockquote {
+        border-left: 4px solid var(--primaryColor);
+        padding-left: 1rem;
+        color: #374151;
+        font-style: italic;
+    }
+</style>
+@endpush

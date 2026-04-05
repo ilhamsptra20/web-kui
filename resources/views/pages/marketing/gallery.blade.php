@@ -10,15 +10,15 @@
 
         <ul class="br-menu text-center bg_secondary d-inline-block list-unstyled mb-15">
             <li class="position-relative fs-13 fw-semibold ls-1 d-inline-block">
-                <a href="/">HOME</a>
+                <a href="{{ url('/') }}">HOME</a>
             </li>
             <li class="position-relative fs-13 fw-semibold ls-1 d-inline-block">
-                GALLERY
+                GALERI
             </li>
         </ul>
 
         <h2 class="section-title style-one fw-medium font-secondary text-black text-center mb-6">
-            Gallery
+            {{ $breadcrumb['title'] ?? 'Galeri Kegiatan' }}
         </h2>
 
     </div>
@@ -44,8 +44,8 @@
                     <div class="gallery-card img-hover-wrap round-10 overflow-hidden position-relative">
 
                         {{-- IMAGE --}}
-                        @if(!empty($item['image']))
-                            <img src="{{ asset('storage/' . $item['image']) }}"
+                        @if(!empty($item['image_url']))
+                            <img src="{{ $item['image_url'] }}"
                                  alt="{{ $item['title'] ?? 'Gallery Image' }}"
                                  class="w-100 transition"
                                  style="height:260px; object-fit:cover;">
@@ -89,9 +89,9 @@
             {{-- EMPTY STATE --}}
             <div class="text-center py-5">
                 <i class="ri-image-line" style="font-size:4rem; color:#ccc;"></i>
-                <h4 class="mt-3 text-muted fw-medium">Belum Ada Gallery</h4>
+                <h4 class="mt-3 text-muted fw-medium">Belum Ada Galeri</h4>
                 <p class="text-muted fst-italic">
-                    Gambar akan muncul di sini setelah ditambahkan melalui panel admin.
+                    Dokumentasi kegiatan internasional KUI akan tampil di sini setelah ditambahkan melalui panel admin.
                 </p>
             </div>
             @endif

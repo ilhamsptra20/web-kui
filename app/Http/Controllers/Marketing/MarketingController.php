@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Gallery;
 use App\Models\Lembaga; // akreditasi
 use App\Models\Post;
+use App\Models\Setting;
 use App\Models\Slider;
 use App\Services\SettingService;
 
@@ -14,30 +15,30 @@ class MarketingController extends Controller
     public function index(SettingService $settingService)
     {
         $marketingSettings = $settingService->only([
-            'home_hero_empty_badge' => 'KONTEN SLIDER MASIH KOSONG',
-            'home_hero_empty_title' => 'Tambahkan Slide Hero Via Dashboard Admin',
-            'home_hero_empty_description' => 'Belum ada data hero slider. Silakan tambahkan melalui panel manajemen konten.',
-            'about_subtitle' => 'ABOUT US',
-            'about_title' => 'Protecting What Matters Most Through Cutting Edge Intelligence And Ethical Cyber Defense',
-            'about_description' => 'We are a cybersecurity-first company, using AI innovation to help businesses detect threats, prevent breaches, and respond autonomously — at machine speed.',
-            'about_button_text' => 'Learn More',
+            'home_hero_empty_badge' => 'BERANDA KUI BELUM DIATUR',
+            'home_hero_empty_title' => 'Atur Slider Beranda KUI Universitas Juanda Dari Dashboard',
+            'home_hero_empty_description' => 'Tambahkan slide untuk menampilkan program unggulan, kerja sama internasional, dan informasi penting KUI Unida di halaman depan.',
+            'about_subtitle' => 'TENTANG KUI',
+            'about_title' => 'Membuka Akses Internasional Bagi Sivitas Akademika Universitas Juanda',
+            'about_description' => 'Kantor Urusan Internasional Universitas Juanda berfokus pada pengembangan kerja sama global, mobilitas akademik, dan penguatan reputasi internasional kampus melalui program yang relevan dan berdampak.',
+            'about_button_text' => 'Lihat Profil KUI',
             'about_button_url' => route('about-marketing'),
-            'about_image' => 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=600&q=80',
-            'about_move_text' => 'SMARTER PROTECTION FOR YOUR DATA, NETWORK, AND CLOUD SYSTEMS',
-            'blog_subtitle' => 'BLOG & NEWS',
-            'blog_title' => 'Expert Tips And Trends In Cloud Security',
-            'blog_button_text' => 'View All Articles',
+            'about_image' => 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=900&q=80',
+            'about_move_text' => 'GLOBAL PARTNERSHIP, STUDENT MOBILITY, INTERNATIONAL COLLABORATION, ACADEMIC ENGAGEMENT',
+            'blog_subtitle' => 'BERITA & ARTIKEL',
+            'blog_title' => 'Kabar, Program, Dan Peluang Internasional Terbaru',
+            'blog_button_text' => 'Lihat Semua Artikel',
             'blog_button_url' => route('articles-marketing'),
             'blog_empty_title' => 'Artikel belum ditambahkan',
-            'blog_empty_description' => 'Konten artikel masih kosong dan akan tampil otomatis setelah post dipublish.',
-            'gallery_subtitle' => 'OUR GALLERY',
-            'gallery_title' => 'A Glimpse Into Our Security Operations Center',
-            'gallery_button_text' => 'View Full Gallery',
+            'blog_empty_description' => 'Artikel, kabar kegiatan, dan informasi program internasional akan tampil otomatis setelah dipublikasikan.',
+            'gallery_subtitle' => 'GALERI KUI',
+            'gallery_title' => 'Potret Aktivitas Internasional Universitas Juanda',
+            'gallery_button_text' => 'Lihat Semua Galeri',
             'gallery_button_url' => route('gallery-marketing'),
-            'gallery_empty_description' => 'Belum ada item galeri yang ditambahkan. Tambahkan melalui panel admin.',
-            'accreditation_subtitle' => 'ACCREDITATION & PARTNERS',
-            'accreditation_title' => 'Recognized And Certified By Trusted Institutions',
-            'accreditation_strip_label' => 'TRUSTED PARTNERS',
+            'gallery_empty_description' => 'Dokumentasi kegiatan internasional belum tersedia. Tambahkan galeri melalui dashboard admin.',
+            'accreditation_subtitle' => 'MITRA & JEJARING',
+            'accreditation_title' => 'Kolaborasi Strategis Untuk Memperluas Jejaring Internasional',
+            'accreditation_strip_label' => 'JEJARING GLOBAL',
         ]);
 
         // ============================================================
@@ -104,7 +105,7 @@ class MarketingController extends Controller
                 'date_url'       => '/posts-by-date',
                 'title'          => $post->trans('title'),
                 'url'            => '/articles/' . $post->slug,
-                'read_more_text' => 'Read More',
+                'read_more_text' => 'Baca Selengkapnya',
             ]);
 
         // ============================================================
@@ -135,7 +136,7 @@ class MarketingController extends Controller
         // ============================================================
         $lembagaItems = Lembaga::all()
             ->map(fn($l) => [
-                'logo'  => $l->image,
+                'logo_url'  => Setting::resolveImageUrl($l->image),
                 'name'  => $l->trans('name'),
                 'label' => null, // tidak ada field label di schema, sesuaikan jika ada
                 'url'   => null, // tidak ada field url di schema, sesuaikan jika ada

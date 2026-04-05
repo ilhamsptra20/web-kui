@@ -10,4 +10,9 @@ class Category extends BaseUuidModel
 
     protected $fillable = ['title_id', 'title_en', 'title_ar'];
 
+    public function posts()
+    {
+        return $this->hasMany(Post::class, 'category_id');
+    }
+
 }

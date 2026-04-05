@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\SocialMedia;
 use App\Services\SettingService;
 use App\Support\Navigation\NavigationService;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -37,7 +39,7 @@ class AppServiceProvider extends ServiceProvider
                     'site_logo_dark' => '/assets/logo/unida.png',
                 ]),
                 'marketingContactButton' => $settingService->only([
-                    'primary_contact_button_text' => 'Get In Touch',
+                    'primary_contact_button_text' => 'Hubungi KUI',
                     'primary_contact_button_url' => route('contact-marketing'),
                 ]),
             ]);
@@ -45,6 +47,18 @@ class AppServiceProvider extends ServiceProvider
 
         View::composer('components.layout.marketing.footer', function ($view): void {
             $settingService = app(SettingService::class);
+            $socialLinks = Schema::hasTable('social_media')
+                ? SocialMedia::query()
+                    ->orderBy('name')
+                    ->get()
+                    ->map(fn (SocialMedia $item) => [
+                        'title' => $item->name ?: 'Social Media',
+                        'icon' => $item->icon ?: 'ri-global-line',
+                        'url' => $item->link ?: '#',
+                    ])
+                    ->values()
+                    ->all()
+                : [];
 
             $view->with([
                 'marketingFooterItems' => app(NavigationService::class)->marketingFooter(),
@@ -53,13 +67,19 @@ class AppServiceProvider extends ServiceProvider
                     'footer_logo' => '/assets/logo/unida.png',
                 ]),
                 'marketingFooterContent' => $settingService->only([
-                    'footer_address' => '952 Bad Hill St, Asheville, NC 28803, USA',
-                    'footer_email' => 'contact@aixio.com',
-                    'footer_phone' => '+96 76867 8869',
-                    'footer_newsletter_title' => 'Subscribe To Our Newsletter',
-                    'footer_newsletter_placeholder' => 'Enter Your Email',
-                    'footer_copyright' => 'Copyright © 2026 Nabila Maulidia. All Rights Reserved.',
+                    'footer_address' => 'Kampus Universitas Juanda, Ciawi, Bogor, Jawa Barat, Indonesia',
+                    'footer_email' => 'kui@unida.ac.id',
+                    'footer_phone' => '+62 251 8246475',
+                    'footer_newsletter_title' => 'Informasi & Update KUI',
+                    'footer_newsletter_placeholder' => 'Masukkan email Anda',
+                    'footer_copyright' => 'Copyright © 2026 KUI Universitas Juanda. All Rights Reserved.',
                 ]),
+                'marketingSocialLinks' => $socialLinks !== [] ? $socialLinks : [
+                    ['title' => 'Facebook', 'icon' => 'ri-facebook-fill', 'url' => 'https://www.facebook.com/'],
+                    ['title' => 'Instagram', 'icon' => 'ri-instagram-line', 'url' => 'https://www.instagram.com/'],
+                    ['title' => 'YouTube', 'icon' => 'ri-youtube-fill', 'url' => 'https://www.youtube.com/'],
+                    ['title' => 'LinkedIn', 'icon' => 'ri-linkedin-fill', 'url' => 'https://www.linkedin.com/'],
+                ],
             ]);
         });
 

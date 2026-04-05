@@ -5,6 +5,9 @@ namespace App\Providers;
 use App\Models\SocialMedia;
 use App\Services\SettingService;
 use App\Support\Navigation\NavigationService;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -24,6 +27,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        RateLimiter::for('marketing-inbox', function (Request $request): array {
+            $identity = $request->ip().'|'.strtolower((string) $request->input('email', 'guest'));
+
+            return [
+                Limit::perMinute(3)->by($request->ip()),
+                Limit::perHour(12)->by($identity),
+            ];
+        });
+
         View::composer('components.layout.sidebar', function ($view): void {
             $view->with('adminSidebarItems', app(NavigationService::class)->adminSidebar());
         });

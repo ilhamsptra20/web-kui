@@ -56,6 +56,9 @@ class InboxController extends Controller
 
     public function show(Inbox $inbox)
     {
+        if (! $inbox->is_read) {
+            $inbox->forceFill(['is_read' => true])->save();
+        }
 
         return view('modules.inbox.show', compact('inbox'));
     }

@@ -9,6 +9,7 @@ use App\Http\Controllers\Marketing\ArticleController;
 use App\Http\Controllers\Marketing\ContactController;
 use App\Http\Controllers\Marketing\EventController;
 use App\Http\Controllers\Marketing\GalleryController;
+use App\Http\Controllers\Marketing\InboxSubmissionController;
 use App\Http\Controllers\Marketing\MarketingController;
 use App\Http\Controllers\Marketing\TeamController as MarketingTeamController;
 use Illuminate\Support\Facades\Route;
@@ -20,6 +21,7 @@ Route::middleware('track.visitors')->group(function () {
     Route::get('/team', [MarketingTeamController::class, 'index'])->name('teams-marketing');
     Route::get('/team/{team:slug}', [MarketingTeamController::class, 'show'])->name('team.show-marketing');
     Route::get('/contact', [ContactController::class, 'index'])->name('contact-marketing');
+    Route::post('/contact/inbox', [InboxSubmissionController::class, 'store'])->middleware('throttle:marketing-inbox')->name('contact.inbox.store');
 
     Route::get('/articles', [ArticleController::class, 'index'])->name('articles-marketing');
     Route::get('/articles/{slug}', [ArticleController::class, 'show'])->name('article.show-marketing');
@@ -75,7 +77,6 @@ Route::middleware('auth')->group(function () {
     $registerModuleRoutes('role.manage', __DIR__.'/modules/role.php');
     $registerModuleRoutes('permission.manage', __DIR__.'/modules/permission.php');
 });
-
 
 
 

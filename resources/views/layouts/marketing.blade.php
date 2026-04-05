@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zxx">
+<html lang="{{ app()->getLocale() }}">
     
 <!-- Mirrored from templates.hibotheme.com/aixio/default/index-2.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 01 Sep 2025 07:45:59 GMT -->
 <head>
@@ -19,8 +19,8 @@
         <link rel="stylesheet" href="{{ asset('assets/marketing/css/responsive.css') }}">
         <link rel="stylesheet" href="{{ asset('assets/marketing/css/dark-theme.css') }}">
         
-        <title>Aixio - Technology & AI Startup HTML Template</title>
-        <link rel="icon" type="image/png" href="{{ asset('assets/marketing/img/favicon.png') }}">
+        <title>{{ config('app.name') }}</title>
+        <link rel="icon" type="image/png" href="{{ ($marketingLayoutSettings['favicon_logo'] ?? '/favicon.ico') }}">
         @stack('styles')
     </head>
     <body>

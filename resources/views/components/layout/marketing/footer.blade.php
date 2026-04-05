@@ -1,9 +1,21 @@
+@php
+    $footerBrand = $marketingFooterBrand ?? [];
+    $footerContent = $marketingFooterContent ?? [];
+    $footerLogo = $footerBrand['footer_logo'] ?? ($footerBrand['site_logo'] ?? '/assets/logo/unida.png');
+    $footerAddress = $footerContent['footer_address'] ?? '952 Bad Hill St, Asheville, NC 28803, USA';
+    $footerEmail = $footerContent['footer_email'] ?? 'contact@aixio.com';
+    $footerPhone = $footerContent['footer_phone'] ?? '+96 76867 8869';
+    $newsletterTitle = $footerContent['footer_newsletter_title'] ?? 'Subscribe To Our Newsletter';
+    $newsletterPlaceholder = $footerContent['footer_newsletter_placeholder'] ?? 'Enter Your Email';
+    $footerCopyright = $footerContent['footer_copyright'] ?? 'Copyright © 2026 Nabila Maulidia. All Rights Reserved.';
+@endphp
+
 <footer class="footer-area style-one bg-black position-relative z-1 pt-130">
     <div class="container style-one">
         <div class="row justify-content-center mb-40">
             <div class="col-lg-2 col-md-6" data-cue="slideInUp">
                 <div class="footer-widget mb-30">
-                    <a href="{{ url('/') }}" class="logo"><img src="{{ asset('assets/logo/unida.png') }}" alt="Logo"></a>
+                    <a href="{{ url('/') }}" class="logo"><img src="{{ $footerLogo }}" alt="{{ config('app.name') }} Logo"></a>
                 </div>
             </div>
             <div class="col-lg-3 col-md-6">
@@ -26,26 +38,26 @@
                     <ul class="contact-info list-unstyled mb-0">
                         <li class="position-relative">
                             <img src="{{ asset('assets/marketing/img/icons/pin-small.svg') }}" alt="Icon">
-                            <span class="text-white fw-medium">Address :</span> 952 Bad Hill St, Asheville, NC 28803, USA
+                            <span class="text-white fw-medium">Address :</span> {{ $footerAddress }}
                         </li>
                         <li class="position-relative">
                             <img src="{{ asset('assets/marketing/img/icons/mail-small.svg') }}" alt="Icon">
                             <span class="text-white fw-medium d-block">Email :</span>
-                            <a href="https://templates.hibotheme.com/cdn-cgi/l/email-protection#34575b5a4055574074555d4c5d5b1a575b59"><span class="__cf_email__" data-cfemail="c5a6aaabb1a4a6b185a4acbdacaaeba6aaa8">[email&#160;protected]</span></a>
+                            <a href="mailto:{{ $footerEmail }}">{{ $footerEmail }}</a>
                         </li>
                         <li class="position-relative">
                             <img src="{{ asset('assets/marketing/img/icons/phone-small.svg') }}" alt="Icon">
                             <span class="text-white fw-medium d-block">Phone :</span> 
-                            <a href="tel:96768678869">+96 76867 8869</a>
+                            <a href="tel:{{ preg_replace('/[^0-9+]/', '', $footerPhone) }}">{{ $footerPhone }}</a>
                         </li>
                     </ul>
                 </div>
             </div>
             <div class="col-lg-4 col-md-6 ps-xxl-4 pe-xxl-1" data-cue="slideInUp">
                 <div class="footer-widget mb-30">
-                    <h3 class="text-white fs-20 font-secondary fw-medium mb-12">Subscribe To Our Newsletter</h3>
+                    <h3 class="text-white fs-20 font-secondary fw-medium mb-12">{{ $newsletterTitle }}</h3>
                     <form action="#" class="newsletter-form position-relative">
-                        <input type="email" class="fs-15 w-100 bg-transparent text-white outline-0" placeholder="Enter Your Email">
+                        <input type="email" class="fs-15 w-100 bg-transparent text-white outline-0" placeholder="{{ $newsletterPlaceholder }}">
                         <button class="position-absolute bg-transparent border-0 end-0"><img src="{{ asset('assets/marketing/img/icons/plane-small.svg') }}" alt="Icon"></button>
                     </form>
                     <div class="post-share d-flex flex-wrap align-items-center">
@@ -65,7 +77,7 @@
         <div class="container-fluid position-relative px-xxl-4">
             <div class="row align-items-center">
                 <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
-                    <p class="text-white mb-0">Copyright &copy; 2026 <a href="https://hibotheme.com/" target="_blank" class="text-white fw-semibold">Nabila Maulidia</a>. All Rights Reserved.</p>
+                    <p class="text-white mb-0">{{ $footerCopyright }}</p>
                 </div>
             </div>
         </div>

@@ -2,83 +2,89 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SaveSettingGroupRequest;
 use App\Models\Setting;
-use App\Http\Requests\StoreSettingRequest;
-use App\Http\Requests\UpdateSettingRequest;
+use App\Services\SettingService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class SettingController extends Controller
 {
-    public function index()
+    public function __construct(private readonly SettingService $settingService)
     {
-        return view('modules.setting.index');
     }
-    public function list()
-    {
-        return datatables()
-            ->of(Setting::query())
-            ->addIndexColumn()
 
-            ->addColumn('action', fn ($row) => view('modules.setting.action', compact('row'))->render())
-            ->rawColumns(['action'])
-            ->toJson();
+    public function index(Request $request)
+    {
+        $groups = collect();
+        $schemaReady = $this->builderSchemaReady();
+
+        if ($schemaReady) {
+            $groups = Setting::query()
+                ->select('group', DB::raw('COUNT(*) as total'))
+                ->groupBy('group')
+                ->orderBy('group')
+                ->get();
+        }
+
+        $activeGroup = $this->settingService->normalizeGroup(
+            (string) $request->query('group', old('group', $groups->first()->group ?? 'General'))
+        );
+
+        if ($groups->where('group', $activeGroup)->isEmpty()) {
+            $groups->push((object) ['group' => $activeGroup, 'total' => 0]);
+        }
+
+        $settings = $schemaReady
+            ? Setting::query()->group($activeGroup)->orderBy('label')->orderBy('key')->get()
+            : collect();
+
+        return view('modules.setting.index', [
+            'schemaReady' => $schemaReady,
+            'groups' => $groups->sortBy('group')->values(),
+            'activeGroup' => $activeGroup,
+            'settings' => $settings,
+            'typeOptions' => Setting::typeOptions(),
+            'settingItems' => $settings
+                ->map(fn (Setting $setting): array => $this->settingService->mapForEditor($setting))
+                ->all(),
+        ]);
     }
 
     public function create()
     {
-
-        return view('modules.setting.form');
-    }
-
-    public function store(StoreSettingRequest $request)
-    {
-        DB::beginTransaction();
-
-        try {
-            $data = $request->validated();
-
-            $setting = Setting::create($data);
-
-            DB::commit();
-
-            return redirect()->route('settings.show', $setting)->with('success', 'Data created');
-        } catch (\Throwable $e) {
-            DB::rollBack();
-            report($e);
-
-            return back()->withInput()->with('error', 'Failed create data');
-        }
+        return redirect()->route('settings.index');
     }
 
     public function show(Setting $setting)
     {
-
-        return view('modules.setting.show', compact('setting'));
+        return redirect()->route('settings.index', ['group' => $setting->group]);
     }
 
     public function edit(Setting $setting)
     {
-
-        return view('modules.setting.form', compact('setting'));
+        return redirect()->route('settings.index', ['group' => $setting->group]);
     }
 
-    public function update(UpdateSettingRequest $request, Setting $setting)
+    public function publish(SaveSettingGroupRequest $request)
     {
         DB::beginTransaction();
 
         try {
-            $data = $request->validated();
+            $validated = $request->validated();
+            $group = $this->settingService->normalizeGroup($validated['group']);
 
-            $setting->update($data);
+            $this->settingService->syncGroup($group, $validated['items'] ?? []);
 
             DB::commit();
 
-            return redirect()->route('settings.show', $setting)->with('success', 'Data updated');
+            return redirect()->route('settings.index', ['group' => $group])->with('success', 'Setting group berhasil dipublish.');
         } catch (\Throwable $e) {
             DB::rollBack();
             report($e);
 
-            return back()->withInput()->with('error', 'Update failed');
+            return back()->withInput()->with('error', 'Gagal menyimpan setting group.');
         }
     }
 
@@ -87,17 +93,25 @@ class SettingController extends Controller
         DB::beginTransaction();
 
         try {
-
-            $setting->delete();
+            $group = $setting->group;
+            $this->settingService->delete($setting);
 
             DB::commit();
 
-            return redirect()->route('settings.index')->with('success', 'Data deleted');
+            return redirect()->route('settings.index', ['group' => $group])->with('success', 'Setting berhasil dihapus.');
         } catch (\Throwable $e) {
             DB::rollBack();
             report($e);
 
-            return back()->with('error', 'Delete failed');
+            return back()->with('error', 'Gagal menghapus setting.');
         }
+    }
+
+    private function builderSchemaReady(): bool
+    {
+        return Schema::hasTable('settings')
+            && Schema::hasColumn('settings', 'group')
+            && Schema::hasColumn('settings', 'label')
+            && Schema::hasColumn('settings', 'type');
     }
 }

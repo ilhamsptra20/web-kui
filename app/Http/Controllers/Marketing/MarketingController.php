@@ -3,17 +3,43 @@
 namespace App\Http\Controllers\Marketing;
 
 use App\Http\Controllers\Controller;
-use App\Models\Slider;
-use App\Models\Post;
-use App\Models\Category;
-use App\Models\Album;
 use App\Models\Gallery;
 use App\Models\Lembaga; // akreditasi
+use App\Models\Post;
+use App\Models\Slider;
+use App\Services\SettingService;
 
 class MarketingController extends Controller
 {
-    public function index()
+    public function index(SettingService $settingService)
     {
+        $marketingSettings = $settingService->only([
+            'home_hero_empty_badge' => 'KONTEN SLIDER MASIH KOSONG',
+            'home_hero_empty_title' => 'Tambahkan Slide Hero Via Dashboard Admin',
+            'home_hero_empty_description' => 'Belum ada data hero slider. Silakan tambahkan melalui panel manajemen konten.',
+            'about_subtitle' => 'ABOUT US',
+            'about_title' => 'Protecting What Matters Most Through Cutting Edge Intelligence And Ethical Cyber Defense',
+            'about_description' => 'We are a cybersecurity-first company, using AI innovation to help businesses detect threats, prevent breaches, and respond autonomously — at machine speed.',
+            'about_button_text' => 'Learn More',
+            'about_button_url' => route('about-marketing'),
+            'about_image' => 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=600&q=80',
+            'about_move_text' => 'SMARTER PROTECTION FOR YOUR DATA, NETWORK, AND CLOUD SYSTEMS',
+            'blog_subtitle' => 'BLOG & NEWS',
+            'blog_title' => 'Expert Tips And Trends In Cloud Security',
+            'blog_button_text' => 'View All Articles',
+            'blog_button_url' => route('articles-marketing'),
+            'blog_empty_title' => 'Artikel belum ditambahkan',
+            'blog_empty_description' => 'Konten artikel masih kosong dan akan tampil otomatis setelah post dipublish.',
+            'gallery_subtitle' => 'OUR GALLERY',
+            'gallery_title' => 'A Glimpse Into Our Security Operations Center',
+            'gallery_button_text' => 'View Full Gallery',
+            'gallery_button_url' => route('gallery-marketing'),
+            'gallery_empty_description' => 'Belum ada item galeri yang ditambahkan. Tambahkan melalui panel admin.',
+            'accreditation_subtitle' => 'ACCREDITATION & PARTNERS',
+            'accreditation_title' => 'Recognized And Certified By Trusted Institutions',
+            'accreditation_strip_label' => 'TRUSTED PARTNERS',
+        ]);
+
         // ============================================================
         // HERO SLIDER
         // ============================================================
@@ -31,24 +57,32 @@ class MarketingController extends Controller
         // ============================================================
         // ABOUT (static / from config — tidak ada model khusus)
         // ============================================================
+        $heroEmptyState = [
+            'badge' => $marketingSettings['home_hero_empty_badge'],
+            'title' => $marketingSettings['home_hero_empty_title'],
+            'description' => $marketingSettings['home_hero_empty_description'],
+        ];
+
         $about = [
-            'description' => 'We are a cybersecurity-first company, using AI innovation to help businesses detect threats, prevent breaches, and respond autonomously — at machine speed.',
-            'btn_text'    => 'Learn More',
-            'btn_url'     => route('about-marketing'),
-            'image'       => 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=600&q=80',
-            'subtitle'    => 'ABOUT US',
-            'title'       => 'Protecting What Matters Most Through Cutting Edge Intelligence And Ethical Cyber Defense',
-            'move_text'   => 'SMARTER PROTECTION FOR YOUR DATA, NETWORK, AND CLOUD SYSTEMS',
+            'description' => $marketingSettings['about_description'],
+            'btn_text' => $marketingSettings['about_button_text'],
+            'btn_url' => $marketingSettings['about_button_url'],
+            'image' => $marketingSettings['about_image'],
+            'subtitle' => $marketingSettings['about_subtitle'],
+            'title' => $marketingSettings['about_title'],
+            'move_text' => $marketingSettings['about_move_text'],
         ];
 
         // ============================================================
         // BLOG SECTION HEADER
         // ============================================================
         $blogSection = [
-            'subtitle'     => 'BLOG & NEWS',
-            'title'        => 'Expert Tips And Trends In Cloud Security',
-            'see_all_url'  => route('articles-marketing'),
-            'see_all_text' => 'View All Articles',
+            'subtitle' => $marketingSettings['blog_subtitle'],
+            'title' => $marketingSettings['blog_title'],
+            'see_all_url' => $marketingSettings['blog_button_url'],
+            'see_all_text' => $marketingSettings['blog_button_text'],
+            'empty_title' => $marketingSettings['blog_empty_title'],
+            'empty_description' => $marketingSettings['blog_empty_description'],
         ];
 
         // ============================================================
@@ -88,11 +122,12 @@ class MarketingController extends Controller
             ]);
 
         $gallery = [
-            'subtitle'     => 'OUR GALLERY',
-            'title'        => 'A Glimpse Into Our Security Operations Center',
-            'see_all_url'  => '/gallery',
-            'see_all_text' => 'View Full Gallery',
-            'items'        => $galleryItems,
+            'subtitle' => $marketingSettings['gallery_subtitle'],
+            'title' => $marketingSettings['gallery_title'],
+            'see_all_url' => $marketingSettings['gallery_button_url'],
+            'see_all_text' => $marketingSettings['gallery_button_text'],
+            'empty_description' => $marketingSettings['gallery_empty_description'],
+            'items' => $galleryItems,
         ];
 
         // ============================================================
@@ -107,14 +142,15 @@ class MarketingController extends Controller
             ]);
 
         $accreditation = [
-            'subtitle'    => 'AKREDITASI & LEMBAGA',
-            'title'       => 'Diakui Dan Tersertifikasi Oleh Lembaga Terpercaya',
-            'strip_label' => 'Tersertifikasi',
+            'subtitle' => $marketingSettings['accreditation_subtitle'],
+            'title' => $marketingSettings['accreditation_title'],
+            'strip_label' => $marketingSettings['accreditation_strip_label'],
             'items'       => $lembagaItems,
         ];
 
         return view('pages.marketing.index', compact(
             'heroSlides',
+            'heroEmptyState',
             'about',
             'blogSection',
             'blogPosts',

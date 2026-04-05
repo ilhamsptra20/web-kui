@@ -179,13 +179,13 @@
                         <div class="hero-content py-5">
                             <h6 class="section-subtitle style-two bg_secondary fs-13 fw-semibold ls-1 d-inline-flex align-items-center gap-2 round-oval mb-20">
                                 <img src="assets/marketing/img/icons/lock.svg" alt="Icon">
-                                KONTEN SLIDER MASIH KOSONG
+                                {{ $heroEmptyState['badge'] ?? 'KONTEN SLIDER MASIH KOSONG' }}
                             </h6>
                             <h1 class="font-secondary fw-medium text-white">
-                                Tambahkan <span class="text_primary fw-bold">Slide Hero</span> Via Dashboard Admin
+                                {{ $heroEmptyState['title'] ?? 'Tambahkan Slide Hero Via Dashboard Admin' }}
                             </h1>
                             <p class="text-white fst-italic" style="opacity:.6;">
-                                Belum ada data hero slider. Silakan tambahkan melalui panel manajemen konten.
+                                {{ $heroEmptyState['description'] ?? 'Belum ada data hero slider. Silakan tambahkan melalui panel manajemen konten.' }}
                             </p>
                         </div>
                     </div>
@@ -416,7 +416,7 @@
                                  style="border: 2px dashed #ccc;">
                                 <div class="text-center text-muted p-3">
                                     <i class="ri-article-line" style="font-size: 2.5rem;"></i>
-                                    <p class="mt-1 fst-italic small">Konten artikel masih kosong</p>
+                                    <p class="mt-1 fst-italic small">{{ $blogSection['empty_description'] ?? 'Konten artikel masih kosong' }}</p>
                                 </div>
                             </div>
                         </div>
@@ -428,7 +428,7 @@
                                     <li><span class="text-muted">-</span></li>
                                 </ul>
                             </div>
-                            <h3 class="fs-20 fw-semibold text-muted fst-italic">Artikel belum ditambahkan</h3>
+                            <h3 class="fs-20 fw-semibold text-muted fst-italic">{{ $blogSection['empty_title'] ?? 'Artikel belum ditambahkan' }}</h3>
                             <span class="link style-two fw-semibold text-muted">Read More <i class="ri-arrow-right-line"></i></span>
                         </div>
                     </div>
@@ -546,7 +546,7 @@
                 @endfor
             </div>
             <div class="text-center mt-30">
-                <p class="text-muted fst-italic">Belum ada item galeri yang ditambahkan. Tambahkan melalui panel admin.</p>
+                <p class="text-muted fst-italic">{{ $gallery['empty_description'] ?? 'Belum ada item galeri yang ditambahkan. Tambahkan melalui panel admin.' }}</p>
             </div>
         @endif
     </div>

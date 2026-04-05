@@ -1,4 +1,7 @@
 [
-    { "name": "key", "type": "string", "rules": "required|unique:settings,key" },
-    { "name": "value", "type": "text", "style": "textarea", "rules": "nullable" }
+    { "name": "group", "type": "string", "length": 100, "rules": "required|string|max:100" },
+    { "name": "label", "type": "string", "length": 100, "rules": "required|string|max:100" },
+    { "name": "key", "type": "string", "length": 100, "rules": "required|string|max:100|unique:settings,key" },
+    { "name": "type", "type": "enum", "options": ["text", "longtext", "image", "list"], "rules": "required|in:text,longtext,image,list" },
+    { "name": "value", "type": "text", "style": "dynamic", "rules": "nullable|string" }
 ]

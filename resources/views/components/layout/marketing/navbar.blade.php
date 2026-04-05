@@ -1,9 +1,19 @@
+@php
+    $brandSettings = $marketingBrandSettings ?? [];
+    $contactButton = $marketingContactButton ?? [];
+    $baseLogo = $brandSettings['site_logo'] ?? '/assets/logo/unida.png';
+    $lightLogo = $brandSettings['site_logo_light'] ?? $baseLogo;
+    $darkLogo = $brandSettings['site_logo_dark'] ?? $lightLogo;
+    $contactUrl = $contactButton['primary_contact_button_url'] ?? route('contact-marketing');
+    $contactText = $contactButton['primary_contact_button_text'] ?? 'Get In Touch';
+@endphp
+
 <div class="navbar-area style-two position-relative" id="navbar">
     <div class="container-fluid">
         <div class="navbar-wrapper d-flex justify-content-between align-items-center">
             <a href="{{ url('/') }}" class="navbar-brand">
-                <img src="{{ asset('assets/logo/unida.png') }}" alt="Logo" class="logo-light">
-                <img src="{{ asset('assets/logo/unida.png') }}" alt="Logo" class="logo-dark">
+                <img src="{{ $lightLogo }}" alt="{{ config('app.name') }} Logo" class="logo-light">
+                <img src="{{ $darkLogo }}" alt="{{ config('app.name') }} Logo" class="logo-dark">
             </a>
             <div class="menu-area mx-auto">
                 <div class="overlay"></div>
@@ -55,7 +65,7 @@
                                 <i class="ri-more-fill"></i>
                             </button>
                             <div class="dropdown-menu dropdown-menu-centered mobile-option-list top-1 border-0" data-bs-popper="static">
-                                <a href="{{ route('contact-marketing') }}" class="btn style-three fw-semibold position-relative round-oval">Get In Touch<span class="position-absolute top-0 end-0 h-100 d-flex flex-column align-items-center justify-content-center"><img src="{{ asset('assets/marketing/img/icons/right-arrow-white.svg') }}" alt="Icon"></span></a>
+                                <a href="{{ $contactUrl }}" class="btn style-three fw-semibold position-relative round-oval">{{ $contactText }}<span class="position-absolute top-0 end-0 h-100 d-flex flex-column align-items-center justify-content-center"><img src="{{ asset('assets/marketing/img/icons/right-arrow-white.svg') }}" alt="Icon"></span></a>
                             </div>
                         </div>
                         <button  class="search-btn bg-transparent border-0 d-flex flex-wrap align-items-center dropdown-toggle text-center p-0 transition" type="button" data-bs-toggle="dropdown" aria-expanded="true">
@@ -70,7 +80,7 @@
                     </div>
                 </div>
                 <div class="option-item d-lg-block d-none">
-                    <a href="{{ route('contact-marketing') }}" class="btn style-three fw-semibold position-relative round-oval">Get In Touch<span class="position-absolute top-0 end-0 h-100 d-flex flex-column align-items-center justify-content-center"><img src="{{ asset('assets/marketing/img/icons/right-arrow-white.svg') }}" alt="Icon"></span></a>
+                    <a href="{{ $contactUrl }}" class="btn style-three fw-semibold position-relative round-oval">{{ $contactText }}<span class="position-absolute top-0 end-0 h-100 d-flex flex-column align-items-center justify-content-center"><img src="{{ asset('assets/marketing/img/icons/right-arrow-white.svg') }}" alt="Icon"></span></a>
                 </div>
                 <div class="option-item d-lg-none">
                     <button type="button" class="menu-mobile-trigger">

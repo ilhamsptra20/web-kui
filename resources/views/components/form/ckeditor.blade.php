@@ -8,13 +8,14 @@
     'enableClearFormatting' => true,
     'uploadUrl' => null,
     'required' => false,
+    'readonly' => false,
 ])
 
 @php
     $fieldId = $attributes->get('id', $name);
     $resolvedUploadUrl = null;
 
-    if ($enableImages) {
+    if ($enableImages && ! $readonly) {
         $resolvedUploadUrl = $uploadUrl;
 
         if (! $resolvedUploadUrl && \Illuminate\Support\Facades\Route::has('editor-images.store')) {
@@ -29,6 +30,7 @@
         'enableClearFormatting' => (bool) $enableClearFormatting,
         'uploadUrl' => $resolvedUploadUrl,
         'csrfToken' => csrf_token(),
+        'readOnly' => (bool) $readonly,
     ];
 @endphp
 
@@ -51,6 +53,7 @@
         id="{{ $fieldId }}"
         name="{{ $name }}"
         {{ $required ? 'required' : '' }}
+        {{ $readonly ? 'readonly' : '' }}
         data-ckeditor-config='@json($editorConfig)'
         {{ $attributes->except(['id', 'class'])->merge(['class' => 'form-control ' . ($errors->has($name) ? 'is-invalid' : '')]) }}
     >{{ old($name, $value) }}</textarea>

@@ -140,7 +140,7 @@
     }
 
     function attachUploadAdapter(editor, config) {
-        if (!config.enableImages || !config.uploadUrl) {
+        if (!config.enableImages || !config.uploadUrl || config.readOnly) {
             return;
         }
 
@@ -204,6 +204,15 @@
         });
 
         attachUploadAdapter(editor, config);
+
+        if (config.readOnly) {
+            editor.enableReadOnlyMode('module-show');
+
+            if (editor.ui?.view?.toolbar?.element) {
+                editor.ui.view.toolbar.element.style.display = 'none';
+            }
+        }
+
         textarea.dataset.ckeditorReady = '1';
     }
 

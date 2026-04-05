@@ -421,6 +421,9 @@ PHP;
         $relationCompactEdit = $relationVars !== []
             ? ", compact('{$this->singular}', " . implode(', ', $relationVars) . ')'
             : ", compact('{$this->singular}')";
+        $relationCompactShow = $relationVars !== []
+            ? ", compact('{$this->singular}', " . implode(', ', $relationVars) . ')'
+            : ", compact('{$this->singular}')";
 
         $datatableMethod = '';
 
@@ -486,7 +489,8 @@ class {$this->moduleName}Controller extends Controller
 
     public function show({$this->moduleName} \${$this->singular})
     {
-        return view('modules.{$this->singular}.show', compact('{$this->singular}'));
+{$relationLoad}
+        return view('modules.{$this->singular}.show'{$relationCompactShow});
     }
 
     public function edit({$this->moduleName} \${$this->singular})
@@ -617,10 +621,13 @@ PHP;
         $indexContent = $this->buildIndexView($displayFieldName, $displayLabel);
         File::put(base_path("{$path}/index.blade.php"), $indexContent);
 
-        $fieldsHtml = collect($this->fields)
+        $fieldsPartial = "@php \$showMode = \$showMode ?? false; @endphp\n\n"
+            . collect($this->fields)
             ->reject(fn (array $field): bool => in_array($field['name'], ['slug', 'user_id'], true))
-            ->map(fn (array $field): string => $this->buildFormField($field))
+            ->map(fn (array $field): string => $this->buildSharedField($field))
             ->implode('');
+
+        File::put(base_path("{$path}/fields.blade.php"), $fieldsPartial);
 
         $validationScript = <<<'BLADE'
 
@@ -674,7 +681,7 @@ BLADE;
             . "        <form action=\"{{ \$isEdit ? route('{$this->plural}.update', \${$this->singular}) : route('{$this->plural}.store') }}\" method='POST' {$enctype} novalidate>\n"
             . "            @csrf\n"
             . "            @if(\$isEdit) @method('PUT') @endif\n\n"
-            . $fieldsHtml
+            . "            @include('modules.{$this->singular}.fields', ['showMode' => false])\n"
             . "\n            <div class='mt-3'>\n"
             . "                <button type='submit' class='btn btn-primary'>Save Data</button>\n"
             . "                <a href='{{ route('{$this->plural}.index') }}' class='btn btn-outline-secondary'>Back</a>\n"
@@ -687,16 +694,7 @@ BLADE;
 
         File::put(base_path("{$path}/form.blade.php"), $form);
 
-        $showFields = collect($this->fields)
-            ->map(fn (array $field): string => $this->buildShowField($field))
-            ->implode("\n");
-
-        $showStyleStack = $hasRichText
-            ? "@push('styles')\n    <x-editor.ckeditor-styles />\n@endpush\n\n"
-            : '';
-
         $showContent = "@extends('layouts.app')\n"
-            . $showStyleStack
             . "@section('title', 'Detail {$this->moduleName}')\n\n"
             . "@section('content')\n"
             . "<div class='card'>\n"
@@ -708,7 +706,7 @@ BLADE;
             . "        </div>\n"
             . "    </div>\n"
             . "    <div class='card-body'>\n"
-            . $showFields
+            . "        @include('modules.{$this->singular}.fields', ['showMode' => true])\n"
             . "\n    </div>\n"
             . "</div>\n"
             . "@endsection\n";
@@ -744,7 +742,7 @@ BLADE;
         return "{{ \${$this->singular}->{$displayFieldName} }}";
     }
 
-    private function buildFormField(array $field): string
+    private function buildSharedField(array $field): string
     {
         $label = Str::title(str_replace('_', ' ', $field['name']));
         $style = $field['style'] ?? 'default';
@@ -754,7 +752,7 @@ BLADE;
             $variableName = Str::plural($this->relationMethodName($field));
             $displayExpression = $this->relationDisplayExpression('$item');
 
-            return "        <x-form.select name='{$field['name']}' label='{$label}'{$required}>\n"
+            return "        <x-form.select name='{$field['name']}' label='{$label}'{$required} :disabled=\"\$showMode\">\n"
                 . "            <option value='' selected>Select {$label}</option>\n"
                 . "            @foreach(\${$variableName} as \$item)\n"
                 . "                <option value='{{ \$item->id }}' {{ (old('{$field['name']}', \${$this->singular}->{$field['name']} ?? '') == \$item->id) ? 'selected' : '' }}>{$displayExpression}</option>\n"
@@ -763,23 +761,23 @@ BLADE;
         }
 
         if ($this->isImageField($field)) {
-            return "        <x-form.photo-upload label='{$label}' name='{$field['name']}' :value=\"\${$this->singular}->{$field['name']} ?? null\"{$required} />\n";
+            return "        <x-form.photo-upload label='{$label}' name='{$field['name']}' :value=\"\${$this->singular}->{$field['name']} ?? null\" :readonly=\"\$showMode\"{$required} />\n";
         }
 
         if ($this->usesCkeditor($field)) {
-            return "        <x-form.ckeditor name='{$field['name']}' label='{$label}' :value=\"\${$this->singular}->{$field['name']} ?? ''\"{$required} />\n";
+            return "        <x-form.ckeditor name='{$field['name']}' label='{$label}' :value=\"\${$this->singular}->{$field['name']} ?? ''\" :readonly=\"\$showMode\" :enable-images=\"! \$showMode\"{$required} />\n";
         }
 
         return match ($style) {
-            'datepicker' => "        <x-form.datepicker name='{$field['name']}' label='{$label}' :value=\"\${$this->singular}->{$field['name']} ?? ''\"{$required} />\n",
-            'switch' => "        <x-form.switch name='{$field['name']}' label='{$label}' :checked=\"old('{$field['name']}', \${$this->singular}->{$field['name']} ?? false)\"{$required} />\n",
-            'textarea' => "        <x-form.textarea name='{$field['name']}' label='{$label}'{$required}>{{ \${$this->singular}->{$field['name']} ?? '' }}</x-form.textarea>\n",
-            'radio' => $this->buildRadioField($field, $label),
-            default => $this->buildInputField($field, $label, $required),
+            'datepicker' => "        <x-form.datepicker name='{$field['name']}' label='{$label}' :value=\"\${$this->singular}->{$field['name']} ?? ''\" :readonly=\"\$showMode\" :disabled=\"\$showMode\"{$required} />\n",
+            'switch' => "        <x-form.switch name='{$field['name']}' label='{$label}' :checked=\"old('{$field['name']}', \${$this->singular}->{$field['name']} ?? false)\" :disabled=\"\$showMode\"{$required} />\n",
+            'textarea' => "        <x-form.textarea name='{$field['name']}' label='{$label}' :readonly=\"\$showMode\" :disabled=\"\$showMode\"{$required}>{{ \${$this->singular}->{$field['name']} ?? '' }}</x-form.textarea>\n",
+            'radio' => $this->buildSharedRadioField($field, $label),
+            default => $this->buildSharedInputField($field, $label, $required),
         };
     }
 
-    private function buildInputField(array $field, string $label, string $required): string
+    private function buildSharedInputField(array $field, string $label, string $required): string
     {
         $inputType = match ($field['type']) {
             'integer', 'decimal' => 'number',
@@ -787,10 +785,10 @@ BLADE;
             default => 'text',
         };
 
-        return "        <x-form.input name='{$field['name']}' type='{$inputType}' label='{$label}' :value=\"\${$this->singular}->{$field['name']} ?? ''\"{$required} floating divider />\n";
+        return "        <x-form.input name='{$field['name']}' type='{$inputType}' label='{$label}' :value=\"\${$this->singular}->{$field['name']} ?? ''\" :readonly=\"\$showMode\" :disabled=\"\$showMode\"{$required} floating divider />\n";
     }
 
-    private function buildRadioField(array $field, string $label): string
+    private function buildSharedRadioField(array $field, string $label): string
     {
         $options = $this->extractInOptions($field['rules'] ?? '');
 
@@ -798,37 +796,11 @@ BLADE;
             . "        <div class='d-flex gap-3 flex-wrap mb-2'>\n"
             . "            @foreach(" . var_export($options, true) . " as \$opt)\n"
             . "                <div class='form-check'>\n"
-            . "                    <input class='form-check-input' type='radio' name='{$field['name']}' value='{{ \$opt }}' {{ old('{$field['name']}', \${$this->singular}->{$field['name']} ?? '') == \$opt ? 'checked' : '' }}>\n"
+            . "                    <input class='form-check-input' type='radio' name='{$field['name']}' value='{{ \$opt }}' {{ old('{$field['name']}', \${$this->singular}->{$field['name']} ?? '') == \$opt ? 'checked' : '' }} @disabled(\$showMode)>\n"
             . "                    <label class='form-check-label'>{{ ucfirst(\$opt) }}</label>\n"
             . "                </div>\n"
             . "            @endforeach\n"
             . "        </div>\n";
-    }
-
-    private function buildShowField(array $field): string
-    {
-        $label = Str::title(str_replace('_', ' ', $field['name']));
-
-        if (isset($field['relation'])) {
-            $method = $this->relationMethodName($field);
-            $display = $this->relationDisplayExpression("\${$this->singular}->{$method}");
-
-            return "        <div class='mb-2'><h6>{$label}</h6><p class='mb-0'>{$display}</p></div>";
-        }
-
-        if ($this->isImageField($field)) {
-            return "        <div class='mb-2'><h6>{$label}</h6>@if(\${$this->singular}->{$field['name']})<img src='{{ asset('storage/' . \${$this->singular}->{$field['name']}) }}' alt='{$label}' class='img-fluid rounded mt-1' style='max-width: 320px;'>@else<p class='text-muted mb-0'>-</p>@endif</div>";
-        }
-
-        if (($field['type'] ?? null) === 'boolean') {
-            return "        <div class='mb-2'><h6>{$label}</h6>@if(\${$this->singular}->{$field['name']})<span class='badge badge-light-success'>Yes</span>@else<span class='badge badge-light-secondary'>No</span>@endif</div>";
-        }
-
-        if ($this->usesCkeditor($field)) {
-            return "        <div class='mb-2'><h6>{$label}</h6>@if(\${$this->singular}->{$field['name']})<div class='ck-content'>{!! \${$this->singular}->{$field['name']} !!}</div>@else<p class='text-muted mb-0'>-</p>@endif</div>";
-        }
-
-        return "        <div class='mb-2'><h6>{$label}</h6><p class='mb-0'>{{ \${$this->singular}->{$field['name']} ?? '-' }}</p></div>";
     }
 
     private function resolveDisplayField(): array

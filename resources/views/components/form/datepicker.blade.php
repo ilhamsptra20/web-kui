@@ -1,4 +1,25 @@
-@props(['name', 'label' => null, 'type' => 'date'])
+@props([
+    'name',
+    'label' => null,
+    'type' => 'date',
+    'value' => '',
+    'readonly' => false,
+    'disabled' => false,
+])
+
+@php
+    $pickerClass = (! $readonly && ! $disabled)
+        ? ($type == 'date' ? 'pickadate' : 'pickatime')
+        : '';
+
+    $inputValue = old($name, $value);
+
+    if ($inputValue instanceof \Carbon\CarbonInterface) {
+        $inputValue = $type === 'date'
+            ? $inputValue->format('Y-m-d')
+            : $inputValue->format('H:i');
+    }
+@endphp
 
 <div class="form-group">
     @if($label) 
@@ -9,7 +30,10 @@
         <input type="text" 
             id="{{ $name }}" 
             name="{{ $name }}" 
-            {{ $attributes->merge(['class' => 'form-control ' . ($type == 'date' ? 'pickadate' : 'pickatime')]) }}
+            value="{{ $inputValue }}"
+            {{ $readonly ? 'readonly' : '' }}
+            {{ $disabled ? 'disabled' : '' }}
+            {{ $attributes->merge(['class' => 'form-control ' . $pickerClass]) }}
             placeholder="{{ $label }}"
             autocomplete="off">
     </div>
@@ -47,4 +71,3 @@
         });
     </script>
 @endpushonce
-

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Post;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
+use App\Support\Admin\AdminTable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -19,11 +20,15 @@ class PostController extends Controller
     public function list()
     {
         return datatables()
-            ->of(Post::query())
+            ->of(Post::query()->with(['category', 'user'])->latest())
             ->addIndexColumn()
-
+            ->addColumn('post_identity', fn (Post $row): string => AdminTable::image(\App\Models\Setting::resolveImageUrl($row->image), $row->trans('title') ?: '-', $row->slug ? 'Slug: '.$row->slug : null))
+            ->addColumn('category_label', fn (Post $row): string => e($row->category?->trans('title') ?: '-'))
+            ->addColumn('status_badge', fn (Post $row): string => AdminTable::badge($row->status === 'published' ? 'Published' : 'Draft', $row->status === 'published' ? 'success' : 'secondary'))
+            ->addColumn('author_label', fn (Post $row): string => e($row->user?->name ?: '-'))
+            ->addColumn('updated_at_label', fn (Post $row): string => AdminTable::dateTime($row->updated_at))
             ->addColumn('action', fn ($row) => view('modules.post.action', compact('row'))->render())
-            ->rawColumns(['action'])
+            ->rawColumns(['post_identity', 'status_badge', 'updated_at_label', 'action'])
             ->toJson();
     }
 

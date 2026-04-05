@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Team;
 use App\Http\Requests\StoreTeamRequest;
 use App\Http\Requests\UpdateTeamRequest;
+use App\Support\Admin\AdminTable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -17,11 +18,13 @@ class TeamController extends Controller
     public function list()
     {
         return datatables()
-            ->of(Team::query())
+            ->of(Team::query()->with('position')->latest())
             ->addIndexColumn()
-
+            ->addColumn('team_identity', fn (Team $row): string => AdminTable::image(\App\Models\Setting::resolveImageUrl($row->image), $row->name ?: '-', $row->npp ? 'NPP: '.$row->npp : null))
+            ->addColumn('position_label', fn (Team $row): string => e($row->position?->trans('name') ?: '-'))
+            ->addColumn('updated_at_label', fn (Team $row): string => AdminTable::dateTime($row->updated_at))
             ->addColumn('action', fn ($row) => view('modules.team.action', compact('row'))->render())
-            ->rawColumns(['action'])
+            ->rawColumns(['team_identity', 'updated_at_label', 'action'])
             ->toJson();
     }
 

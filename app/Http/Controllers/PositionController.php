@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Position;
 use App\Http\Requests\StorePositionRequest;
 use App\Http\Requests\UpdatePositionRequest;
+use App\Support\Admin\AdminTable;
 use Illuminate\Support\Facades\DB;
 
 class PositionController extends Controller
@@ -16,11 +17,13 @@ class PositionController extends Controller
     public function list()
     {
         return datatables()
-            ->of(Position::query())
+            ->of(Position::query()->withCount('teams')->latest())
             ->addIndexColumn()
-
+            ->addColumn('position_identity', fn (Position $row): string => AdminTable::stack($row->trans('name') ?: '-', $row->name_en ? 'EN: '.$row->name_en : null))
+            ->addColumn('team_count', fn (Position $row): string => (string) $row->teams_count)
+            ->addColumn('updated_at_label', fn (Position $row): string => AdminTable::dateTime($row->updated_at))
             ->addColumn('action', fn ($row) => view('modules.position.action', compact('row'))->render())
-            ->rawColumns(['action'])
+            ->rawColumns(['position_identity', 'updated_at_label', 'action'])
             ->toJson();
     }
 

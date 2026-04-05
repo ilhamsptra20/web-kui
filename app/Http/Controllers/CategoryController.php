@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Http\Requests\StoreCategoryRequest;
 use App\Http\Requests\UpdateCategoryRequest;
+use App\Support\Admin\AdminTable;
 use Illuminate\Support\Facades\DB;
 
 class CategoryController extends Controller
@@ -16,11 +17,13 @@ class CategoryController extends Controller
     public function list()
     {
         return datatables()
-            ->of(Category::query())
+            ->of(Category::query()->withCount('posts')->latest())
             ->addIndexColumn()
-
+            ->addColumn('category_identity', fn (Category $row): string => AdminTable::stack($row->trans('title') ?: '-', $row->title_en ? 'EN: '.$row->title_en : null))
+            ->addColumn('post_count', fn (Category $row): string => (string) $row->posts_count)
+            ->addColumn('updated_at_label', fn (Category $row): string => AdminTable::dateTime($row->updated_at))
             ->addColumn('action', fn ($row) => view('modules.category.action', compact('row'))->render())
-            ->rawColumns(['action'])
+            ->rawColumns(['category_identity', 'updated_at_label', 'action'])
             ->toJson();
     }
 

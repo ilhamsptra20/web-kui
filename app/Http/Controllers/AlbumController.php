@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Album;
 use App\Http\Requests\StoreAlbumRequest;
 use App\Http\Requests\UpdateAlbumRequest;
+use App\Support\Admin\AdminTable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -17,11 +18,13 @@ class AlbumController extends Controller
     public function list()
     {
         return datatables()
-            ->of(Album::query())
+            ->of(Album::query()->withCount('galleries')->latest())
             ->addIndexColumn()
-
+            ->addColumn('album_identity', fn (Album $row): string => AdminTable::image(\App\Models\Setting::resolveImageUrl($row->image), $row->trans('name') ?: '-', $row->slug ? 'Slug: '.$row->slug : null))
+            ->addColumn('gallery_count', fn (Album $row): string => (string) $row->galleries_count)
+            ->addColumn('updated_at_label', fn (Album $row): string => AdminTable::dateTime($row->updated_at))
             ->addColumn('action', fn ($row) => view('modules.album.action', compact('row'))->render())
-            ->rawColumns(['action'])
+            ->rawColumns(['album_identity', 'updated_at_label', 'action'])
             ->toJson();
     }
 

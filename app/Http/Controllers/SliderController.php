@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Slider;
 use App\Http\Requests\StoreSliderRequest;
 use App\Http\Requests\UpdateSliderRequest;
+use App\Support\Admin\AdminTable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -17,11 +18,14 @@ class SliderController extends Controller
     public function list()
     {
         return datatables()
-            ->of(Slider::query())
+            ->of(Slider::query()->orderByRaw('`order` asc')->latest())
             ->addIndexColumn()
-
+            ->addColumn('slider_identity', fn (Slider $row): string => AdminTable::image(\App\Models\Setting::resolveImageUrl($row->image), $row->title_id ?: '-', $row->subtitle_id ?: null))
+            ->addColumn('cta_label', fn (Slider $row): string => AdminTable::stack($row->btn_text_id ?: '-', $row->btn_url ?: 'Tanpa URL'))
+            ->addColumn('order_label', fn (Slider $row): string => (string) ($row->order ?? 0))
+            ->addColumn('updated_at_label', fn (Slider $row): string => AdminTable::dateTime($row->updated_at))
             ->addColumn('action', fn ($row) => view('modules.slider.action', compact('row'))->render())
-            ->rawColumns(['action'])
+            ->rawColumns(['slider_identity', 'cta_label', 'updated_at_label', 'action'])
             ->toJson();
     }
 

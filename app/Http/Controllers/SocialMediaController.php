@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\SocialMedia;
 use App\Http\Requests\StoreSocialMediaRequest;
 use App\Http\Requests\UpdateSocialMediaRequest;
+use App\Support\Admin\AdminTable;
 use Illuminate\Support\Facades\DB;
 
 class SocialMediaController extends Controller
@@ -16,11 +17,13 @@ class SocialMediaController extends Controller
     public function list()
     {
         return datatables()
-            ->of(SocialMedia::query())
+            ->of(SocialMedia::query()->latest())
             ->addIndexColumn()
-
+            ->addColumn('social_identity', fn (SocialMedia $row): string => AdminTable::stack($row->name ?: '-', $row->icon ?: null))
+            ->addColumn('link_label', fn (SocialMedia $row): string => AdminTable::externalLink($row->link))
+            ->addColumn('updated_at_label', fn (SocialMedia $row): string => AdminTable::dateTime($row->updated_at))
             ->addColumn('action', fn ($row) => view('modules.social_media.action', compact('row'))->render())
-            ->rawColumns(['action'])
+            ->rawColumns(['social_identity', 'link_label', 'updated_at_label', 'action'])
             ->toJson();
     }
 

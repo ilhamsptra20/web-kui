@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Video;
 use App\Http\Requests\StoreVideoRequest;
 use App\Http\Requests\UpdateVideoRequest;
+use App\Support\Admin\AdminTable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -17,11 +18,13 @@ class VideoController extends Controller
     public function list()
     {
         return datatables()
-            ->of(Video::query())
+            ->of(Video::query()->latest())
             ->addIndexColumn()
-
+            ->addColumn('video_identity', fn (Video $row): string => AdminTable::image(\App\Models\Setting::resolveImageUrl($row->thumbnail), $row->trans('title') ?: '-', null))
+            ->addColumn('video_link', fn (Video $row): string => AdminTable::externalLink($row->video_url))
+            ->addColumn('updated_at_label', fn (Video $row): string => AdminTable::dateTime($row->updated_at))
             ->addColumn('action', fn ($row) => view('modules.video.action', compact('row'))->render())
-            ->rawColumns(['action'])
+            ->rawColumns(['video_identity', 'video_link', 'updated_at_label', 'action'])
             ->toJson();
     }
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Lembaga;
 use App\Http\Requests\StoreLembagaRequest;
 use App\Http\Requests\UpdateLembagaRequest;
+use App\Support\Admin\AdminTable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -17,11 +18,13 @@ class LembagaController extends Controller
     public function list()
     {
         return datatables()
-            ->of(Lembaga::query())
+            ->of(Lembaga::query()->latest())
             ->addIndexColumn()
-
+            ->addColumn('lembaga_identity', fn (Lembaga $row): string => AdminTable::image(\App\Models\Setting::resolveImageUrl($row->image), $row->trans('name') ?: '-', $row->slug ? 'Slug: '.$row->slug : null))
+            ->addColumn('description_preview', fn (Lembaga $row): string => AdminTable::limit(strip_tags($row->trans('description') ?: ''), 90))
+            ->addColumn('updated_at_label', fn (Lembaga $row): string => AdminTable::dateTime($row->updated_at))
             ->addColumn('action', fn ($row) => view('modules.lembaga.action', compact('row'))->render())
-            ->rawColumns(['action'])
+            ->rawColumns(['lembaga_identity', 'updated_at_label', 'action'])
             ->toJson();
     }
 

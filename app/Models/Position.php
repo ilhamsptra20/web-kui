@@ -10,4 +10,9 @@ class Position extends BaseUuidModel
 
     protected $fillable = ['name_id', 'name_en', 'name_ar'];
 
+    public function teams()
+    {
+        return $this->hasMany(Team::class, 'position_id');
+    }
+
 }

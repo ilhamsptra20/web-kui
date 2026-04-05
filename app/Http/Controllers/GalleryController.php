@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Gallery;
 use App\Http\Requests\StoreGalleryRequest;
 use App\Http\Requests\UpdateGalleryRequest;
+use App\Support\Admin\AdminTable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -17,11 +18,13 @@ class GalleryController extends Controller
     public function list()
     {
         return datatables()
-            ->of(Gallery::query())
+            ->of(Gallery::query()->with('album')->latest())
             ->addIndexColumn()
-
+            ->addColumn('gallery_identity', fn (Gallery $row): string => AdminTable::image(\App\Models\Setting::resolveImageUrl($row->image), $row->trans('title') ?: '-', $row->album?->trans('name') ?: 'Tanpa Album'))
+            ->addColumn('album_label', fn (Gallery $row): string => e($row->album?->trans('name') ?: '-'))
+            ->addColumn('updated_at_label', fn (Gallery $row): string => AdminTable::dateTime($row->updated_at))
             ->addColumn('action', fn ($row) => view('modules.gallery.action', compact('row'))->render())
-            ->rawColumns(['action'])
+            ->rawColumns(['gallery_identity', 'updated_at_label', 'action'])
             ->toJson();
     }
 

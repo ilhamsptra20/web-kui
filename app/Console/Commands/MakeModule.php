@@ -411,6 +411,8 @@ PHP;
         $authImport = $hasUserId ? "use Illuminate\Support\Facades\Auth;\n" : '';
         $storageImport = $hasImageFields ? "use Illuminate\Support\Facades\Storage;\n" : '';
         $richTextImport = $hasRichTextFields ? "use App\Support\RichText\RichTextSanitizer;\n" : '';
+        $adminTableImport = $this->option('datatable') ? "use App\Support\Admin\AdminTable;\n" : '';
+        $settingImport = $this->option('datatable') && $hasImageFields ? "use App\Models\Setting;\n" : '';
         $authLogic = $hasUserId ? "            \$data['user_id'] = Auth::id();\n" : '';
 
         $indexBody = $this->option('datatable')
@@ -434,11 +436,12 @@ PHP;
     public function list()
     {
         return datatables()
-            ->of({$this->moduleName}::query())
+            ->of({$this->moduleName}::query()->latest())
             ->addIndexColumn()
 {$datatableDisplayColumn}
+            ->addColumn('updated_at_label', fn (\$row) => AdminTable::dateTime(\$row->updated_at))
             ->addColumn('action', fn (\$row) => view('modules.{$this->singular}.action', compact('row'))->render())
-            ->rawColumns(['action'])
+            ->rawColumns(['record_identity', 'updated_at_label', 'action'])
             ->toJson();
     }
 PHP;
@@ -453,7 +456,7 @@ use App\Models\\{$this->moduleName};
 use App\Http\Requests\Store{$this->moduleName}Request;
 use App\Http\Requests\Update{$this->moduleName}Request;
 use Illuminate\Support\Facades\DB;
-{$authImport}{$storageImport}{$richTextImport}
+{$authImport}{$storageImport}{$richTextImport}{$adminTableImport}{$settingImport}
 class {$this->moduleName}Controller extends Controller
 {
     public function index()
@@ -717,9 +720,9 @@ BLADE;
     private function buildIndexView(string $displayFieldName, string $displayLabel): string
     {
         if ($this->option('datatable')) {
-            $datatableScript = "<x-table.datatable-script id='{$this->singular}-table' :url=\"route('{$this->plural}.list')\" :columns=\"[['data'=>'DT_RowIndex'],['data'=>'{$displayFieldName}'],['data'=>'action']]\" :order=\"[1, 'asc']\" />";
+            $datatableScript = "<x-table.datatable-script id='{$this->singular}-table' :url=\"route('{$this->plural}.list')\" :columns=\"[['data'=>'DT_RowIndex','orderable'=>false,'searchable'=>false],['data'=>'record_identity','name'=>'{$displayFieldName}'],['data'=>'updated_at_label','name'=>'updated_at'],['data'=>'action','orderable'=>false,'searchable'=>false]]\" :order=\"[[2, 'desc']]\" />";
 
-            return "@extends('layouts.app')\n@section('title', 'Daftar {$this->moduleName}')\n\n@section('content')\n<div class='card'>\n    <div class='card-header'>\n        <h4 class='card-title'>{$this->moduleName}</h4>\n        <a href='{{ route('{$this->plural}.create') }}' class='btn btn-primary'>Add New</a>\n    </div>\n    <div class='card-body'>\n        <div class='table-responsive'>\n            <table class='table' id='{$this->singular}-table'>\n                <thead>\n                    <tr>\n                        <th>No</th>\n                        <th>{$displayLabel}</th>\n                        <th>Action</th>\n                    </tr>\n                </thead>\n            </table>\n        </div>\n    </div>\n</div>\n{$datatableScript}\n@endsection";
+            return "@extends('layouts.app')\n@section('title', 'Daftar {$this->moduleName}')\n\n@section('content')\n<div class='card border-0 shadow-sm'>\n    <div class='card-header d-flex flex-column flex-lg-row align-items-lg-center justify-content-between'>\n        <div>\n            <h4 class='card-title mb-25'>Manage {$this->moduleName}</h4>\n            <p class='text-muted mb-0'>Kelola data {$this->moduleName} dari panel admin dengan ringkasan yang lebih informatif.</p>\n        </div>\n        <a href='{{ route('{$this->plural}.create') }}' class='btn btn-primary mt-1 mt-lg-0'>Add New</a>\n    </div>\n    <div class='card-body'>\n        <div class='table-responsive'>\n            <table class='table table-hover align-middle' id='{$this->singular}-table'>\n                <thead>\n                    <tr>\n                        <th>No</th>\n                        <th>{$displayLabel}</th>\n                        <th>Updated</th>\n                        <th>Action</th>\n                    </tr>\n                </thead>\n            </table>\n        </div>\n    </div>\n</div>\n{$datatableScript}\n@endsection";
         }
 
         $indexCell = $this->buildIndexCell($displayFieldName);
@@ -820,12 +823,29 @@ BLADE;
     private function buildDatatableDisplayColumn(string $displayFieldName): string
     {
         $field = collect($this->fields)->firstWhere('name', $displayFieldName) ?? ['name' => $displayFieldName, 'type' => 'string'];
+        $imageField = collect($this->fields)->first(fn (array $candidate): bool => $this->isImageField($candidate))['name'] ?? null;
+        $subtitleExpression = collect($this->fields)->contains('name', 'slug')
+            ? "(\$row->slug ? 'Slug: ' . \$row->slug : null)"
+            : 'null';
+        $valueExpression = "\$row->{$displayFieldName} ?: '-'";
 
-        if ($this->usesCkeditor($field) || ($field['style'] ?? null) === 'textarea') {
-            return "            ->editColumn('{$displayFieldName}', fn (\$row) => \\Illuminate\\Support\\Str::limit(strip_tags(\$row->{$displayFieldName}), 80))\n";
+        if (Str::endsWith($displayFieldName, '_id')) {
+            $baseField = Str::beforeLast($displayFieldName, '_id');
+
+            if (collect($this->fields)->contains(fn (array $candidate): bool => in_array($candidate['name'], ["{$baseField}_en", "{$baseField}_ar"], true))) {
+                $valueExpression = "\$row->trans('{$baseField}') ?: '-'";
+            }
         }
 
-        return '';
+        if ($this->usesCkeditor($field) || ($field['style'] ?? null) === 'textarea') {
+            $valueExpression = "\\Illuminate\\Support\\Str::limit(strip_tags((string) ({$valueExpression})), 80)";
+        }
+
+        if ($imageField) {
+            return "            ->addColumn('record_identity', fn (\$row) => AdminTable::image(Setting::resolveImageUrl(\$row->{$imageField}), {$valueExpression}, {$subtitleExpression}))\n";
+        }
+
+        return "            ->addColumn('record_identity', fn (\$row) => AdminTable::stack({$valueExpression}, {$subtitleExpression}))\n";
     }
 
     private function buildRichTextSanitizeLogic(): string

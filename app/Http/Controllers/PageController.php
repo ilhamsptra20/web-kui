@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Page;
 use App\Http\Requests\StorePageRequest;
 use App\Http\Requests\UpdatePageRequest;
+use App\Support\Admin\AdminTable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Support\RichText\RichTextSanitizer;
@@ -18,11 +19,14 @@ class PageController extends Controller
     public function list()
     {
         return datatables()
-            ->of(Page::query())
+            ->of(Page::query()->with('user')->latest())
             ->addIndexColumn()
-
+            ->addColumn('page_identity', fn (Page $row): string => AdminTable::stack($row->trans('title') ?: '-', $row->slug ? 'Slug: '.$row->slug : null))
+            ->addColumn('author_label', fn (Page $row): string => e($row->user?->name ?: '-'))
+            ->addColumn('status_badge', fn (Page $row): string => AdminTable::boolean((bool) $row->status, 'Published', 'Draft'))
+            ->addColumn('updated_at_label', fn (Page $row): string => AdminTable::dateTime($row->updated_at))
             ->addColumn('action', fn ($row) => view('modules.page.action', compact('row'))->render())
-            ->rawColumns(['action'])
+            ->rawColumns(['page_identity', 'status_badge', 'updated_at_label', 'action'])
             ->toJson();
     }
 

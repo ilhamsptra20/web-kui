@@ -20,4 +20,9 @@ class Album extends BaseUuidModel
             ->doNotGenerateSlugsOnUpdate();
     }
 
+    public function galleries()
+    {
+        return $this->hasMany(Gallery::class, 'album_id');
+    }
+
 }

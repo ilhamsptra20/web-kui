@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Announcement;
 use App\Http\Requests\StoreAnnouncementRequest;
 use App\Http\Requests\UpdateAnnouncementRequest;
+use App\Support\Admin\AdminTable;
 use Illuminate\Support\Facades\DB;
 
 class AnnouncementController extends Controller
@@ -16,11 +17,14 @@ class AnnouncementController extends Controller
     public function list()
     {
         return datatables()
-            ->of(Announcement::query())
+            ->of(Announcement::query()->latest())
             ->addIndexColumn()
-
+            ->addColumn('announcement_identity', fn (Announcement $row): string => AdminTable::stack($row->trans('title') ?: '-', AdminTable::limit(strip_tags($row->trans('content') ?: ''), 75)))
+            ->addColumn('status_badge', fn (Announcement $row): string => AdminTable::boolean((bool) $row->is_active, 'Aktif', 'Nonaktif'))
+            ->addColumn('attachment_badge', fn (Announcement $row): string => $row->hasFile() ? AdminTable::badge('Ada Lampiran', 'info') : AdminTable::badge('Tanpa Lampiran', 'secondary'))
+            ->addColumn('updated_at_label', fn (Announcement $row): string => AdminTable::dateTime($row->updated_at))
             ->addColumn('action', fn ($row) => view('modules.announcement.action', compact('row'))->render())
-            ->rawColumns(['action'])
+            ->rawColumns(['announcement_identity', 'status_badge', 'attachment_badge', 'updated_at_label', 'action'])
             ->toJson();
     }
 

@@ -14,6 +14,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             \App\Http\Middleware\SetLocale::class,
         ]);
+
+        $middleware->alias([
+            'track.visitors' => \App\Http\Middleware\TrackVisitorAnalytics::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

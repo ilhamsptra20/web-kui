@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Support\Visitors\VisitorAnalyticsService;
 
 class HomeController extends Controller
 {
@@ -21,8 +21,8 @@ class HomeController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    public function index()
+    public function index(VisitorAnalyticsService $visitorAnalyticsService)
     {
-        return view('pages.dashboard');
+        return view('pages.dashboard', $visitorAnalyticsService->dashboard());
     }
 }

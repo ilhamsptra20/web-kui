@@ -1,5 +1,7 @@
 [
     { "name": "title_id", "type": "string", "rules": "required" },
+    { "name": "title_en", "type": "string", "rules": "nullable" },
+    { "name": "title_ar", "type": "string", "rules": "nullable" },
     { "name": "video_url", "type": "string", "rules": "required|url" },
     { "name": "thumbnail", "type": "image", "style": "file", "rules": "nullable|image" }
 ]

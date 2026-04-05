@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Navigation;
+use App\Support\Navigation\NavigationService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
@@ -20,6 +21,8 @@ class NavigationSeeder extends Seeder
         $this->seedAdminSidebar(config('navigator.sidebar', []));
         $this->seedMarketing(config('navigator.marketing.navbar', []), Navigation::LOCATION_NAVBAR);
         $this->seedMarketing(config('navigator.marketing.footer', []), Navigation::LOCATION_FOOTER);
+
+        app(NavigationService::class)->clearCache();
     }
 
     private function seedAdminSidebar(array $items, ?string $parentId = null): void

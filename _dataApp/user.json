@@ -1,0 +1,6 @@
+[
+    { "name": "name", "type": "string", "length": 255, "rules": "required|string|max:255" },
+    { "name": "email", "type": "string", "length": 255, "rules": "required|email|max:255|unique:users,email" },
+    { "name": "password", "type": "string", "length": 255, "rules": "required|string|min:8|confirmed" },
+    { "name": "is_email_verified", "type": "boolean", "style": "switch", "rules": "nullable|boolean" }
+]

@@ -1,0 +1,7 @@
+[
+    { "name": "name", "type": "string", "length": 255, "rules": "required|string|max:255|unique:permissions,name" },
+    { "name": "slug", "type": "string", "length": 255, "rules": "required|string|max:255|unique:permissions,slug" },
+    { "name": "group", "type": "string", "length": 255, "rules": "nullable|string|max:255" },
+    { "name": "description", "type": "text", "style": "textarea", "rules": "nullable|string" },
+    { "name": "is_active", "type": "boolean", "style": "switch", "rules": "nullable|boolean" }
+]

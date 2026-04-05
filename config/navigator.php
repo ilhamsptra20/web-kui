@@ -84,6 +84,24 @@ return [
 
         ['header' => 'System'],
         [
+            'title' => 'Users',
+            'icon'  => 'feather icon-users',
+            'url'   => '/users',
+            'route_name' => 'users.index',
+        ],
+        [
+            'title' => 'Roles',
+            'icon'  => 'feather icon-shield',
+            'url'   => '/roles',
+            'route_name' => 'roles.index',
+        ],
+        [
+            'title' => 'Permissions',
+            'icon'  => 'feather icon-lock',
+            'url'   => '/permissions',
+            'route_name' => 'permissions.index',
+        ],
+        [
             'title' => 'Social Media',
             'icon'  => 'feather icon-share-2',
             'url'   => '/social_media',

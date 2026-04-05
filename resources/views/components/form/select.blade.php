@@ -1,18 +1,23 @@
 @props(['name', 'label' => null, 'multiple' => false])
 
+@php
+    $fieldId = str_replace(['[]', '.', '[', ']'], ['', '_', '_', ''], $name);
+    $errorKey = str_replace('[]', '', $name);
+@endphp
+
 <div class="form-group">
     @if($label) 
-        <label for="{{ $name }}">{{ $label }}</label> 
+        <label for="{{ $fieldId }}">{{ $label }}</label> 
     @endif
     
     <select name="{{ $name }}" 
-        id="{{ $name }}" 
+        id="{{ $fieldId }}" 
         {{ $multiple ? 'multiple' : '' }} 
-        {{ $attributes->merge(['class' => 'select2 form-control ' . ($errors->has($name) ? 'is-invalid' : '')]) }}>
+        {{ $attributes->merge(['class' => 'select2 form-control ' . ($errors->has($errorKey) ? 'is-invalid' : '')]) }}>
         {{ $slot }}
     </select>
 
-    @error($name)
+    @error($errorKey)
         <span class="invalid-feedback" role="alert" style="display: block;">
             <strong>{{ $message }}</strong>
         </span>

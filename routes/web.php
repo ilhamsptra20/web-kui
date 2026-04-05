@@ -39,28 +39,38 @@ Route::get('language/{locale}', [LanguageController::class, 'switch'])->name('la
 Auth::routes();
 
 Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
+    $registerModuleRoutes = static function (string $permission, string $file): void {
+        Route::middleware("permission:{$permission}")->group(function () use ($file): void {
+            require $file;
+        });
+    };
+
+    Route::middleware('permission:dashboard.view')->group(function (): void {
+        Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
+    });
+
     Route::post('/editor-images', [EditorImageController::class, 'store'])->name('editor-images.store');
-    // Add more authenticated routes here
-    require __DIR__.'/modules/agenda.php';
-    require __DIR__.'/modules/album.php';
-    require __DIR__.'/modules/announcement.php';
-    require __DIR__.'/modules/category.php';
-    require __DIR__.'/modules/gallery.php';
-    require __DIR__.'/modules/inbox.php';
-    require __DIR__.'/modules/lembaga.php';
-    require __DIR__.'/modules/page.php';
-    require __DIR__.'/modules/position.php';
-    require __DIR__.'/modules/post.php';
-    require __DIR__.'/modules/setting.php';
-    require __DIR__.'/modules/slider.php';
-    require __DIR__.'/modules/social_media.php';
-    require __DIR__.'/modules/team.php';
-    require __DIR__.'/modules/video.php';
-    require __DIR__.'/modules/navigation.php';
+
+    $registerModuleRoutes('agenda.manage', __DIR__.'/modules/agenda.php');
+    $registerModuleRoutes('album.manage', __DIR__.'/modules/album.php');
+    $registerModuleRoutes('announcement.manage', __DIR__.'/modules/announcement.php');
+    $registerModuleRoutes('category.manage', __DIR__.'/modules/category.php');
+    $registerModuleRoutes('gallery.manage', __DIR__.'/modules/gallery.php');
+    $registerModuleRoutes('inbox.manage', __DIR__.'/modules/inbox.php');
+    $registerModuleRoutes('lembaga.manage', __DIR__.'/modules/lembaga.php');
+    $registerModuleRoutes('page.manage', __DIR__.'/modules/page.php');
+    $registerModuleRoutes('position.manage', __DIR__.'/modules/position.php');
+    $registerModuleRoutes('post.manage', __DIR__.'/modules/post.php');
+    $registerModuleRoutes('setting.manage', __DIR__.'/modules/setting.php');
+    $registerModuleRoutes('slider.manage', __DIR__.'/modules/slider.php');
+    $registerModuleRoutes('social_media.manage', __DIR__.'/modules/social_media.php');
+    $registerModuleRoutes('team.manage', __DIR__.'/modules/team.php');
+    $registerModuleRoutes('user.manage', __DIR__.'/modules/user.php');
+    $registerModuleRoutes('video.manage', __DIR__.'/modules/video.php');
+    $registerModuleRoutes('navigation.manage', __DIR__.'/modules/navigation.php');
+    $registerModuleRoutes('role.manage', __DIR__.'/modules/role.php');
+    $registerModuleRoutes('permission.manage', __DIR__.'/modules/permission.php');
 });
-
-
 
 
 

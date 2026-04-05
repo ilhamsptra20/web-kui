@@ -57,8 +57,8 @@ Route::middleware('auth')->group(function () {
     require __DIR__.'/modules/social_media.php';
     require __DIR__.'/modules/team.php';
     require __DIR__.'/modules/video.php';
+    require __DIR__.'/modules/navigation.php';
 });
-
 
 
 

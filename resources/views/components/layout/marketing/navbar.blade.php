@@ -10,28 +10,13 @@
                 <nav class="menu">
                     <div class="menu-mobile-header">
                         <button type="button" class="menu-mobile-arrow bg-transparent border-0"><i class="ri-arrow-left-s-line"></i></button>
-                        <div class="menu-mobile-title"></div>
-                        <button type="button" class="menu-mobile-close bg-transparent border-0"><i class="ri-close-line"></i></button>
+                    <div class="menu-mobile-title"></div>
+                    <button type="button" class="menu-mobile-close bg-transparent border-0"><i class="ri-close-line"></i></button>
                     </div>
                     <ul class="menu-section p-0 mb-0 lh-1">
-                        <li class="menu-item-has-children">
-                            <a href="/" class="{{ request()->is('/') ? 'active' : '' }}">{{ __('nav.home') }}</a>
-                        </li>
-                        <li class="menu-item-has-children">
-                            <a href="{{ route('about-marketing') }}" class="{{ request()->routeIs('about-marketing') ? 'active' : '' }}">{{ __('nav.about') }}</a>
-                        </li>
-                        <li class="menu-item-has-children">
-                            <a href="{{ route('events-marketing') }}" class="{{ request()->routeIs('events-marketing') ? 'active' : '' }}">{{ __('nav.events') }}</a>
-                        </li>
-                        <li class="menu-item-has-children">
-                            <a href="{{ route('announcements-marketing') }}" class="{{ request()->routeIs('announcements-marketing') ? 'active' : '' }}">{{ __('nav.announcements') }}</a>
-                        </li>
-                        <li class="menu-item-has-children">
-                            <a href="{{ route('gallery-marketing') }}" class="{{ request()->routeIs('gallery-marketing') ? 'active' : '' }}">{{ __('nav.gallery') }}</a>
-                        </li>
-                        <li class="menu-item-has-children">
-                            <a href="{{ route('articles-marketing') }}" class="{{ request()->routeIs('articles-marketing') ? 'active' : '' }}">{{ __('nav.articles') }}</a>
-                        </li>
+                        @foreach($marketingNavbarItems ?? [] as $item)
+                            @include('components.layout.marketing.navigation-item', ['item' => $item, 'isRoot' => true])
+                        @endforeach
                     </ul>
                 </nav>
             </div>

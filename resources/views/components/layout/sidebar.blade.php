@@ -11,7 +11,7 @@
     <div class="shadow-bottom"></div>
     <div class="main-menu-content">
         <ul class="navigation navigation-main" id="main-menu-navigation" data-menu="menu-navigation">
-            @foreach(config('navigator.sidebar') as $menu)
+            @foreach($adminSidebarItems ?? config('navigator.sidebar', []) as $menu)
                 @if(isset($menu['header']))
                     <li class="navigation-header"><span>{{ $menu['header'] }}</span></li>
                 @else

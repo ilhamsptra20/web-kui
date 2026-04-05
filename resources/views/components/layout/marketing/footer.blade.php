@@ -10,12 +10,13 @@
                 <div class="footer-widget mb-30 ps-xxl-5 ms-xxl-1" data-cue="slideInUp">
                     <h3 class="footer-widget-title text-white fs-18 fw-semibold">{{ __('nav.quick_links') }}</h3>
                     <ul class="footer-menu list-unstyled mb-0">
-                        <li><a href="{{ route('about-marketing') }}">{{ __('nav.about') }}</a></li>
-                        <li><a href="{{ route('events-marketing') }}">{{ __('nav.events') }}</a></li>
-                        <li><a href="{{ route('announcements-marketing') }}">{{ __('nav.announcements') }}</a></li>
-                        <li><a href="{{ route('gallery-marketing') }}">{{ __('nav.gallery') }}</a></li>
-                        <li><a href="{{ route('articles-marketing') }}">{{ __('nav.articles') }}</a></li>
-                        <li><a href="{{ route('contact-marketing') }}">{{ __('nav.contact') }}</a></li>
+                        @foreach($marketingFooterItems ?? [] as $item)
+                            <li>
+                                <a href="{{ $item['url'] ?? '#' }}" @if(($item['target'] ?? '_self') === '_blank') target="_blank" rel="noopener noreferrer" @endif>
+                                    {{ $item['title'] }}
+                                </a>
+                            </li>
+                        @endforeach
                     </ul>
                 </div>
             </div>

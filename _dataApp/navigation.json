@@ -1,0 +1,17 @@
+[
+    { "name": "parent_id", "type": "uuid", "style": "select", "rules": "nullable|exists:navigations,id", "relation": "navigation" },
+    { "name": "area", "type": "string", "style": "radio", "rules": "required|in:admin,marketing" },
+    { "name": "location", "type": "string", "style": "radio", "rules": "required|in:sidebar,navbar,footer" },
+    { "name": "type", "type": "string", "style": "radio", "rules": "required|in:link,header" },
+    { "name": "title_id", "type": "string", "length": 255, "rules": "required|string|max:255" },
+    { "name": "title_en", "type": "string", "length": 255, "rules": "nullable|string|max:255" },
+    { "name": "title_ar", "type": "string", "length": 255, "rules": "nullable|string|max:255" },
+    { "name": "route_name", "type": "string", "length": 255, "rules": "nullable|string|max:255" },
+    { "name": "url", "type": "string", "length": 255, "rules": "nullable|string|max:255" },
+    { "name": "icon", "type": "string", "length": 255, "rules": "nullable|string|max:255" },
+    { "name": "badge_text", "type": "string", "length": 100, "rules": "nullable|string|max:100" },
+    { "name": "badge_class", "type": "string", "length": 100, "rules": "nullable|string|max:100" },
+    { "name": "sort_order", "type": "integer", "rules": "nullable|integer|min:0|max:9999" },
+    { "name": "is_active", "type": "boolean", "style": "switch", "rules": "nullable|boolean" },
+    { "name": "open_in_new_tab", "type": "boolean", "style": "switch", "rules": "nullable|boolean" }
+]

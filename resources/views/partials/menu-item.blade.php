@@ -1,10 +1,22 @@
 @php
     $hasSubmenu = isset($item['submenu']) && count($item['submenu']) > 0;
-    $isActive = request()->is(trim($item['url'], '/').'*');
+    $rawUrl = $item['url'] ?? '#';
+    $isExternal = str_starts_with($rawUrl, 'http://') || str_starts_with($rawUrl, 'https://');
+    $isAnchor = str_starts_with($rawUrl, '#');
+    $href = $isExternal || $isAnchor || $rawUrl === '#' ? $rawUrl : url($rawUrl);
+    $normalized = trim(parse_url($rawUrl, PHP_URL_PATH) ?: '', '/');
+    $isRoot = $normalized === '';
+    $childActive = collect($item['submenu'] ?? [])->contains(function (array $child): bool {
+        $url = trim(parse_url($child['url'] ?? '', PHP_URL_PATH) ?: '', '/');
+
+        return $url === '' ? request()->url() === url('/') : request()->is($url . '*');
+    });
+    $isActive = $isRoot ? request()->url() === url('/') : request()->is($normalized . '*');
+    $isActive = $isActive || $childActive;
 @endphp
 
 <li class="nav-item {{ $hasSubmenu ? 'has-sub' : '' }} {{ $isActive ? 'active' : '' }}">
-    <a href="{{ $hasSubmenu ? '#' : url($item['url']) }}">
+    <a href="{{ $hasSubmenu ? '#' : $href }}" @if(($item['target'] ?? '_self') === '_blank') target="_blank" rel="noopener noreferrer" @endif>
         <i class="{{ $item['icon'] ?? 'feather icon-circle' }}"></i>
         <span class="menu-title">{{ $item['title'] }}</span>
         

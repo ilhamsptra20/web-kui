@@ -2,16 +2,22 @@
 
 namespace App\Models;
 
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 use App\Traits\HasTranslation;
 
 class Lembaga extends BaseUuidModel
 {
-    use HasTranslation;
+    use HasSlug, HasTranslation;
 
-    protected $fillable = [
-        'name_id',
-        'slug',
-        'description_id',
-        'image',
-    ];
+    protected $fillable = ['name_id', 'name_en', 'name_ar', 'slug', 'description_id', 'description_en', 'description_ar', 'image'];
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('name_id')
+            ->saveSlugsTo('slug')
+            ->doNotGenerateSlugsOnUpdate();
+    }
+
 }

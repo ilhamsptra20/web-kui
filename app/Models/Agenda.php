@@ -2,21 +2,15 @@
 
 namespace App\Models;
 
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 use App\Traits\HasTranslation;
-use Illuminate\Database\Eloquent\Builder;
 
 class Agenda extends BaseUuidModel
 {
-    use HasTranslation;
+    use HasSlug, HasTranslation;
 
-    protected $fillable = [
-        'name_id',
-        'slug',
-        'description_id',
-        'location_id',
-        'start_date',
-        'end_date',
-    ];
+    protected $fillable = ['name_id', 'name_en', 'name_ar', 'slug', 'description_id', 'description_en', 'description_ar', 'location_id', 'location_en', 'location_ar', 'start_date', 'end_date'];
 
     protected function casts(): array
     {
@@ -26,26 +20,12 @@ class Agenda extends BaseUuidModel
         ];
     }
 
-    public function scopeUpcoming(Builder $query): Builder
+    public function getSlugOptions(): SlugOptions
     {
-        return $query->where('start_date', '>', now());
+        return SlugOptions::create()
+            ->generateSlugsFrom('name_id')
+            ->saveSlugsTo('slug')
+            ->doNotGenerateSlugsOnUpdate();
     }
 
-    public function isOngoing(): bool
-    {
-        if (! $this->start_date) {
-            return false;
-        }
-
-        if (! $this->end_date) {
-            return now()->greaterThanOrEqualTo($this->start_date);
-        }
-
-        return now()->between($this->start_date, $this->end_date);
-    }
-
-    public function isUpcoming(): bool
-    {
-        return $this->start_date?->isFuture() ?? false;
-    }
 }

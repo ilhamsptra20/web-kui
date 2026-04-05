@@ -2,22 +2,22 @@
 
 namespace App\Models;
 
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 use App\Traits\HasTranslation;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Album extends BaseUuidModel
 {
-    use HasTranslation;
+    use HasSlug, HasTranslation;
 
-    protected $fillable = [
-        'name_id',
-        'name_en',
-        'slug',
-        'image',
-    ];
+    protected $fillable = ['name_id', 'name_en', 'name_ar', 'slug', 'image'];
 
-    public function galleries(): HasMany
+    public function getSlugOptions(): SlugOptions
     {
-        return $this->hasMany(Gallery::class);
+        return SlugOptions::create()
+            ->generateSlugsFrom('name_id')
+            ->saveSlugsTo('slug')
+            ->doNotGenerateSlugsOnUpdate();
     }
+
 }

@@ -47,6 +47,11 @@ return [
             'icon'  => 'feather icon-monitor',
             'url'   => '/sliders',
         ],
+        [
+            'title' => 'Lembaga',
+            'icon'  => 'feather icon-monitor',
+            'url'   => '/lembagas',
+        ],
 
         ['header' => 'Information'],
         [

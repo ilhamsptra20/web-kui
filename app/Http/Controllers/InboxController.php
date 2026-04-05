@@ -1,0 +1,103 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Inbox;
+use App\Http\Requests\StoreInboxRequest;
+use App\Http\Requests\UpdateInboxRequest;
+use Illuminate\Support\Facades\DB;
+
+class InboxController extends Controller
+{
+    public function index()
+    {
+        return view('modules.inbox.index');
+    }
+    public function list()
+    {
+        return datatables()
+            ->of(Inbox::query())
+            ->addIndexColumn()
+
+            ->addColumn('action', fn ($row) => view('modules.inbox.action', compact('row'))->render())
+            ->rawColumns(['action'])
+            ->toJson();
+    }
+
+    public function create()
+    {
+
+        return view('modules.inbox.form');
+    }
+
+    public function store(StoreInboxRequest $request)
+    {
+        DB::beginTransaction();
+
+        try {
+            $data = $request->validated();
+
+            $inbox = Inbox::create($data);
+
+            DB::commit();
+
+            return redirect()->route('inboxes.show', $inbox)->with('success', 'Data created');
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            report($e);
+
+            return back()->withInput()->with('error', 'Failed create data');
+        }
+    }
+
+    public function show(Inbox $inbox)
+    {
+
+        return view('modules.inbox.show', compact('inbox'));
+    }
+
+    public function edit(Inbox $inbox)
+    {
+
+        return view('modules.inbox.form', compact('inbox'));
+    }
+
+    public function update(UpdateInboxRequest $request, Inbox $inbox)
+    {
+        DB::beginTransaction();
+
+        try {
+            $data = $request->validated();
+
+            $inbox->update($data);
+
+            DB::commit();
+
+            return redirect()->route('inboxes.show', $inbox)->with('success', 'Data updated');
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            report($e);
+
+            return back()->withInput()->with('error', 'Update failed');
+        }
+    }
+
+    public function destroy(Inbox $inbox)
+    {
+        DB::beginTransaction();
+
+        try {
+
+            $inbox->delete();
+
+            DB::commit();
+
+            return redirect()->route('inboxes.index')->with('success', 'Data deleted');
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            report($e);
+
+            return back()->with('error', 'Delete failed');
+        }
+    }
+}

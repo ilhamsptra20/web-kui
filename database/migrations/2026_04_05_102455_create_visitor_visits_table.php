@@ -26,8 +26,8 @@ return new class extends Migration
             $table->boolean('is_bot')->default(false);
             $table->unsignedInteger('page_views')->default(1);
             $table->date('visited_on');
-            $table->timestamp('first_visited_at');
-            $table->timestamp('last_visited_at');
+            $table->dateTime('first_visited_at');
+            $table->dateTime('last_visited_at');
             $table->timestamps();
 
             $table->unique(['visitor_key', 'visited_on']);

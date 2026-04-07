@@ -11,13 +11,13 @@ use App\Models\Lembaga;
 use App\Models\Page;
 use App\Models\Position;
 use App\Models\Post;
+use App\Models\Relation;
 use App\Models\Slider;
 use App\Models\SocialMedia;
 use App\Models\Team;
 use App\Models\User;
 use App\Models\Video;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
@@ -45,6 +45,7 @@ class KuiUnidaDemoSeeder extends Seeder
         $this->seedPosts($categories, $adminUser);
         $this->seedPages($adminUser);
         $this->seedVideos();
+        $this->seedRelations();
     }
 
     private function requiredTablesExist(): bool
@@ -684,5 +685,34 @@ class KuiUnidaDemoSeeder extends Seeder
         }
 
         return $targetRelativePath;
+    }
+
+    private function seedRelations(): void
+    {
+        $relations = [   
+            [
+                'title'=>'Ministry of Higher Education, Science, and Technology',
+                'url'=>'https://kemdiktisaintek.go.id/'
+            ],
+            [
+                'title'=>'The Ministry of Immigration and Correction',
+                'url'=>'https://evisa.imigrasi.go.id/'
+            ],
+            [
+                'title'=>'Foreign Student Study Permit',
+                'url'=>'https://izinbelajar.kemdiktisaintek.go.id/'
+            ],
+            [
+                'title'=>'Laporkerma-Ministry of Higher Education Republic Indonesia',
+                'url'=>'https://laporankerma.kemdikbud.go.id/'
+            ],
+        ];
+
+        foreach ($relations as $relation) {
+            Relation::query()->updateOrCreate(
+                ['title' => $relation['title']],
+                $relation
+            );
+        }
     }
 }

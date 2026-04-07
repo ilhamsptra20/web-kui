@@ -9,4 +9,5 @@ return [
     'articles' => 'المقالات والأخبار',
     'contact' => 'اتصل',
     'quick_links' => 'روابط سريعة',
+    'relations' => 'العلاقات',
 ];

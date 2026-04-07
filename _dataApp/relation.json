@@ -1,0 +1,4 @@
+[
+    { "name": "title", "type": "string", "rules": "required" },
+    { "name": "url", "type": "string", "rules": "required" } 
+]

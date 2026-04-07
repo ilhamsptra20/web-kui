@@ -76,7 +76,9 @@ Route::middleware('auth')->group(function () {
     $registerModuleRoutes('navigation.manage', __DIR__.'/modules/navigation.php');
     $registerModuleRoutes('role.manage', __DIR__.'/modules/role.php');
     $registerModuleRoutes('permission.manage', __DIR__.'/modules/permission.php');
+    require __DIR__.'/modules/relation.php';
 });
+
 
 
 

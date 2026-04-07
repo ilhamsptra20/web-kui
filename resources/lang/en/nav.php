@@ -9,4 +9,5 @@ return [
     'articles' => 'Articles & News',
     'contact' => 'Contact',
     'quick_links' => 'Quick Links',
+    'relations' => 'Relations',
 ];

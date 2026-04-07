@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\Relation;
 use App\Models\SocialMedia;
 use App\Services\SettingService;
 use App\Support\Navigation\NavigationService;
@@ -72,6 +73,14 @@ class AppServiceProvider extends ServiceProvider
                     ->all()
                 : [];
 
+            $relationLinks = Schema::hasTable('relations')
+                ? Relation::query()
+                    ->orderBy('title')
+                    ->get()
+                    ->values()
+                    ->all()
+                : [];
+
             $view->with([
                 'marketingFooterItems' => app(NavigationService::class)->marketingFooter(),
                 'marketingFooterBrand' => $settingService->only([
@@ -91,6 +100,11 @@ class AppServiceProvider extends ServiceProvider
                     ['title' => 'Instagram', 'icon' => 'ri-instagram-line', 'url' => 'https://www.instagram.com/'],
                     ['title' => 'YouTube', 'icon' => 'ri-youtube-fill', 'url' => 'https://www.youtube.com/'],
                     ['title' => 'LinkedIn', 'icon' => 'ri-linkedin-fill', 'url' => 'https://www.linkedin.com/'],
+                ],
+                'marketingRelations' => $relationLinks !== [] ? $relationLinks : [
+                    ['title' => 'Universitas Juanda', 'url' => 'https://www.unida.ac.id/'],
+                    ['title' => 'Fakultas Ilmu Komputer', 'url' => 'https://fik.unida.ac.id/'],
+                    ['title' => 'Himpunan Mahasiswa Informatika', 'url' => 'https://himaif.unida.ac.id/'],
                 ],
             ]);
         });

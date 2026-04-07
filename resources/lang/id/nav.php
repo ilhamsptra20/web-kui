@@ -8,4 +8,5 @@ return [
     'articles' => 'Artikel & Berita',
     'contact' => 'Kontak',
     'quick_links' => 'Tautan Cepat',
+    'relations' => 'Relasi',
 ];

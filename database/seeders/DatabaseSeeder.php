@@ -28,6 +28,7 @@ class DatabaseSeeder extends Seeder
             RolePermissionSeeder::class,
             NavigationSeeder::class,
             HomeSettingSeeder::class,
+            MarketingPageSeeder::class,
         ]);
 
         if (app()->environment(['local', 'development'])) {

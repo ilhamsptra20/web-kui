@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\Navigation\NavigationService;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 use App\Traits\HasTranslation;
@@ -17,6 +18,23 @@ class Page extends BaseUuidModel
         return [
             'status' => 'boolean',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        $clearNavigationCache = static function (): void {
+            app(NavigationService::class)->clearCache();
+        };
+
+        static::saved($clearNavigationCache);
+        static::deleted($clearNavigationCache);
+    }
+
+    public function scopePublished($query)
+    {
+        return $query
+            ->where('status', true)
+            ->whereNotNull('slug');
     }
 
     public function getSlugOptions(): SlugOptions

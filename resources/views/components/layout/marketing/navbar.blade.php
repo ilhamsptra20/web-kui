@@ -68,15 +68,6 @@
                                 <a href="{{ $contactUrl }}" class="btn style-three fw-semibold position-relative round-oval">{{ $contactText }}<span class="position-absolute top-0 end-0 h-100 d-flex flex-column align-items-center justify-content-center"><img src="{{ asset('assets/marketing/img/icons/right-arrow-white.svg') }}" alt="Icon"></span></a>
                             </div>
                         </div>
-                        <button  class="search-btn bg-transparent border-0 d-flex flex-wrap align-items-center dropdown-toggle text-center p-0 transition" type="button" data-bs-toggle="dropdown" aria-expanded="true">
-                                <img src="{{ asset('assets/marketing/img/icons/search.svg') }}" alt="Search Icon">
-                        </button>
-                        <div class="search-dropdown dropdown-menu dropdown-menu-right top-1 border-0" data-bs-popper="static">
-                                <form class="search-popup position-relative" action="#">
-                                <input type="search" class="form-control text-para" placeholder="Search Here....">
-                                <button type="submit" class="position-absolute top-0 end-0 h-100 border-0 bg-transparent d-flex flex-column align-items-center justify-content-center"><i class="ri-search-2-line"></i></button>
-                            </form>
-                        </div>
                     </div>
                 </div>
                 <div class="option-item d-lg-block d-none">

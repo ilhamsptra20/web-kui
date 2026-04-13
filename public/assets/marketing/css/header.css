@@ -691,4 +691,148 @@
   .menu > ul > li:last-child {
     margin-right: 0;
   }
+}
+
+@media only screen and (min-width: 992px) {
+  .navbar-area.style-two .menu > ul > li.marketing-nav-has-dropdown {
+    position: relative;
+  }
+
+  .navbar-area.style-two .menu > ul > li.marketing-nav-has-dropdown > a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .navbar-area.style-two .menu > ul > li.marketing-nav-has-dropdown > a .marketing-nav-caret {
+    position: relative;
+    top: 1px;
+    margin-left: 0;
+    font-size: 17px;
+    line-height: 1;
+  }
+
+  .navbar-area.style-two .menu > ul > li .menu-subs.marketing-nav-dropdown {
+    width: 330px;
+    min-width: 330px;
+    max-width: 330px;
+    left: 50%;
+    top: 100%;
+    margin-top: 14px;
+    padding: 14px;
+    border: 1px solid rgba(237, 240, 246, 0.95);
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.98);
+    box-shadow: 0 28px 70px rgba(15, 23, 42, 0.16);
+    transform: translateX(-50%) translateY(14px);
+    backdrop-filter: blur(14px);
+  }
+
+  .navbar-area.style-two .menu > ul > li .menu-subs.marketing-nav-dropdown::before {
+    content: "";
+    position: absolute;
+    top: -7px;
+    left: 50%;
+    width: 14px;
+    height: 14px;
+    border-top: 1px solid rgba(237, 240, 246, 0.95);
+    border-left: 1px solid rgba(237, 240, 246, 0.95);
+    background: rgba(255, 255, 255, 0.98);
+    transform: translateX(-50%) rotate(45deg);
+  }
+
+  .navbar-area.style-two .menu > ul li:hover > .menu-subs.marketing-nav-dropdown {
+    margin-top: 14px;
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .navbar-area.style-two .menu > ul > li .menu-subs.marketing-nav-dropdown li {
+    position: relative;
+    margin-bottom: 6px;
+  }
+
+  .navbar-area.style-two .menu > ul > li .menu-subs.marketing-nav-dropdown li:last-child {
+    margin-bottom: 0;
+  }
+
+  .navbar-area.style-two .menu > ul > li .menu-subs.marketing-nav-dropdown li a {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 52px;
+    padding: 14px 42px 14px 18px;
+    border: 0;
+    border-radius: 16px;
+    color: #263238;
+    font-size: 15px;
+    font-weight: 650;
+    line-height: 1.45;
+    background: transparent;
+  }
+
+  .navbar-area.style-two .menu > ul > li .menu-subs.marketing-nav-dropdown li a::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 4px;
+    height: 0;
+    border-radius: 999px;
+    background: var(--secondaryColor);
+    transform: translateY(-50%);
+    transition: var(--transition);
+  }
+
+  .navbar-area.style-two .menu > ul > li .menu-subs.marketing-nav-dropdown li a::after {
+    content: "\2192";
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(93, 95, 239, 0.08);
+    color: var(--primaryColor);
+    font-size: 15px;
+    font-weight: 700;
+    transform: translateY(-50%);
+    transition: var(--transition);
+  }
+
+  .navbar-area.style-two .menu > ul > li .menu-subs.marketing-nav-dropdown li a:hover,
+  .navbar-area.style-two .menu > ul > li .menu-subs.marketing-nav-dropdown li a.active {
+    color: var(--primaryColor);
+    background: linear-gradient(90deg, rgba(93, 95, 239, 0.1), rgba(217, 255, 49, 0.16));
+    border-left-color: transparent;
+  }
+
+  .navbar-area.style-two .menu > ul > li .menu-subs.marketing-nav-dropdown li a:hover::before,
+  .navbar-area.style-two .menu > ul > li .menu-subs.marketing-nav-dropdown li a.active::before {
+    height: 28px;
+  }
+
+  .navbar-area.style-two .menu > ul > li .menu-subs.marketing-nav-dropdown li a:hover::after,
+  .navbar-area.style-two .menu > ul > li .menu-subs.marketing-nav-dropdown li a.active::after {
+    background: var(--primaryColor);
+    color: #fff;
+    transform: translateY(-50%) translateX(3px);
+  }
+}
+
+@media only screen and (max-width: 991px) {
+  .navbar-area.style-two .menu > ul > li.marketing-nav-has-dropdown > a .marketing-nav-caret {
+    margin-left: 0;
+  }
+
+  .navbar-area.style-two .menu > ul > li .menu-subs.marketing-nav-dropdown li a {
+    padding: 18px 25px;
+    border-left: 0;
+    border-bottom: 1px solid rgba(38, 38, 54, 0.08);
+  }
 }/*# sourceMappingURL=header.css.map */

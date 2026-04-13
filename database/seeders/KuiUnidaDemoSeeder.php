@@ -8,7 +8,6 @@ use App\Models\Announcement;
 use App\Models\Category;
 use App\Models\Gallery;
 use App\Models\Lembaga;
-use App\Models\Page;
 use App\Models\Position;
 use App\Models\Post;
 use App\Models\Relation;
@@ -43,7 +42,7 @@ class KuiUnidaDemoSeeder extends Seeder
         $positions = $this->seedPositions();
         $this->seedTeams($positions);
         $this->seedPosts($categories, $adminUser);
-        $this->seedPages($adminUser);
+        $this->call(MarketingPageSeeder::class);
         $this->seedVideos();
         $this->seedRelations();
     }
@@ -597,47 +596,6 @@ class KuiUnidaDemoSeeder extends Seeder
                     'status' => 'published',
                     'meta_title' => $item['meta_title'],
                     'meta_description' => $item['meta_description'],
-                ]
-            );
-        }
-    }
-
-    private function seedPages(?User $adminUser): void
-    {
-        $items = [
-            [
-                'slug' => 'profil-kui-unida',
-                'title_id' => 'Profil KUI Universitas Juanda',
-                'title_en' => 'Profile Of KUI Universitas Juanda',
-                'title_ar' => 'ملف مكتب الشؤون الدولية بجامعة جواندا',
-                'content_id' => '<p>KUI Universitas Juanda adalah unit yang mengelola dan mendorong internasionalisasi kampus melalui kemitraan, mobilitas, dan layanan akademik lintas negara.</p>',
-                'content_en' => '<p>The International Office of Universitas Juanda manages and promotes campus internationalization through partnerships, mobility, and cross-border academic services.</p>',
-                'content_ar' => '<p>يدير مكتب الشؤون الدولية بجامعة جواندا جهود تدويل الحرم الجامعي من خلال الشراكات والتنقل والخدمات الأكاديمية العابرة للحدود.</p>',
-            ],
-            [
-                'slug' => 'panduan-mahasiswa-internasional',
-                'title_id' => 'Panduan Mahasiswa Internasional',
-                'title_en' => 'International Student Guide',
-                'title_ar' => 'دليل الطلاب الدوليين',
-                'content_id' => '<p>Halaman ini memuat informasi ringkas mengenai layanan awal, orientasi kampus, dan dukungan administrasi yang dapat diakses oleh mahasiswa internasional di Universitas Juanda.</p>',
-                'content_en' => '<p>This page contains brief information on orientation, administrative support, and initial services for international students at Universitas Juanda.</p>',
-                'content_ar' => '<p>تحتوي هذه الصفحة على معلومات موجزة حول التوجيه والدعم الإداري والخدمات الأولية للطلاب الدوليين في جامعة جواندا.</p>',
-            ],
-        ];
-
-        foreach ($items as $item) {
-            Page::query()->updateOrCreate(
-                ['slug' => $item['slug']],
-                [
-                    'user_id' => $adminUser?->id,
-                    'title_id' => $item['title_id'],
-                    'title_en' => $item['title_en'],
-                    'title_ar' => $item['title_ar'],
-                    'slug' => $item['slug'],
-                    'content_id' => $item['content_id'],
-                    'content_en' => $item['content_en'],
-                    'content_ar' => $item['content_ar'],
-                    'status' => true,
                 ]
             );
         }

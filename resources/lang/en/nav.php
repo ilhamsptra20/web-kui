@@ -10,4 +10,5 @@ return [
     'contact' => 'Contact',
     'quick_links' => 'Quick Links',
     'relations' => 'Relations',
+    'page' => 'Page',
 ];

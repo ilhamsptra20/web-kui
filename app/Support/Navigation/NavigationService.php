@@ -3,6 +3,7 @@
 namespace App\Support\Navigation;
 
 use App\Models\Navigation;
+use App\Models\Page;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
@@ -11,7 +12,7 @@ class NavigationService
 {
     private const CACHE_ADMIN_SIDEBAR = 'navigation.admin.sidebar';
 
-    private const CACHE_MARKETING_NAVBAR = 'navigation.marketing.navbar';
+    private const CACHE_MARKETING_NAVBAR = 'navigation.marketing.navbar.v2';
 
     private const CACHE_MARKETING_FOOTER = 'navigation.marketing.footer';
 
@@ -44,9 +45,11 @@ class NavigationService
             return $this->defaultMarketingNavbar();
         }
 
-        return Cache::rememberForever(self::CACHE_MARKETING_NAVBAR, fn (): array => $items
-            ->map(fn (Navigation $navigation): array => $this->mapMarketingItem($navigation))
-            ->all());
+        return Cache::rememberForever(self::CACHE_MARKETING_NAVBAR, fn (): array => $this->withMarketingPagesUnderAbout(
+            $items
+                ->map(fn (Navigation $navigation): array => $this->mapMarketingItem($navigation))
+                ->all()
+        ));
     }
 
     public function marketingFooter(): array
@@ -210,7 +213,9 @@ class NavigationService
 
     private function defaultMarketingNavbar(): array
     {
-        return $this->mapMarketingConfigItems(config('navigator.marketing.navbar', []));
+        return $this->withMarketingPagesUnderAbout(
+            $this->mapMarketingConfigItems(config('navigator.marketing.navbar', []))
+        );
     }
 
     private function defaultMarketingFooter(): array
@@ -235,5 +240,63 @@ class NavigationService
                 ];
             })
             ->all();
+    }
+
+    private function withMarketingPagesUnderAbout(array $items): array
+    {
+        $pages = $this->marketingPageItems();
+
+        if ($pages === []) {
+            return $items;
+        }
+
+        return collect($items)
+            ->map(function (array $item) use ($pages): array {
+                if (! $this->isAboutMarketingItem($item)) {
+                    return $item;
+                }
+
+                $item['children'] = collect($item['children'] ?? [])
+                    ->concat($pages)
+                    ->unique(fn (array $child): string => $child['url'] ?? '#')
+                    ->values()
+                    ->all();
+
+                return $item;
+            })
+            ->all();
+    }
+
+    private function marketingPageItems(): array
+    {
+        try {
+            if (! Schema::hasTable('pages')) {
+                return [];
+            }
+
+            return Page::query()
+                ->published()
+                ->orderBy('title_id')
+                ->get()
+                ->map(fn (Page $page): array => [
+                    'title' => $page->trans('title') ?: $page->title_id ?: 'Halaman KUI',
+                    'url' => route('pages.show-marketing', $page, false),
+                    'route_name' => null,
+                    'target' => '_self',
+                    'children' => [],
+                ])
+                ->all();
+        } catch (\Throwable) {
+            return [];
+        }
+    }
+
+    private function isAboutMarketingItem(array $item): bool
+    {
+        if (($item['route_name'] ?? null) === 'about-marketing') {
+            return true;
+        }
+
+        return trim((string) ($item['url'] ?? ''), '/') === 'about';
     }
 }

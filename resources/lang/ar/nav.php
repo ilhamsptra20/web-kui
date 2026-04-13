@@ -10,4 +10,5 @@ return [
     'contact' => 'اتصل',
     'quick_links' => 'روابط سريعة',
     'relations' => 'العلاقات',
+    'page' => 'الصفحة',
 ];

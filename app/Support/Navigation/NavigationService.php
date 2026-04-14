@@ -12,7 +12,7 @@ class NavigationService
 {
     private const CACHE_ADMIN_SIDEBAR = 'navigation.admin.sidebar';
 
-    private const CACHE_MARKETING_NAVBAR = 'navigation.marketing.navbar.v2';
+    private const CACHE_MARKETING_NAVBAR = 'navigation.marketing.navbar.v3';
 
     private const CACHE_MARKETING_FOOTER = 'navigation.marketing.footer';
 
@@ -282,7 +282,7 @@ class NavigationService
                     'title' => $page->trans('title') ?: $page->title_id ?: 'Halaman KUI',
                     'url' => route('pages.show-marketing', $page, false),
                     'route_name' => null,
-                    'target' => '_self',
+                    'target' => $page->isPdfFile() ? '_blank' : '_self',
                     'children' => [],
                 ])
                 ->all();

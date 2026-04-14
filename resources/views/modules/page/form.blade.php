@@ -5,7 +5,7 @@
 @section('content')
 <div class='card'>
     <div class='card-body'>
-        <form action="{{ $isEdit ? route('pages.update', $page) : route('pages.store') }}" method='POST'  novalidate>
+        <form action="{{ $isEdit ? route('pages.update', $page) : route('pages.store') }}" method='POST' enctype='multipart/form-data' novalidate>
             @csrf
             @if($isEdit) @method('PUT') @endif
 

@@ -41,7 +41,52 @@
                         @endif
                     </div>
 
-                    @if(filled($content))
+                    @if($page->isFile())
+                        @php $fileUrl = $page->fileUrl(); @endphp
+
+                        @if($fileUrl)
+                            <div class="marketing-page-file">
+                                <div class="marketing-page-file-header">
+                                    <span class="marketing-page-file-icon">
+                                        <i class="{{ $page->fileIcon() }}"></i>
+                                    </span>
+                                    <div>
+                                        <h2 class="font-secondary fw-medium mb-1">{{ $page->fileDisplayName() }}</h2>
+                                        @if($page->readableFileSize())
+                                            <p class="mb-0 text-para">{{ $page->readableFileSize() }}</p>
+                                        @endif
+                                    </div>
+                                    <a href="{{ asset($fileUrl) }}" target="_blank" rel="noopener" class="btn style-one fw-semibold position-relative round-oval">
+                                        Buka File
+                                    </a>
+                                </div>
+
+                                @if($page->isImageFile())
+                                    <img src="{{ asset($fileUrl) }}" alt="{{ $title }}" class="marketing-page-file-image">
+                                @elseif($page->isPdfFile())
+                                    <iframe src="{{ asset($fileUrl) }}" class="marketing-page-file-pdf" title="{{ $title }}"></iframe>
+                                @else
+                                    <div class="marketing-page-empty">
+                                        <span class="marketing-page-empty-icon">
+                                            <i class="ri-attachment-2"></i>
+                                        </span>
+                                        <h2 class="font-secondary fw-medium mb-3">File tersedia untuk dibuka</h2>
+                                        <p class="mb-0">Gunakan tombol buka file untuk melihat dokumen halaman ini.</p>
+                                    </div>
+                                @endif
+                            </div>
+                        @else
+                            <div class="marketing-page-empty">
+                                <span class="marketing-page-empty-icon">
+                                    <i class="ri-file-warning-line"></i>
+                                </span>
+                                <h2 class="font-secondary fw-medium mb-3">File halaman belum tersedia</h2>
+                                <p class="mb-0">
+                                    Tim KUI sedang menyiapkan file untuk halaman ini. Silakan kembali ke halaman tentang KUI atau hubungi KUI untuk informasi lebih lanjut.
+                                </p>
+                            </div>
+                        @endif
+                    @elseif(filled($content))
                         <div class="marketing-page-content" dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}">
                             {!! $content !!}
                         </div>
@@ -181,6 +226,57 @@
         margin: 18px 0;
     }
 
+    .marketing-page-file {
+        display: grid;
+        gap: 26px;
+    }
+
+    .marketing-page-file-header {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        padding: 22px;
+        border-radius: 24px;
+        background: #f8f9fd;
+    }
+
+    .marketing-page-file-header > div {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .marketing-page-file-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 20px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(93, 95, 239, 0.1);
+        color: var(--primaryColor);
+        font-size: 30px;
+        flex: 0 0 auto;
+    }
+
+    .marketing-page-file-image,
+    .marketing-page-file-pdf {
+        width: 100%;
+        border: 1px solid #edf0f6;
+        border-radius: 24px;
+        background: #fff;
+        box-shadow: 0 18px 45px rgba(15, 23, 42, 0.06);
+    }
+
+    .marketing-page-file-image {
+        display: block;
+        max-height: 720px;
+        object-fit: contain;
+    }
+
+    .marketing-page-file-pdf {
+        min-height: 760px;
+    }
+
     .marketing-page-empty {
         padding: 42px;
         border-radius: 24px;
@@ -223,6 +319,11 @@
             padding: 32px;
             border-radius: 24px;
         }
+
+        .marketing-page-file-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
     }
 
     @media (max-width: 767px) {
@@ -237,6 +338,10 @@
 
         .marketing-page-empty {
             padding: 30px 22px;
+        }
+
+        .marketing-page-file-pdf {
+            min-height: 560px;
         }
     }
 </style>

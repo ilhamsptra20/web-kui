@@ -17,6 +17,7 @@
 
     <!-- BEGIN: Vendor CSS-->
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendors/css/vendors.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/vendors/css/extensions/sweetalert2.min.css') }}">
     @stack('styles')
 
 
@@ -100,6 +101,7 @@
 
     <!-- BEGIN: Vendor JS-->
     <script src="{{ asset('assets/vendors/js/vendors.min.js') }}"></script>
+    <script src="{{ asset('assets/vendors/js/extensions/sweetalert2.all.min.js') }}"></script>
     <!-- BEGIN Vendor JS-->
 
     <!-- BEGIN: Page Vendor JS-->
@@ -111,6 +113,98 @@
     <script src="{{ asset('assets/js/core/app.js') }}"></script>
     <script src="{{ asset('assets/js/scripts/components.js') }}"></script>
     <!-- END: Theme JS-->
+
+    <script>
+        (() => {
+            const swal = window.Swal;
+
+            if (!swal) {
+                console.error('SweetAlert2 belum termuat. Cek asset assets/vendors/js/extensions/sweetalert2.all.min.js.');
+                return;
+            }
+
+            window.handleDelete = (actionUrl) => {
+                if (!actionUrl) {
+                    return;
+                }
+
+                const submitDelete = () => {
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                    const form = document.createElement('form');
+
+                    form.method = 'POST';
+                    form.action = actionUrl;
+                    form.style.display = 'none';
+
+                    const methodInput = document.createElement('input');
+                    methodInput.type = 'hidden';
+                    methodInput.name = '_method';
+                    methodInput.value = 'DELETE';
+                    form.appendChild(methodInput);
+
+                    if (csrfToken) {
+                        const tokenInput = document.createElement('input');
+                        tokenInput.type = 'hidden';
+                        tokenInput.name = '_token';
+                        tokenInput.value = csrfToken;
+                        form.appendChild(tokenInput);
+                    }
+
+                    document.body.appendChild(form);
+                    form.submit();
+                };
+
+                swal.fire({
+                    title: 'Hapus data ini?',
+                    text: 'Data yang sudah dihapus tidak bisa dikembalikan.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ea5455',
+                    cancelButtonColor: '#82868b',
+                    confirmButtonText: 'Ya, hapus',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true,
+                    focusCancel: true,
+                }).then((result) => {
+                    if (!result.isConfirmed) {
+                        return;
+                    }
+
+                    swal.fire({
+                        title: 'Menghapus data...',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        didOpen: () => swal.showLoading(),
+                    });
+
+                    submitDelete();
+                });
+            };
+
+            const flashMessage = {
+                success: @json(session('success')),
+                error: @json(session('error')),
+            };
+
+            if (flashMessage.success) {
+                swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil',
+                    text: flashMessage.success,
+                    timer: 2400,
+                    showConfirmButton: false,
+                });
+            }
+
+            if (flashMessage.error) {
+                swal.fire({
+                    icon: 'error',
+                    title: 'Gagal',
+                    text: flashMessage.error,
+                });
+            }
+        })();
+    </script>
 
     <!-- BEGIN: Page JS-->
     @stack('scripts')

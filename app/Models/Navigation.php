@@ -113,9 +113,36 @@ class Navigation extends BaseUuidModel
     public function resolvedUrl(): string
     {
         if ($this->route_name && Route::has($this->route_name)) {
-            return route($this->route_name, [], false);
+            try {
+                return route($this->route_name, [], false);
+            } catch (\Throwable) {
+                //
+            }
         }
 
-        return $this->url ?: '#';
+        return self::normalizeUrl($this->url);
+    }
+
+    public static function normalizeUrl(?string $url): string
+    {
+        $url = trim((string) $url);
+
+        if ($url === '') {
+            return '#';
+        }
+
+        if (
+            $url === '#'
+            || str_starts_with($url, '#')
+            || str_starts_with($url, '/')
+            || str_starts_with($url, 'http://')
+            || str_starts_with($url, 'https://')
+            || str_starts_with($url, 'mailto:')
+            || str_starts_with($url, 'tel:')
+        ) {
+            return $url;
+        }
+
+        return '/'.ltrim($url, '/');
     }
 }

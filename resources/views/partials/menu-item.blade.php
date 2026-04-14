@@ -1,17 +1,33 @@
 @php
     $hasSubmenu = isset($item['submenu']) && count($item['submenu']) > 0;
+    $routeName = $item['route_name'] ?? null;
     $rawUrl = $item['url'] ?? '#';
+
+    if ($routeName && Route::has($routeName)) {
+        try {
+            $rawUrl = route($routeName, [], false);
+        } catch (\Throwable) {
+            $rawUrl = $item['url'] ?? '#';
+        }
+    }
     $isExternal = str_starts_with($rawUrl, 'http://') || str_starts_with($rawUrl, 'https://');
+    $isSpecial = str_starts_with($rawUrl, '//') || str_starts_with($rawUrl, 'mailto:') || str_starts_with($rawUrl, 'tel:');
     $isAnchor = str_starts_with($rawUrl, '#');
-    $href = $isExternal || $isAnchor || $rawUrl === '#' ? $rawUrl : url($rawUrl);
+    $href = $isExternal || $isSpecial || $isAnchor || $rawUrl === '#' ? $rawUrl : url($rawUrl);
     $normalized = trim(parse_url($rawUrl, PHP_URL_PATH) ?: '', '/');
     $isRoot = $normalized === '';
     $childActive = collect($item['submenu'] ?? [])->contains(function (array $child): bool {
+        $routeName = $child['route_name'] ?? null;
+
+        if ($routeName && Route::has($routeName) && request()->routeIs($routeName)) {
+            return true;
+        }
+
         $url = trim(parse_url($child['url'] ?? '', PHP_URL_PATH) ?: '', '/');
 
         return $url === '' ? request()->url() === url('/') : request()->is($url . '*');
     });
-    $isActive = $isRoot ? request()->url() === url('/') : request()->is($normalized . '*');
+    $isActive = $routeName && Route::has($routeName) ? request()->routeIs($routeName) : ($isRoot ? request()->url() === url('/') : request()->is($normalized . '*'));
     $isActive = $isActive || $childActive;
 @endphp
 

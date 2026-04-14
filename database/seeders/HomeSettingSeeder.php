@@ -151,6 +151,13 @@ class HomeSettingSeeder extends Seeder
             ],
             [
                 'group' => 'Brand Settings',
+                'label' => 'Sidebar Logo',
+                'key' => 'sidebar_logo',
+                'type' => Setting::TYPE_IMAGE,
+                'value' => '/assets/logo/unida.png',
+            ],
+            [
+                'group' => 'Brand Settings',
                 'label' => 'Site Logo Light',
                 'key' => 'site_logo_light',
                 'type' => Setting::TYPE_IMAGE,

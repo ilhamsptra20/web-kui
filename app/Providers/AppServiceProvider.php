@@ -38,7 +38,20 @@ class AppServiceProvider extends ServiceProvider
         });
 
         View::composer('components.layout.sidebar', function ($view): void {
-            $view->with('adminSidebarItems', app(NavigationService::class)->adminSidebar());
+            $settingService = app(SettingService::class);
+
+            $view->with([
+                'adminSidebarItems' => app(NavigationService::class)->adminSidebar(),
+                'adminBrandSettings' => $settingService->only([
+                    'sidebar_logo' => '/assets/logo/unida.png',
+                ]),
+            ]);
+        });
+
+        View::composer(['layouts.app', 'layouts.auth'], function ($view): void {
+            $view->with('adminLayoutSettings', app(SettingService::class)->only([
+                'favicon_logo' => '/favicon.ico',
+            ]));
         });
 
         View::composer('components.layout.marketing.navbar', function ($view): void {

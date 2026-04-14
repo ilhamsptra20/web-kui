@@ -6,15 +6,16 @@ use App\Models\Navigation;
 use App\Models\Page;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 
 class NavigationService
 {
-    private const CACHE_ADMIN_SIDEBAR = 'navigation.admin.sidebar';
+    private const CACHE_ADMIN_SIDEBAR = 'navigation.admin.sidebar.v2';
 
-    private const CACHE_MARKETING_NAVBAR = 'navigation.marketing.navbar.v3';
+    private const CACHE_MARKETING_NAVBAR = 'navigation.marketing.navbar.v4';
 
-    private const CACHE_MARKETING_FOOTER = 'navigation.marketing.footer';
+    private const CACHE_MARKETING_FOOTER = 'navigation.marketing.footer.v2';
 
     public function adminSidebar(): array
     {
@@ -233,7 +234,7 @@ class NavigationService
 
                 return [
                     'title' => $title,
-                    'url' => $item['url'] ?? '#',
+                    'url' => $this->resolveConfigUrl($item),
                     'route_name' => $item['route_name'] ?? null,
                     'target' => $item['target'] ?? '_self',
                     'children' => $this->mapMarketingConfigItems($item['children'] ?? []),
@@ -289,6 +290,21 @@ class NavigationService
         } catch (\Throwable) {
             return [];
         }
+    }
+
+    private function resolveConfigUrl(array $item): string
+    {
+        $routeName = $item['route_name'] ?? null;
+
+        if ($routeName && Route::has($routeName)) {
+            try {
+                return route($routeName, [], false);
+            } catch (\Throwable) {
+                //
+            }
+        }
+
+        return Navigation::normalizeUrl($item['url'] ?? null);
     }
 
     private function isAboutMarketingItem(array $item): bool

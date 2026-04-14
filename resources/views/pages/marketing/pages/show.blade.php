@@ -56,15 +56,15 @@
                                             <p class="mb-0 text-para">{{ $page->readableFileSize() }}</p>
                                         @endif
                                     </div>
-                                    <a href="{{ asset($fileUrl) }}" target="_blank" rel="noopener" class="btn style-one fw-semibold position-relative round-oval">
+                                    <a href="{{ $fileUrl }}" target="_blank" rel="noopener" class="btn style-one fw-semibold position-relative round-oval">
                                         Buka File
                                     </a>
                                 </div>
 
                                 @if($page->isImageFile())
-                                    <img src="{{ asset($fileUrl) }}" alt="{{ $title }}" class="marketing-page-file-image">
+                                    <img src="{{ $fileUrl }}" alt="{{ $title }}" class="marketing-page-file-image">
                                 @elseif($page->isPdfFile())
-                                    <iframe src="{{ asset($fileUrl) }}" class="marketing-page-file-pdf" title="{{ $title }}"></iframe>
+                                    <iframe src="{{ $fileUrl }}" class="marketing-page-file-pdf" title="{{ $title }}"></iframe>
                                 @else
                                     <div class="marketing-page-empty">
                                         <span class="marketing-page-empty-icon">

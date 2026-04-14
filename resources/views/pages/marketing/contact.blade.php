@@ -259,7 +259,7 @@
                             <small>Respon layanan</small>
                             <strong>{{ $contactPage['contact_page_hours_value'] ?? 'Senin - Jumat, 08.00 - 16.00 WIB' }}</strong>
                         </div>
-                        <a href="{{ url('/about') }}" class="contact-kui-text-link">
+                        <a href="{{ route('about-marketing') }}" class="contact-kui-text-link">
                             Tentang KUI
                             <i class="ri-arrow-right-up-line"></i>
                         </a>

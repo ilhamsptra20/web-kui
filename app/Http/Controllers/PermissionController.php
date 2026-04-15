@@ -112,7 +112,7 @@ class PermissionController extends Controller
             DB::rollBack();
             report($e);
 
-            return back()->with('error', 'Gagal menghapus permission.');
+            return redirect()->route('permissions.index')->with('error', 'Gagal menghapus permission: ' . $e->getMessage());
         }
     }
 }

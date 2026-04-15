@@ -114,7 +114,7 @@ class TeamController extends Controller
             DB::rollBack();
             report($e);
 
-            return back()->with('error', 'Delete failed');
+            return redirect()->route('teams.index')->with('error', 'Delete failed: ' . $e->getMessage());
         }
     }
 }

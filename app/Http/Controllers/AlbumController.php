@@ -105,6 +105,9 @@ class AlbumController extends Controller
                 Storage::disk('public')->delete($album->image);
             }
 
+            // Set album_id of related galleries to null
+            $album->galleries()->update(['album_id' => null]);
+
             $album->delete();
 
             DB::commit();
@@ -114,7 +117,7 @@ class AlbumController extends Controller
             DB::rollBack();
             report($e);
 
-            return back()->with('error', 'Delete failed');
+            return redirect()->route('albums.index')->with('error', 'Delete failed: ' . $e->getMessage());
         }
     }
 }

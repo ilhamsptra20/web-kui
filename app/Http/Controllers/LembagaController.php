@@ -114,7 +114,7 @@ class LembagaController extends Controller
             DB::rollBack();
             report($e);
 
-            return back()->with('error', 'Delete failed');
+            return redirect()->route('lembagas.index')->with('error', 'Delete failed: ' . $e->getMessage());
         }
     }
 }

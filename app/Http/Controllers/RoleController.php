@@ -122,7 +122,7 @@ class RoleController extends Controller
             DB::rollBack();
             report($e);
 
-            return back()->with('error', 'Gagal menghapus role.');
+            return redirect()->route('roles.index')->with('error', 'Gagal menghapus role: ' . $e->getMessage());
         }
     }
 

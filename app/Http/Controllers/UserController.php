@@ -135,7 +135,7 @@ class UserController extends Controller
             DB::rollBack();
             report($e);
 
-            return back()->with('error', 'Gagal menghapus user.');
+            return redirect()->route('users.index')->with('error', 'Gagal menghapus user: ' . $e->getMessage());
         }
     }
 

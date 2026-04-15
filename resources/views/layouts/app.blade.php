@@ -129,6 +129,7 @@
                 }
 
                 const submitDelete = () => {
+                    console.log('Submitting delete form to:', actionUrl);
                     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
                     const form = document.createElement('form');
 
@@ -157,7 +158,7 @@
                 swal.fire({
                     title: 'Hapus data ini?',
                     text: 'Data yang sudah dihapus tidak bisa dikembalikan.',
-                    icon: 'warning',
+                    type: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#ea5455',
                     cancelButtonColor: '#82868b',
@@ -166,10 +167,16 @@
                     reverseButtons: true,
                     focusCancel: true,
                 }).then((result) => {
-                    if (!result.isConfirmed) {
+                    console.log('SweetAlert result:', result);
+                    // Support both old and new SweetAlert2 versions
+                    const isConfirmed = result.isConfirmed || result.value === true;
+                    
+                    if (!isConfirmed) {
+                        console.log('Delete cancelled');
                         return;
                     }
 
+                    console.log('Delete confirmed, showing loading dialog');
                     swal.fire({
                         title: 'Menghapus data...',
                         allowOutsideClick: false,
@@ -177,6 +184,7 @@
                         didOpen: () => swal.showLoading(),
                     });
 
+                    console.log('About to execute submitDelete');
                     submitDelete();
                 });
             };

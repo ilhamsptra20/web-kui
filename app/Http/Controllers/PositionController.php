@@ -90,6 +90,8 @@ class PositionController extends Controller
         DB::beginTransaction();
 
         try {
+            // Set position_id of related teams to null
+            $position->teams()->update(['position_id' => null]);
 
             $position->delete();
 
@@ -100,7 +102,7 @@ class PositionController extends Controller
             DB::rollBack();
             report($e);
 
-            return back()->with('error', 'Delete failed');
+            return redirect()->route('positions.index')->with('error', 'Delete failed: ' . $e->getMessage());
         }
     }
 }

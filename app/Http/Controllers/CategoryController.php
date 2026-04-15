@@ -90,6 +90,8 @@ class CategoryController extends Controller
         DB::beginTransaction();
 
         try {
+            // Set category_id of related posts to null
+            $category->posts()->update(['category_id' => null]);
 
             $category->delete();
 
@@ -100,7 +102,7 @@ class CategoryController extends Controller
             DB::rollBack();
             report($e);
 
-            return back()->with('error', 'Delete failed');
+            return redirect()->route('categories.index')->with('error', 'Delete failed: ' . $e->getMessage());
         }
     }
 }

@@ -162,7 +162,7 @@ class NavigationController extends Controller
             DB::rollBack();
             report($e);
 
-            return back()->with('error', 'Gagal menghapus navigation.');
+            return redirect()->route('navigations.index')->with('error', 'Gagal menghapus navigation: ' . $e->getMessage());
         }
     }
 

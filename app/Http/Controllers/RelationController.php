@@ -100,7 +100,7 @@ class RelationController extends Controller
             DB::rollBack();
             report($e);
 
-            return back()->with('error', 'Delete failed');
+            return redirect()->route('relations.index')->with('error', 'Delete failed: ' . $e->getMessage());
         }
     }
 }

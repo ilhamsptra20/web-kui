@@ -101,7 +101,7 @@ class AnnouncementController extends Controller
             DB::rollBack();
             report($e);
 
-            return back()->with('error', 'Delete failed');
+            return redirect()->route('announcements.index')->with('error', 'Delete failed: ' . $e->getMessage());
         }
     }
 }

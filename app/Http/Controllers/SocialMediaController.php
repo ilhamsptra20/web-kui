@@ -100,7 +100,7 @@ class SocialMediaController extends Controller
             DB::rollBack();
             report($e);
 
-            return back()->with('error', 'Delete failed');
+            return redirect()->route('social_media.index')->with('error', 'Delete failed: ' . $e->getMessage());
         }
     }
 }

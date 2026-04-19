@@ -1,150 +1,75 @@
-<?php 
+<?php
 
 return [
-    'sidebar' => [
-        ['header' => 'Main Menu'],
-        [
-            'title' => 'Dashboard',
-            'icon'  => 'feather icon-home',
-            'url'   => '/dashboard',
-            'route_name' => 'dashboard',
+    /*
+    |--------------------------------------------------------------------------
+    | Marketing CRUD Module Presets
+    |--------------------------------------------------------------------------
+    |
+    | Preset ini dipakai di form Navigation agar admin bisa memilih module
+    | konten yang memang punya CRUD dan tampil di halaman marketing.
+    |
+    */
+    'modules' => [
+        'pages' => [
+            'label' => 'Page',
+            'title_id' => 'Halaman',
+            'title_en' => 'Pages',
+            'title_ar' => 'الصفحات',
+            'url' => '#',
+            'route_name' => null,
         ],
-
-        ['header' => 'Content Manager'],
-        [
-            'title' => 'Category',
-            'icon'  => 'feather icon-list',
-            'url'   => '/categories',
-            'route_name' => 'categories.index',
+        'posts' => [
+            'label' => 'Post / Article',
+            'title_id' => 'Artikel',
+            'title_en' => 'Articles',
+            'title_ar' => 'المقالات',
+            'url' => '/articles',
+            'route_name' => 'articles-marketing',
         ],
-        [
-            'title' => 'Posts',
-            'icon'  => 'feather icon-file-text',
-            'url'   => '/posts',
-            'route_name' => 'posts.index',
+        'albums_galleries' => [
+            'label' => 'Album / Gallery',
+            'title_id' => 'Galeri',
+            'title_en' => 'Gallery',
+            'title_ar' => 'المعرض',
+            'url' => '/gallery',
+            'route_name' => 'gallery-marketing',
         ],
-
-        ['header' => 'Media & Gallery'],
-        [
-            'title' => 'Page',
-            'icon'  => 'feather icon-folder',
-            'url'   => '/pages',
-            'route_name' => 'pages.index',
+        'agendas' => [
+            'label' => 'Agenda / Event',
+            'title_id' => 'Agenda',
+            'title_en' => 'Events',
+            'title_ar' => 'الفعاليات',
+            'url' => '/events',
+            'route_name' => 'events-marketing',
         ],
-        [
-            'title' => 'Album',
-            'icon'  => 'feather icon-folder',
-            'url'   => '/albums',
-            'route_name' => 'albums.index',
+        'announcements' => [
+            'label' => 'Announcement',
+            'title_id' => 'Pengumuman',
+            'title_en' => 'Announcements',
+            'title_ar' => 'الإعلانات',
+            'url' => '/announcement',
+            'route_name' => 'announcements-marketing',
         ],
-        [
-            'title' => 'Gallery',
-            'icon'  => 'feather icon-image',
-            'url'   => '/galleries',
-            'route_name' => 'galleries.index',
-        ],
-        [
-            'title' => 'Video',
-            'icon'  => 'feather icon-video',
-            'url'   => '/videos',
-            'route_name' => 'videos.index',
-        ],
-        [
-            'title' => 'Slider',
-            'icon'  => 'feather icon-monitor',
-            'url'   => '/sliders',
-            'route_name' => 'sliders.index',
-        ],
-        [
-            'title' => 'Lembaga',
-            'icon'  => 'feather icon-monitor',
-            'url'   => '/lembagas',
-            'route_name' => 'lembagas.index',
-        ],
-
-        ['header' => 'Information'],
-        [
-            'title' => 'Agenda',
-            'icon'  => 'feather icon-calendar',
-            'url'   => '/agendas',
-            'route_name' => 'agendas.index',
-        ],
-        [
-            'title' => 'Announcement',
-            'icon'  => 'feather icon-bell',
-            'url'   => '/announcements',
-            'route_name' => 'announcements.index',
-        ],
-        [
-            'title' => 'Inbox',
-            'icon'  => 'feather icon-mail',
-            'url'   => '/inboxes',
-            'route_name' => 'inboxes.index',
-            'badge' => ['class' => 'badge-primary', 'text' => 'new'],
-        ],
-        ['header' => 'Team Manager'],
-        [
-            'title' => 'Position',
-            'icon'  => 'feather icon-map-pin',
-            'url'   => '/positions',
-            'route_name' => 'positions.index',
-        ],
-        [
-            'title' => 'Team',
-            'icon'  => 'feather icon-users',
-            'url'   => '/teams',
-            'route_name' => 'teams.index',
-        ],
-
-        ['header' => 'System'],
-        [
-            'title' => 'Users',
-            'icon'  => 'feather icon-users',
-            'url'   => '/users',
-            'route_name' => 'users.index',
-        ],
-        [
-            'title' => 'Roles',
-            'icon'  => 'feather icon-shield',
-            'url'   => '/roles',
-            'route_name' => 'roles.index',
-        ],
-        [
-            'title' => 'Permissions',
-            'icon'  => 'feather icon-lock',
-            'url'   => '/permissions',
-            'route_name' => 'permissions.index',
-        ],
-        [
-            'title' => 'Social Media',
-            'icon'  => 'feather icon-share-2',
-            'url'   => '/social_media',
-            'route_name' => 'social_media.index',
-        ],
-        [
-            'title' => 'Setting',
-            'icon'  => 'feather icon-settings',
-            'url'   => '/settings',
-            'route_name' => 'settings.index',
-        ],
-        [
-            'title' => 'Navigation',
-            'icon'  => 'feather icon-menu',
-            'url'   => '/navigations',
-            'route_name' => 'navigations.index',
+        'teams' => [
+            'label' => 'Team',
+            'title_id' => 'Tim',
+            'title_en' => 'Team',
+            'title_ar' => 'الفريق',
+            'url' => '/team',
+            'route_name' => 'teams-marketing',
         ],
     ],
+
     'marketing' => [
         'navbar' => [
             [
-                'title' => 'Home',
                 'title_id' => 'Beranda',
                 'title_en' => 'Home',
                 'title_ar' => 'الرئيسية',
                 'url' => '/',
             ],
             [
-                'title' => 'About',
                 'title_id' => 'Tentang',
                 'title_en' => 'About',
                 'title_ar' => 'من نحن',
@@ -152,49 +77,48 @@ return [
                 'route_name' => 'about-marketing',
             ],
             [
-                'title' => 'Events',
                 'title_id' => 'Agenda',
                 'title_en' => 'Events',
                 'title_ar' => 'الفعاليات',
                 'url' => '/events',
                 'route_name' => 'events-marketing',
+                'module_key' => 'agendas',
             ],
             [
-                'title' => 'Team',
                 'title_id' => 'Tim',
                 'title_en' => 'Team',
                 'title_ar' => 'الفريق',
                 'url' => '/team',
                 'route_name' => 'teams-marketing',
+                'module_key' => 'teams',
             ],
             [
-                'title' => 'Announcements',
                 'title_id' => 'Pengumuman',
                 'title_en' => 'Announcements',
                 'title_ar' => 'الإعلانات',
                 'url' => '/announcement',
                 'route_name' => 'announcements-marketing',
+                'module_key' => 'announcements',
             ],
             [
-                'title' => 'Gallery',
                 'title_id' => 'Galeri',
                 'title_en' => 'Gallery',
                 'title_ar' => 'المعرض',
                 'url' => '/gallery',
                 'route_name' => 'gallery-marketing',
+                'module_key' => 'albums_galleries',
             ],
             [
-                'title' => 'Articles',
                 'title_id' => 'Artikel',
                 'title_en' => 'Articles',
                 'title_ar' => 'المقالات',
                 'url' => '/articles',
                 'route_name' => 'articles-marketing',
+                'module_key' => 'posts',
             ],
         ],
         'footer' => [
             [
-                'title' => 'About',
                 'title_id' => 'Tentang',
                 'title_en' => 'About',
                 'title_ar' => 'من نحن',
@@ -202,47 +126,46 @@ return [
                 'route_name' => 'about-marketing',
             ],
             [
-                'title' => 'Events',
                 'title_id' => 'Agenda',
                 'title_en' => 'Events',
                 'title_ar' => 'الفعاليات',
                 'url' => '/events',
                 'route_name' => 'events-marketing',
+                'module_key' => 'agendas',
             ],
             [
-                'title' => 'Team',
                 'title_id' => 'Tim',
                 'title_en' => 'Team',
                 'title_ar' => 'الفريق',
                 'url' => '/team',
                 'route_name' => 'teams-marketing',
+                'module_key' => 'teams',
             ],
             [
-                'title' => 'Announcements',
                 'title_id' => 'Pengumuman',
                 'title_en' => 'Announcements',
                 'title_ar' => 'الإعلانات',
                 'url' => '/announcement',
                 'route_name' => 'announcements-marketing',
+                'module_key' => 'announcements',
             ],
             [
-                'title' => 'Gallery',
                 'title_id' => 'Galeri',
                 'title_en' => 'Gallery',
                 'title_ar' => 'المعرض',
                 'url' => '/gallery',
                 'route_name' => 'gallery-marketing',
+                'module_key' => 'albums_galleries',
             ],
             [
-                'title' => 'Articles',
                 'title_id' => 'Artikel',
                 'title_en' => 'Articles',
                 'title_ar' => 'المقالات',
                 'url' => '/articles',
                 'route_name' => 'articles-marketing',
+                'module_key' => 'posts',
             ],
             [
-                'title' => 'Contact',
                 'title_id' => 'Kontak',
                 'title_en' => 'Contact',
                 'title_ar' => 'اتصل بنا',

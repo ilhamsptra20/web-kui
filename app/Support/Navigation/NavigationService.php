@@ -3,7 +3,12 @@
 namespace App\Support\Navigation;
 
 use App\Models\Navigation;
+use App\Models\Agenda;
+use App\Models\Album;
+use App\Models\Announcement;
 use App\Models\Page;
+use App\Models\Post;
+use App\Models\Team;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
@@ -11,27 +16,13 @@ use Illuminate\Support\Facades\Schema;
 
 class NavigationService
 {
-    private const CACHE_ADMIN_SIDEBAR = 'navigation.admin.sidebar.v2';
+    private const CACHE_MARKETING_NAVBAR = 'navigation.marketing.navbar';
 
-    private const CACHE_MARKETING_NAVBAR = 'navigation.marketing.navbar.v4';
-
-    private const CACHE_MARKETING_FOOTER = 'navigation.marketing.footer.v2';
+    private const CACHE_MARKETING_FOOTER = 'navigation.marketing.footer';
 
     public function adminSidebar(): array
     {
-        if (! $this->canUseDatabase()) {
-            return config('navigator.sidebar', []);
-        }
-
-        $items = $this->rootItems(Navigation::AREA_ADMIN, Navigation::LOCATION_SIDEBAR);
-
-        if ($items->isEmpty()) {
-            return config('navigator.sidebar', []);
-        }
-
-        return Cache::rememberForever(self::CACHE_ADMIN_SIDEBAR, fn (): array => $items
-            ->map(fn (Navigation $navigation): array => $this->mapAdminItem($navigation))
-            ->all());
+        return config('admin-sidebar.items', []);
     }
 
     public function marketingNavbar(): array
@@ -40,17 +31,17 @@ class NavigationService
             return $this->defaultMarketingNavbar();
         }
 
-        $items = $this->rootItems(Navigation::AREA_MARKETING, Navigation::LOCATION_NAVBAR);
+        return Cache::rememberForever($this->cacheKey(self::CACHE_MARKETING_NAVBAR), function (): array {
+            $items = $this->rootItems(Navigation::LOCATION_NAVBAR);
 
-        if ($items->isEmpty()) {
-            return $this->defaultMarketingNavbar();
-        }
+            if ($items->isEmpty()) {
+                return $this->defaultMarketingNavbar();
+            }
 
-        return Cache::rememberForever(self::CACHE_MARKETING_NAVBAR, fn (): array => $this->withMarketingPagesUnderAbout(
-            $items
+            return $items
                 ->map(fn (Navigation $navigation): array => $this->mapMarketingItem($navigation))
-                ->all()
-        ));
+                ->all();
+        });
     }
 
     public function marketingFooter(): array
@@ -59,37 +50,25 @@ class NavigationService
             return $this->defaultMarketingFooter();
         }
 
-        $items = $this->rootItems(Navigation::AREA_MARKETING, Navigation::LOCATION_FOOTER);
+        return Cache::rememberForever($this->cacheKey(self::CACHE_MARKETING_FOOTER), function (): array {
+            $items = $this->rootItems(Navigation::LOCATION_FOOTER);
 
-        if ($items->isEmpty()) {
-            return $this->defaultMarketingFooter();
-        }
+            if ($items->isEmpty()) {
+                return $this->defaultMarketingFooter();
+            }
 
-        return Cache::rememberForever(self::CACHE_MARKETING_FOOTER, fn (): array => $items
-            ->map(fn (Navigation $navigation): array => $this->mapMarketingItem($navigation))
-            ->all());
+            return $items
+                ->map(fn (Navigation $navigation): array => $this->mapMarketingItem($navigation))
+                ->all();
+        });
     }
 
     public function parentOptions(?Navigation $except = null): array
     {
-        if (! $this->canUseDatabase()) {
-            return [];
-        }
-
-        $query = Navigation::query()
-            ->whereNull('parent_id')
-            ->ordered();
-
-        if ($except) {
-            $query->where('id', '!=', $except->getKey());
-        }
-
-        return $query
-            ->get()
+        return $this->parentNavigations($except)
             ->mapWithKeys(fn (Navigation $item): array => [
                 $item->id => sprintf(
-                    '%s / %s / %s',
-                    Navigation::areaOptions()[$item->area] ?? $item->area,
+                    '%s / %s',
                     Navigation::locationOptions()[$item->location] ?? $item->location,
                     $item->trans('title') ?? '-'
                 ),
@@ -104,6 +83,8 @@ class NavigationService
         }
 
         $query = Navigation::query()
+            ->where('area', Navigation::AREA_MARKETING)
+            ->where('type', Navigation::TYPE_LINK)
             ->ordered();
 
         if ($except) {
@@ -115,9 +96,14 @@ class NavigationService
 
     public function clearCache(): void
     {
-        Cache::forget(self::CACHE_ADMIN_SIDEBAR);
-        Cache::forget(self::CACHE_MARKETING_NAVBAR);
-        Cache::forget(self::CACHE_MARKETING_FOOTER);
+        foreach ($this->supportedLocales() as $locale) {
+            try {
+                Cache::forget($this->cacheKey(self::CACHE_MARKETING_NAVBAR, $locale));
+                Cache::forget($this->cacheKey(self::CACHE_MARKETING_FOOTER, $locale));
+            } catch (\Throwable $e) {
+                report($e);
+            }
+        }
     }
 
     private function canUseDatabase(): bool
@@ -129,10 +115,10 @@ class NavigationService
         }
     }
 
-    private function rootItems(string $area, string $location)
+    private function rootItems(string $location): Collection
     {
         return Navigation::query()
-            ->where('area', $area)
+            ->where('area', Navigation::AREA_MARKETING)
             ->where('location', $location)
             ->whereNull('parent_id')
             ->active()
@@ -143,80 +129,32 @@ class NavigationService
             ->get();
     }
 
-    private function mapAdminItem(Navigation $navigation): array
-    {
-        if ($navigation->type === Navigation::TYPE_HEADER) {
-            return [
-                'header' => $navigation->trans('title') ?? '-',
-            ];
-        }
-
-        $item = [
-            'title' => $navigation->trans('title') ?? '-',
-            'icon' => $navigation->icon ?: 'feather icon-circle',
-            'url' => $navigation->resolvedUrl(),
-            'target' => $navigation->open_in_new_tab ? '_blank' : '_self',
-            'submenu' => $navigation->childrenRecursive
-                ->reject(fn (Navigation $child): bool => $child->type === Navigation::TYPE_HEADER)
-                ->map(fn (Navigation $child): array => $this->mapAdminLink($child))
-                ->values()
-                ->all(),
-        ];
-
-        if ($navigation->badge_text) {
-            $item['badge'] = [
-                'class' => $navigation->badge_class ?: 'badge-primary',
-                'text' => $navigation->badge_text,
-            ];
-        }
-
-        return $item;
-    }
-
-    private function mapAdminLink(Navigation $navigation): array
-    {
-        $item = [
-            'title' => $navigation->trans('title') ?? '-',
-            'icon' => $navigation->icon ?: 'feather icon-circle',
-            'url' => $navigation->resolvedUrl(),
-            'target' => $navigation->open_in_new_tab ? '_blank' : '_self',
-            'submenu' => $navigation->childrenRecursive
-                ->reject(fn (Navigation $child): bool => $child->type === Navigation::TYPE_HEADER)
-                ->map(fn (Navigation $child): array => $this->mapAdminLink($child))
-                ->values()
-                ->all(),
-        ];
-
-        if ($navigation->badge_text) {
-            $item['badge'] = [
-                'class' => $navigation->badge_class ?: 'badge-primary',
-                'text' => $navigation->badge_text,
-            ];
-        }
-
-        return $item;
-    }
-
     private function mapMarketingItem(Navigation $navigation): array
     {
+        $children = $navigation->childrenRecursive
+            ->filter(fn (Navigation $child): bool => $child->type === Navigation::TYPE_LINK)
+            ->map(fn (Navigation $child): array => $this->mapMarketingItem($child))
+            ->values();
+
+        if ($navigation->module_key) {
+            $children = $children
+                ->concat($this->moduleItems($navigation->module_key))
+                ->unique(fn (array $child): string => $child['url'] ?? '#')
+                ->values();
+        }
+
         return [
             'title' => $navigation->trans('title') ?? '-',
             'url' => $navigation->resolvedUrl(),
             'route_name' => $navigation->route_name,
             'target' => $navigation->open_in_new_tab ? '_blank' : '_self',
-            'children' => $navigation->childrenRecursive
-                ->filter(fn (Navigation $child): bool => $child->type === Navigation::TYPE_LINK)
-                ->map(fn (Navigation $child): array => $this->mapMarketingItem($child))
-                ->values()
-                ->all(),
+            'children' => $children->all(),
         ];
     }
 
     private function defaultMarketingNavbar(): array
     {
-        return $this->withMarketingPagesUnderAbout(
-            $this->mapMarketingConfigItems(config('navigator.marketing.navbar', []))
-        );
+        return $this->mapMarketingConfigItems(config('navigator.marketing.navbar', []));
     }
 
     private function defaultMarketingFooter(): array
@@ -226,49 +164,44 @@ class NavigationService
 
     private function mapMarketingConfigItems(array $items): array
     {
-        $locale = app()->getLocale();
-
         return collect($items)
-            ->map(function (array $item) use ($locale): array {
-                $title = $item["title_{$locale}"] ?? $item['title'] ?? $item['title_id'] ?? '-';
+            ->map(function (array $item): array {
+                $children = collect($this->mapMarketingConfigItems($item['children'] ?? []));
+                $moduleKey = $item['module_key'] ?? null;
+
+                if ($moduleKey) {
+                    $children = $children
+                        ->concat($this->moduleItems($moduleKey))
+                        ->unique(fn (array $child): string => $child['url'] ?? '#')
+                        ->values();
+                }
 
                 return [
-                    'title' => $title,
+                    'title' => $this->localizedTitle($item),
                     'url' => $this->resolveConfigUrl($item),
                     'route_name' => $item['route_name'] ?? null,
+                    'module_key' => $moduleKey,
                     'target' => $item['target'] ?? '_self',
-                    'children' => $this->mapMarketingConfigItems($item['children'] ?? []),
+                    'children' => $children->all(),
                 ];
             })
             ->all();
     }
 
-    private function withMarketingPagesUnderAbout(array $items): array
+    private function moduleItems(string $moduleKey): array
     {
-        $pages = $this->marketingPageItems();
-
-        if ($pages === []) {
-            return $items;
-        }
-
-        return collect($items)
-            ->map(function (array $item) use ($pages): array {
-                if (! $this->isAboutMarketingItem($item)) {
-                    return $item;
-                }
-
-                $item['children'] = collect($item['children'] ?? [])
-                    ->concat($pages)
-                    ->unique(fn (array $child): string => $child['url'] ?? '#')
-                    ->values()
-                    ->all();
-
-                return $item;
-            })
-            ->all();
+        return match ($moduleKey) {
+            'pages' => $this->pageItems(),
+            'posts' => $this->postItems(),
+            'albums_galleries' => $this->albumItems(),
+            'agendas' => $this->agendaItems(),
+            'announcements' => $this->announcementItems(),
+            'teams' => $this->teamItems(),
+            default => [],
+        };
     }
 
-    private function marketingPageItems(): array
+    private function pageItems(): array
     {
         try {
             if (! Schema::hasTable('pages')) {
@@ -292,6 +225,127 @@ class NavigationService
         }
     }
 
+    private function postItems(): array
+    {
+        try {
+            if (! Schema::hasTable('posts')) {
+                return [];
+            }
+
+            return Post::query()
+                ->where('status', 'published')
+                ->whereNotNull('slug')
+                ->latest()
+                ->get()
+                ->map(fn (Post $post): array => [
+                    'title' => $post->trans('title') ?: $post->title_id ?: 'Artikel',
+                    'url' => route('article.show-marketing', $post->slug, false),
+                    'route_name' => null,
+                    'target' => '_self',
+                    'children' => [],
+                ])
+                ->all();
+        } catch (\Throwable) {
+            return [];
+        }
+    }
+
+    private function albumItems(): array
+    {
+        try {
+            if (! Schema::hasTable('albums')) {
+                return [];
+            }
+
+            return Album::query()
+                ->whereNotNull('slug')
+                ->latest()
+                ->get()
+                ->map(fn (Album $album): array => [
+                    'title' => $album->trans('name') ?: $album->name_id ?: 'Album',
+                    'url' => route('gallery.show-marketing', $album->slug, false),
+                    'route_name' => null,
+                    'target' => '_self',
+                    'children' => [],
+                ])
+                ->all();
+        } catch (\Throwable) {
+            return [];
+        }
+    }
+
+    private function agendaItems(): array
+    {
+        try {
+            if (! Schema::hasTable('agendas')) {
+                return [];
+            }
+
+            return Agenda::query()
+                ->whereNotNull('slug')
+                ->orderBy('start_date')
+                ->get()
+                ->map(fn (Agenda $agenda): array => [
+                    'title' => $agenda->trans('name') ?: $agenda->name_id ?: 'Agenda',
+                    'url' => route('event.show-marketing', $agenda->slug, false),
+                    'route_name' => null,
+                    'target' => '_self',
+                    'children' => [],
+                ])
+                ->all();
+        } catch (\Throwable) {
+            return [];
+        }
+    }
+
+    private function announcementItems(): array
+    {
+        try {
+            if (! Schema::hasTable('announcements')) {
+                return [];
+            }
+
+            return Announcement::query()
+                ->active()
+                ->latest()
+                ->get()
+                ->map(fn (Announcement $announcement): array => [
+                    'title' => $announcement->trans('title') ?: $announcement->title_id ?: 'Pengumuman',
+                    'url' => route('announcements.marketing.show', $announcement->id, false),
+                    'route_name' => null,
+                    'target' => '_self',
+                    'children' => [],
+                ])
+                ->all();
+        } catch (\Throwable) {
+            return [];
+        }
+    }
+
+    private function teamItems(): array
+    {
+        try {
+            if (! Schema::hasTable('teams')) {
+                return [];
+            }
+
+            return Team::query()
+                ->whereNotNull('slug')
+                ->orderBy('name')
+                ->get()
+                ->map(fn (Team $team): array => [
+                    'title' => $team->name ?: 'Team',
+                    'url' => route('team.show-marketing', $team->slug, false),
+                    'route_name' => null,
+                    'target' => '_self',
+                    'children' => [],
+                ])
+                ->all();
+        } catch (\Throwable) {
+            return [];
+        }
+    }
+
     private function resolveConfigUrl(array $item): string
     {
         $routeName = $item['route_name'] ?? null;
@@ -307,12 +361,29 @@ class NavigationService
         return Navigation::normalizeUrl($item['url'] ?? null);
     }
 
-    private function isAboutMarketingItem(array $item): bool
+    private function localizedTitle(array $item): string
     {
-        if (($item['route_name'] ?? null) === 'about-marketing') {
-            return true;
+        $locale = app()->getLocale();
+        $localized = $item["title_{$locale}"] ?? null;
+
+        if (filled($localized)) {
+            return $localized;
         }
 
-        return trim((string) ($item['url'] ?? ''), '/') === 'about';
+        return $item['title_id'] ?? $item['title_en'] ?? $item['title'] ?? '-';
+    }
+
+    private function cacheKey(string $base, ?string $locale = null): string
+    {
+        return $base.'.'.($locale ?: app()->getLocale()).'.v4';
+    }
+
+    private function supportedLocales(): array
+    {
+        return collect(['id', 'en', 'ar', config('app.locale'), app()->getLocale()])
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
     }
 }

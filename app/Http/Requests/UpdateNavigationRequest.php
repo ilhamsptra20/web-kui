@@ -22,6 +22,22 @@ class UpdateNavigationRequest extends StoreNavigationRequest
             if ($navigation && $this->input('parent_id') === $navigation->id) {
                 $validator->errors()->add('parent_id', 'Parent navigation tidak boleh dirinya sendiri.');
             }
+
+            if (! $navigation || blank($this->input('parent_id'))) {
+                return;
+            }
+
+            $parent = Navigation::query()->find($this->input('parent_id'));
+
+            while ($parent) {
+                if ($parent->parent_id === $navigation->id) {
+                    $validator->errors()->add('parent_id', 'Parent navigation tidak boleh memakai child dari menu ini.');
+
+                    return;
+                }
+
+                $parent = $parent->parent;
+            }
         });
     }
 }

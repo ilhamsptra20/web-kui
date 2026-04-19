@@ -31,6 +31,7 @@ class Navigation extends BaseUuidModel
         'area',
         'location',
         'type',
+        'module_key',
         'title_id',
         'title_en',
         'title_ar',
@@ -88,7 +89,6 @@ class Navigation extends BaseUuidModel
     public static function areaOptions(): array
     {
         return [
-            self::AREA_ADMIN => 'Admin',
             self::AREA_MARKETING => 'Marketing',
         ];
     }
@@ -96,7 +96,6 @@ class Navigation extends BaseUuidModel
     public static function locationOptions(): array
     {
         return [
-            self::LOCATION_SIDEBAR => 'Sidebar',
             self::LOCATION_NAVBAR => 'Navbar',
             self::LOCATION_FOOTER => 'Footer',
         ];
@@ -106,7 +105,6 @@ class Navigation extends BaseUuidModel
     {
         return [
             self::TYPE_LINK => 'Link',
-            self::TYPE_HEADER => 'Header',
         ];
     }
 

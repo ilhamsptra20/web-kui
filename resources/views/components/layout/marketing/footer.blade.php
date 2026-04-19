@@ -26,11 +26,7 @@
                     <h3 class="footer-widget-title text-white fs-18 fw-semibold">{{ __('nav.quick_links') }}</h3>
                     <ul class="footer-menu list-unstyled mb-0">
                         @foreach($marketingFooterItems ?? [] as $item)
-                            <li>
-                                <a href="{{ $item['url'] ?? '#' }}" @if(($item['target'] ?? '_self') === '_blank') target="_blank" rel="noopener noreferrer" @endif>
-                                    {{ $item['title'] }}
-                                </a>
-                            </li>
+                            @include('components.layout.marketing.footer-navigation-item', ['item' => $item])
                         @endforeach
                     </ul>
                 </div>

@@ -16,41 +16,14 @@ class NavigationSeeder extends Seeder
             return;
         }
 
-        Navigation::query()->delete();
+        Navigation::query()
+            ->where('area', Navigation::AREA_MARKETING)
+            ->delete();
 
-        $this->seedAdminSidebar(config('navigator.sidebar', []));
         $this->seedMarketing(config('navigator.marketing.navbar', []), Navigation::LOCATION_NAVBAR);
         $this->seedMarketing(config('navigator.marketing.footer', []), Navigation::LOCATION_FOOTER);
 
         app(NavigationService::class)->clearCache();
-    }
-
-    private function seedAdminSidebar(array $items, ?string $parentId = null): void
-    {
-        foreach (array_values($items) as $index => $item) {
-            $navigation = Navigation::create([
-                'id' => (string) Str::uuid(),
-                'parent_id' => $parentId,
-                'area' => Navigation::AREA_ADMIN,
-                'location' => Navigation::LOCATION_SIDEBAR,
-                'type' => isset($item['header']) ? Navigation::TYPE_HEADER : Navigation::TYPE_LINK,
-                'title_id' => $item['title_id'] ?? $item['title'] ?? $item['header'] ?? '-',
-                'title_en' => $item['title_en'] ?? $item['title'] ?? $item['header'] ?? null,
-                'title_ar' => $item['title_ar'] ?? null,
-                'url' => isset($item['header']) ? null : ($item['url'] ?? null),
-                'route_name' => $item['route_name'] ?? null,
-                'icon' => $item['icon'] ?? null,
-                'badge_text' => $item['badge']['text'] ?? null,
-                'badge_class' => $item['badge']['class'] ?? null,
-                'sort_order' => ($index + 1) * 10,
-                'is_active' => $item['is_active'] ?? true,
-                'open_in_new_tab' => ($item['target'] ?? '_self') === '_blank',
-            ]);
-
-            if (! empty($item['submenu']) && is_array($item['submenu'])) {
-                $this->seedAdminSidebar($item['submenu'], $navigation->id);
-            }
-        }
     }
 
     private function seedMarketing(array $items, string $location, ?string $parentId = null): void
@@ -62,6 +35,7 @@ class NavigationSeeder extends Seeder
                 'area' => Navigation::AREA_MARKETING,
                 'location' => $location,
                 'type' => Navigation::TYPE_LINK,
+                'module_key' => $item['module_key'] ?? $this->guessModuleKey($item),
                 'title_id' => $item['title_id'] ?? $item['title'] ?? '-',
                 'title_en' => $item['title_en'] ?? $item['title'] ?? null,
                 'title_ar' => $item['title_ar'] ?? null,
@@ -79,5 +53,22 @@ class NavigationSeeder extends Seeder
                 $this->seedMarketing($item['children'], $location, $navigation->id);
             }
         }
+    }
+
+    private function guessModuleKey(array $item): ?string
+    {
+        $routeName = $item['route_name'] ?? null;
+
+        if (! $routeName) {
+            return null;
+        }
+
+        foreach (config('navigator.modules', []) as $key => $module) {
+            if (($module['route_name'] ?? null) === $routeName) {
+                return $key;
+            }
+        }
+
+        return null;
     }
 }

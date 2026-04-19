@@ -41,7 +41,7 @@ class AppServiceProvider extends ServiceProvider
             $settingService = app(SettingService::class);
 
             $view->with([
-                'adminSidebarItems' => app(NavigationService::class)->adminSidebar(),
+                'adminSidebarItems' => config('admin-sidebar.items', []),
                 'adminBrandSettings' => $settingService->only([
                     'sidebar_logo' => '/assets/logo/unida.png',
                 ]),
@@ -86,6 +86,7 @@ class AppServiceProvider extends ServiceProvider
                     ->all()
                 : [];
 
+            $navigationService = app(NavigationService::class);
             $relationLinks = Schema::hasTable('relations')
                 ? Relation::query()
                     ->orderBy('title')
@@ -95,7 +96,7 @@ class AppServiceProvider extends ServiceProvider
                 : [];
 
             $view->with([
-                'marketingFooterItems' => app(NavigationService::class)->marketingFooter(),
+                'marketingFooterItems' => $navigationService->marketingFooter(),
                 'marketingFooterBrand' => $settingService->only([
                     'site_logo' => '/assets/logo/unida.png',
                     'footer_logo' => '/assets/logo/unida.png',

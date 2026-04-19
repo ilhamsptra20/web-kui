@@ -13,11 +13,11 @@ trait HasTranslation
         $locale = app()->getLocale(); // 'id', 'en', 'ar'
         $column = "{$field}_{$locale}";
 
-        // fallback ke _id kalau kolom locale tidak ada / null
-        if (!isset($this->attributes[$column]) || is_null($this->$column)) {
+        // fallback ke _id kalau kolom locale tidak ada, null, atau string kosong
+        if (! isset($this->attributes[$column]) || blank($this->attributes[$column])) {
             return $this->attributes["{$field}_id"] ?? null;
         }
 
-        return $this->$column;
+        return $this->attributes[$column];
     }
 }

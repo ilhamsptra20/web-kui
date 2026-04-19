@@ -9,7 +9,6 @@
             <div>
                 <div class="navigation-page-kicker">{{ $isEdit ? 'Update navigation item' : 'Create navigation item' }}</div>
                 <h3 class="mb-25">{{ $isEdit ? 'Edit Navigation' : 'Navigation Builder' }}</h3>
-                <p class="mb-0 text-muted">Pisahkan menu admin dan marketing tanpa bentrok. Form ini cuma nampilin field yang relevan dengan konteks yang lo pilih.</p>
             </div>
             <div class="mt-1 mt-lg-0 d-flex">
                 <a href="{{ route('navigations.index') }}" class="btn btn-outline-secondary">Back To List</a>

@@ -6,27 +6,27 @@
     <div class="col-md-3 col-sm-6 col-12">
         <div class="card navigation-stat-card border-0">
             <div class="card-body">
-                <span class="navigation-stat-label">Total Menu</span>
+                <span class="navigation-stat-label">Marketing Menu</span>
                 <h2 class="mb-25">{{ number_format($stats['total'] ?? 0) }}</h2>
-                <small class="text-muted">Semua item navigasi</small>
+                <small class="text-muted">Total item marketing</small>
             </div>
         </div>
     </div>
     <div class="col-md-3 col-sm-6 col-12">
         <div class="card navigation-stat-card border-0 navigation-stat-card-admin">
             <div class="card-body">
-                <span class="navigation-stat-label">Admin</span>
-                <h2 class="mb-25">{{ number_format($stats['admin'] ?? 0) }}</h2>
-                <small class="text-muted">Sidebar internal</small>
+                <span class="navigation-stat-label">Navbar</span>
+                <h2 class="mb-25">{{ number_format($stats['navbar'] ?? 0) }}</h2>
+                <small class="text-muted">Menu bagian atas</small>
             </div>
         </div>
     </div>
     <div class="col-md-3 col-sm-6 col-12">
         <div class="card navigation-stat-card border-0 navigation-stat-card-marketing">
             <div class="card-body">
-                <span class="navigation-stat-label">Marketing</span>
-                <h2 class="mb-25">{{ number_format($stats['marketing'] ?? 0) }}</h2>
-                <small class="text-muted">Navbar dan footer</small>
+                <span class="navigation-stat-label">Footer</span>
+                <h2 class="mb-25">{{ number_format($stats['footer'] ?? 0) }}</h2>
+                <small class="text-muted">Quick link bawah</small>
             </div>
         </div>
     </div>
@@ -45,7 +45,7 @@
     <div class="card-header d-flex flex-column flex-md-row align-items-md-center justify-content-between">
         <div>
             <h4 class="card-title mb-25">Navigation Builder</h4>
-            <p class="text-muted mb-0">Kelola sidebar admin, navbar marketing, dan footer marketing dari satu tempat.</p>
+            <p class="text-muted mb-0">Kelola menu marketing saja. Sidebar admin sekarang berasal dari file config agar stabil.</p>
         </div>
         <a href="{{ route('navigations.create') }}" class="btn btn-primary mt-1 mt-md-0">Add New</a>
     </div>
@@ -56,10 +56,9 @@
                     <tr>
                         <th>No</th>
                         <th>Title</th>
-                        <th>Area</th>
                         <th>Location</th>
-                        <th>Type</th>
                         <th>Parent</th>
+                        <th>Destination</th>
                         <th>Order</th>
                         <th>Status</th>
                         <th>Action</th>
@@ -76,15 +75,14 @@
     :columns="[
         ['data' => 'DT_RowIndex'],
         ['data' => 'title'],
-        ['data' => 'area_badge'],
         ['data' => 'location_badge'],
-        ['data' => 'type_badge'],
         ['data' => 'parent_label'],
+        ['data' => 'destination'],
         ['data' => 'sort_order'],
         ['data' => 'status_badge'],
         ['data' => 'action'],
     ]"
-    :order="[6, 'asc']"
+    :order="[5, 'asc']"
 />
 @endsection
 

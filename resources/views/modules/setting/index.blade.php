@@ -102,7 +102,7 @@
 
                 <div id="settings-items-container">
                     @forelse($builderItems as $index => $item)
-                        @include('modules.setting.item-card', ['item' => $item, 'index' => $index, 'typeOptions' => $typeOptions])
+                        @include('modules.setting.item-card', ['item' => $item, 'index' => $index, 'typeOptions' => $typeOptions, 'localeOptions' => $localeOptions])
                     @empty
                         <div class="settings-empty-state" id="settings-empty-state">
                             <div class="settings-empty-state__icon">
@@ -152,21 +152,57 @@
 
         <div class="setting-item-card__body">
             <div class="setting-value-panel" data-type-panel="text">
-                <input
-                    type="text"
-                    class="form-control"
-                    name="items[__INDEX__][value]"
-                    value=""
-                    placeholder="Masukkan nilai text"
-                >
+                <div class="setting-locale-grid">
+                    @foreach($localeOptions as $locale => $localeLabel)
+                        <div class="setting-locale-field">
+                            <label>{{ $localeLabel }}</label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                name="items[__INDEX__][value_{{ $locale }}]"
+                                value=""
+                                placeholder="Masukkan nilai {{ $localeLabel }}"
+                                data-setting-value-input
+                            >
+                        </div>
+                    @endforeach
+                </div>
             </div>
 
             <div class="setting-value-panel d-none" data-type-panel="longtext">
-                <textarea class="form-control" name="items[__INDEX__][value]" rows="6" placeholder="Masukkan long text" disabled></textarea>
+                <div class="setting-locale-grid">
+                    @foreach($localeOptions as $locale => $localeLabel)
+                        <div class="setting-locale-field">
+                            <label>{{ $localeLabel }}</label>
+                            <textarea
+                                class="form-control"
+                                name="items[__INDEX__][value_{{ $locale }}]"
+                                rows="5"
+                                placeholder="Masukkan long text {{ $localeLabel }}"
+                                data-setting-value-input
+                                disabled
+                            ></textarea>
+                        </div>
+                    @endforeach
+                </div>
             </div>
 
             <div class="setting-value-panel d-none" data-type-panel="list">
-                <textarea class="form-control" name="items[__INDEX__][value]" rows="6" placeholder="Satu item per baris" disabled></textarea>
+                <div class="setting-locale-grid">
+                    @foreach($localeOptions as $locale => $localeLabel)
+                        <div class="setting-locale-field">
+                            <label>{{ $localeLabel }}</label>
+                            <textarea
+                                class="form-control"
+                                name="items[__INDEX__][value_{{ $locale }}]"
+                                rows="5"
+                                placeholder="Satu item per baris"
+                                data-setting-value-input
+                                disabled
+                            ></textarea>
+                        </div>
+                    @endforeach
+                </div>
                 <small class="text-muted d-block mt-50">Setiap baris akan disimpan sebagai item list terpisah.</small>
             </div>
 
@@ -356,6 +392,22 @@
         margin: 1.1rem 0;
     }
 
+    .setting-locale-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: .9rem;
+    }
+
+    .setting-locale-field label {
+        display: block;
+        margin-bottom: .45rem;
+        color: #8e95a9;
+        font-size: .72rem;
+        font-weight: 700;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+    }
+
     .setting-key-meta {
         display: flex;
         align-items: center;
@@ -452,6 +504,10 @@
                 width: 100%;
                 min-width: 0;
             }
+
+            .setting-locale-grid {
+                grid-template-columns: 1fr;
+            }
         }
 </style>
 @endpush
@@ -510,7 +566,7 @@
                 const isActive = panel.dataset.typePanel === activeType;
                 panel.classList.toggle('d-none', !isActive);
 
-                panel.querySelectorAll('input[name$="[value]"], textarea[name$="[value]"]').forEach((field) => {
+                panel.querySelectorAll('[data-setting-value-input]').forEach((field) => {
                     field.disabled = !isActive;
                 });
             });

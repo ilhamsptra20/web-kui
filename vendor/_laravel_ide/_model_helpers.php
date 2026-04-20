@@ -2358,7 +2358,6 @@ namespace App\Models {
      * @property string|null $badge_class
      * @property string|null $badge_text
      * @property string|null $icon
-     * @property string|null $route_name
      * @property string|null $url
      * @property string|null $title_ar
      * @property string|null $title_en
@@ -2382,7 +2381,6 @@ namespace App\Models {
      * @method static \Illuminate\Database\Eloquent\Builder<Navigation>|Navigation whereTitleEn($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Navigation>|Navigation whereTitleAr($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Navigation>|Navigation whereUrl($value)
-     * @method static \Illuminate\Database\Eloquent\Builder<Navigation>|Navigation whereRouteName($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Navigation>|Navigation whereIcon($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Navigation>|Navigation whereBadgeText($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Navigation>|Navigation whereBadgeClass($value)
@@ -2711,9 +2709,14 @@ namespace App\Models {
      * @property \Illuminate\Support\Carbon|null $updated_at
      * @property \Illuminate\Support\Carbon|null $created_at
      * @property boolean|null $status
+     * @property integer|null $file_size
+     * @property string|null $file_mime
+     * @property string|null $file_name
+     * @property string|null $file_path
      * @property string|null $content_ar
      * @property string|null $content_en
      * @property string|null $content_id
+     * @property string $type
      * @property string|null $slug
      * @property string|null $title_ar
      * @property string|null $title_en
@@ -2727,9 +2730,14 @@ namespace App\Models {
      * @method static \Illuminate\Database\Eloquent\Builder<Page>|Page whereTitleEn($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Page>|Page whereTitleAr($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Page>|Page whereSlug($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Page>|Page whereType($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Page>|Page whereContentId($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Page>|Page whereContentEn($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Page>|Page whereContentAr($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Page>|Page whereFilePath($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Page>|Page whereFileName($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Page>|Page whereFileMime($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Page>|Page whereFileSize($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Page>|Page whereStatus($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Page>|Page whereCreatedAt($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Page>|Page whereUpdatedAt($value)
@@ -4722,6 +4730,9 @@ namespace App\Models {
      *
      * @property \Illuminate\Support\Carbon|null $updated_at
      * @property \Illuminate\Support\Carbon|null $created_at
+     * @property string|null $value_ar
+     * @property string|null $value_en
+     * @property string|null $value_id
      * @property string|null $value
      * @property mixed $type
      * @property string $key
@@ -4734,6 +4745,9 @@ namespace App\Models {
      * @method static \Illuminate\Database\Eloquent\Builder<Setting>|Setting whereKey($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Setting>|Setting whereType($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Setting>|Setting whereValue($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Setting>|Setting whereValueId($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Setting>|Setting whereValueEn($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Setting>|Setting whereValueAr($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Setting>|Setting whereCreatedAt($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Setting>|Setting whereUpdatedAt($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Setting>|Setting newModelQuery()
@@ -6405,6 +6419,7 @@ namespace App\Models {
      *
      * @property \Illuminate\Support\Carbon|null $updated_at
      * @property \Illuminate\Support\Carbon|null $created_at
+     * @property boolean $is_active
      * @property string|null $thumbnail
      * @property string|null $video_url
      * @property string|null $title_ar
@@ -6417,11 +6432,13 @@ namespace App\Models {
      * @method static \Illuminate\Database\Eloquent\Builder<Video>|Video whereTitleAr($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Video>|Video whereVideoUrl($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Video>|Video whereThumbnail($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Video>|Video whereIsActive($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Video>|Video whereCreatedAt($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Video>|Video whereUpdatedAt($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Video>|Video newModelQuery()
      * @method static \Illuminate\Database\Eloquent\Builder<Video>|Video newQuery()
      * @method static \Illuminate\Database\Eloquent\Builder<Video>|Video query()
+     * @method static \Illuminate\Database\Eloquent\Builder<Video>|Video active() {@see App\Models\Video::scopeActive()}
      * @method static mixed select($columns)
      * @method static mixed selectSub($query, $as)
      * @method static mixed selectExpression($expression, $as)

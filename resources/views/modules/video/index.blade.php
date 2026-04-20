@@ -18,6 +18,7 @@
                         <th>No</th>
                         <th>Video</th>
                         <th>Link</th>
+                        <th>Status</th>
                         <th>Updated</th>
                         <th>Action</th>
                     </tr>
@@ -26,5 +27,5 @@
         </div>
     </div>
 </div>
-<x-table.datatable-script id='video-table' :url="route('videos.list')" :columns="[['data'=>'DT_RowIndex','orderable'=>false,'searchable'=>false],['data'=>'video_identity','name'=>'title_id'],['data'=>'video_link','name'=>'video_url'],['data'=>'updated_at_label','name'=>'updated_at'],['data'=>'action','orderable'=>false,'searchable'=>false]]" :order="[[3, 'desc']]" />
+<x-table.datatable-script id='video-table' :url="route('videos.list')" :columns="[['data'=>'DT_RowIndex','orderable'=>false,'searchable'=>false],['data'=>'video_identity','name'=>'title_id'],['data'=>'video_link','name'=>'video_url'],['data'=>'status_label','name'=>'is_active'],['data'=>'updated_at_label','name'=>'updated_at'],['data'=>'action','orderable'=>false,'searchable'=>false]]" :order="[[4, 'desc']]" />
 @endsection

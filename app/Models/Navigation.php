@@ -6,7 +6,6 @@ use App\Support\Navigation\NavigationService;
 use App\Traits\HasTranslation;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Facades\Route;
 
 class Navigation extends BaseUuidModel
 {
@@ -31,12 +30,10 @@ class Navigation extends BaseUuidModel
         'area',
         'location',
         'type',
-        'module_key',
         'title_id',
         'title_en',
         'title_ar',
         'url',
-        'route_name',
         'icon',
         'badge_text',
         'badge_class',
@@ -110,14 +107,6 @@ class Navigation extends BaseUuidModel
 
     public function resolvedUrl(): string
     {
-        if ($this->route_name && Route::has($this->route_name)) {
-            try {
-                return route($this->route_name, [], false);
-            } catch (\Throwable) {
-                //
-            }
-        }
-
         return self::normalizeUrl($this->url);
     }
 

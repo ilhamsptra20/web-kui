@@ -5,7 +5,7 @@
 @section('content')
 <div class="card border-0 shadow-sm">
     <div class="card-header navigation-page-header">
-        <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between">
+        <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between w-100">
             <div>
                 <div class="navigation-page-kicker">{{ $isEdit ? 'Update navigation item' : 'Create navigation item' }}</div>
                 <h3 class="mb-25">{{ $isEdit ? 'Edit Navigation' : 'Navigation Builder' }}</h3>

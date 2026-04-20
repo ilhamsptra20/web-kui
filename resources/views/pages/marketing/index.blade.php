@@ -302,6 +302,93 @@
 </div>
 <!-- ABOUT SECTION END -->
 
+<!-- =============================================
+     PROFILE VIDEO SECTION START
+     ============================================= -->
+<div class="profile-video-area position-relative overflow-hidden round-20 ptb-130">
+    <div class="profile-video-shape profile-video-shape-one"></div>
+    <div class="profile-video-shape profile-video-shape-two"></div>
+
+    <div class="container style-one position-relative z-1">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-5" data-cue="slideInUp">
+                <span class="section-subtitle style-two fs-13 fw-medium ls-1 d-inline-block bg_secondary text-title round-oval mb-15">
+                    <img src="assets/marketing/img/icons/lock.svg" alt="Icon">
+                    {{ $profile['subtitle'] ?? 'PROFIL UNIVERSITAS DJUANDA' }}
+                </span>
+                <h2 class="section-title style-one font-secondary fw-medium text-white mb-25">
+                    {{ $profile['title'] ?? 'Mengenal Universitas Djuanda' }}
+                </h2>
+                <p class="profile-video-description mb-30">
+                    {{ $profile['description'] ?? 'Profil Universitas Djuanda akan tampil di section ini.' }}
+                </p>
+
+                @if(!empty($profile['highlights']))
+                    <ul class="profile-video-list list-unstyled mb-35">
+                        @foreach($profile['highlights'] as $highlight)
+                            <li>
+                                <i class="ri-check-line"></i>
+                                <span>{{ $highlight }}</span>
+                            </li>
+                        @endforeach
+                    </ul>
+                @endif
+
+                @if(!empty($profile['button_url']))
+                    <a href="{{ $profile['button_url'] }}" class="btn style-two fw-semibold position-relative round-oval">
+                        {{ $profile['button_text'] ?? 'Lihat Profil Lengkap' }}
+                        <span class="position-absolute top-0 end-0 h-100 d-flex flex-column align-items-center justify-content-center">
+                            <img src="assets/marketing/img/icons/right-arrow-white.svg" alt="Icon">
+                        </span>
+                    </a>
+                @endif
+            </div>
+
+            <div class="col-lg-7" data-cue="slideInUp" data-delay="150">
+                <div class="profile-video-card">
+                    @if(!empty($profile['video']))
+                        @if(!empty($profile['video']['embed_url']))
+                            <div class="profile-video-frame">
+                                <iframe
+                                    src="{{ $profile['video']['embed_url'] }}"
+                                    title="{{ $profile['video']['title'] }}"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                    allowfullscreen
+                                ></iframe>
+                            </div>
+                        @else
+                            <a href="{{ $profile['video']['url'] }}" target="_blank" rel="noopener" class="profile-video-link">
+                                @if(!empty($profile['video']['thumbnail_url']))
+                                    <img src="{{ $profile['video']['thumbnail_url'] }}" alt="{{ $profile['video']['title'] }}">
+                                @else
+                                    <div class="profile-video-placeholder">
+                                        <i class="ri-video-line"></i>
+                                        <span>{{ $profile['video']['title'] }}</span>
+                                    </div>
+                                @endif
+                                <span class="profile-video-play">
+                                    <i class="ri-play-fill"></i>
+                                </span>
+                            </a>
+                        @endif
+
+                        <div class="profile-video-caption">
+                            <span>Video Profile</span>
+                            <strong>{{ $profile['video']['title'] }}</strong>
+                        </div>
+                    @else
+                        <div class="profile-video-empty">
+                            <i class="ri-video-add-line"></i>
+                            <p class="mb-0">{{ $profile['empty_video_text'] ?? 'Video profile aktif belum dipilih dari module Video.' }}</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- PROFILE VIDEO SECTION END -->
+
 
 <!-- =============================================
      BLOG SECTION START
@@ -559,6 +646,175 @@
      ============================================= -->
 @push('styles')
 <style>
+    .profile-video-area {
+        background: radial-gradient(circle at 12% 10%, rgba(184, 255, 18, .18), transparent 28%),
+            linear-gradient(135deg, #080817 0%, #11152d 52%, #050510 100%);
+        color: #fff;
+    }
+
+    .profile-video-shape {
+        position: absolute;
+        border-radius: 999px;
+        filter: blur(10px);
+        opacity: .45;
+        pointer-events: none;
+    }
+
+    .profile-video-shape-one {
+        width: 260px;
+        height: 260px;
+        left: -80px;
+        bottom: -90px;
+        background: rgba(184, 255, 18, .18);
+    }
+
+    .profile-video-shape-two {
+        width: 360px;
+        height: 360px;
+        right: -120px;
+        top: -140px;
+        background: rgba(88, 101, 242, .22);
+    }
+
+    .profile-video-description {
+        color: rgba(255, 255, 255, .74);
+        line-height: 1.8;
+    }
+
+    .profile-video-list {
+        display: grid;
+        gap: .85rem;
+    }
+
+    .profile-video-list li {
+        display: flex;
+        align-items: flex-start;
+        gap: .75rem;
+        color: rgba(255, 255, 255, .82);
+    }
+
+    .profile-video-list i {
+        width: 26px;
+        height: 26px;
+        flex: 0 0 26px;
+        display: grid;
+        place-items: center;
+        border-radius: 999px;
+        background: var(--color-secondary, #b8ff12);
+        color: #0b0b16;
+        font-size: 1rem;
+    }
+
+    .profile-video-card {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, .12);
+        border-radius: 28px;
+        background: rgba(255, 255, 255, .08);
+        box-shadow: 0 30px 80px rgba(0, 0, 0, .32);
+        backdrop-filter: blur(16px);
+        padding: 14px;
+    }
+
+    .profile-video-frame,
+    .profile-video-link,
+    .profile-video-placeholder,
+    .profile-video-empty {
+        min-height: 410px;
+        border-radius: 20px;
+    }
+
+    .profile-video-frame {
+        position: relative;
+        overflow: hidden;
+        background: #000;
+    }
+
+    .profile-video-frame iframe {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        border: 0;
+    }
+
+    .profile-video-link {
+        position: relative;
+        display: block;
+        overflow: hidden;
+        color: inherit;
+        background: #000;
+    }
+
+    .profile-video-link img {
+        width: 100%;
+        height: 410px;
+        object-fit: cover;
+        display: block;
+        opacity: .8;
+        transition: transform .45s ease, opacity .45s ease;
+    }
+
+    .profile-video-link:hover img {
+        transform: scale(1.04);
+        opacity: .95;
+    }
+
+    .profile-video-play {
+        position: absolute;
+        inset: 50% auto auto 50%;
+        width: 72px;
+        height: 72px;
+        display: grid;
+        place-items: center;
+        transform: translate(-50%, -50%);
+        border-radius: 999px;
+        background: var(--color-secondary, #b8ff12);
+        color: #050510;
+        font-size: 2rem;
+        box-shadow: 0 20px 50px rgba(184, 255, 18, .35);
+    }
+
+    .profile-video-caption {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 16px 4px 2px;
+        color: rgba(255, 255, 255, .82);
+    }
+
+    .profile-video-caption span {
+        color: var(--color-secondary, #b8ff12);
+        font-size: .78rem;
+        font-weight: 700;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+    }
+
+    .profile-video-caption strong {
+        max-width: 70%;
+        text-align: right;
+        color: #fff;
+    }
+
+    .profile-video-placeholder,
+    .profile-video-empty {
+        display: grid;
+        place-items: center;
+        text-align: center;
+        padding: 2rem;
+        border: 2px dashed rgba(255, 255, 255, .16);
+        color: rgba(255, 255, 255, .64);
+    }
+
+    .profile-video-placeholder i,
+    .profile-video-empty i {
+        display: block;
+        margin-bottom: .8rem;
+        font-size: 2.6rem;
+        color: var(--color-secondary, #b8ff12);
+    }
+
     /* =============================================
        HERO SLIDER — FULL BACKGROUND
        ============================================= */
@@ -711,6 +967,19 @@
     }
     @media (max-width: 767px) {
         .blog-slider-outer { padding-left: 16px; }
+        .profile-video-area { border-radius: 16px; }
+        .profile-video-frame,
+        .profile-video-link,
+        .profile-video-placeholder,
+        .profile-video-empty { min-height: 260px; }
+        .profile-video-link img { height: 260px; }
+        .profile-video-caption {
+            flex-direction: column;
+        }
+        .profile-video-caption strong {
+            max-width: none;
+            text-align: left;
+        }
     }
 
     /* Swiper wrapper gap */
@@ -861,13 +1130,13 @@
         height: 30px;
         max-width: 70px;
         object-fit: contain;
-        filter: brightness(0) invert(1);
-        opacity: 0.75;
-        transition: opacity 0.25s ease;
+        filter: none;
+        opacity: 1;
+        transition: transform 0.25s ease;
     }
 
     .accreditation-strip-item:hover .accreditation-strip-logo {
-        opacity: 1;
+        transform: translateY(-1px);
     }
 
     .accreditation-strip-logo-placeholder {
@@ -912,8 +1181,8 @@
         height: 100%;
         object-fit: contain;
         padding: 10px;
-        filter: brightness(0) invert(1);
-        opacity: 0.85;
+        filter: none;
+        opacity: 1;
     }
 
     .accreditation-mobile-pagination .swiper-pagination-bullet {

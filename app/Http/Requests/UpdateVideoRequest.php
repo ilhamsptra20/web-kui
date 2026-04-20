@@ -19,6 +19,7 @@ class UpdateVideoRequest extends FormRequest
             'title_ar' => 'nullable',
             'video_url' => 'required|url',
             'thumbnail' => 'nullable|image',
+            'is_active' => 'nullable|boolean',
         ];
     }
 }

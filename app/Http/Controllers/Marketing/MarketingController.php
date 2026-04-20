@@ -8,6 +8,7 @@ use App\Models\Lembaga; // akreditasi
 use App\Models\Post;
 use App\Models\Setting;
 use App\Models\Slider;
+use App\Models\Video;
 use App\Services\SettingService;
 
 class MarketingController extends Controller
@@ -25,6 +26,17 @@ class MarketingController extends Controller
             'about_button_url' => route('about-marketing'),
             'about_image' => 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=900&q=80',
             'about_move_text' => 'GLOBAL PARTNERSHIP, STUDENT MOBILITY, INTERNATIONAL COLLABORATION, ACADEMIC ENGAGEMENT',
+            'profile_subtitle' => 'PROFIL UNIVERSITAS DJUANDA',
+            'profile_title' => 'Mengenal Universitas Djuanda Sebagai Kampus Bertauhid Yang Berwawasan Global',
+            'profile_description' => 'Universitas Djuanda mengembangkan pendidikan, penelitian, dan pengabdian masyarakat dengan nilai ketauhidan, kolaborasi internasional, serta komitmen untuk memberi dampak bagi bangsa dan dunia.',
+            'profile_highlights' => [
+                'Pendidikan berbasis nilai ketauhidan.',
+                'Jejaring akademik dan kerja sama internasional.',
+                'Riset dan pengabdian yang relevan dengan kebutuhan masyarakat.',
+            ],
+            'profile_button_text' => 'Lihat Profil Lengkap',
+            'profile_button_url' => route('about-marketing'),
+            'profile_empty_video_text' => 'Video profile aktif belum dipilih dari module Video.',
             'blog_subtitle' => 'BERITA & ARTIKEL',
             'blog_title' => 'Kabar, Program, Dan Peluang Internasional Terbaru',
             'blog_button_text' => 'Lihat Semua Artikel',
@@ -72,6 +84,24 @@ class MarketingController extends Controller
             'subtitle' => $marketingSettings['about_subtitle'],
             'title' => $marketingSettings['about_title'],
             'move_text' => $marketingSettings['about_move_text'],
+        ];
+
+        $activeVideo = Video::active()->latest()->first();
+
+        $profile = [
+            'subtitle' => $marketingSettings['profile_subtitle'],
+            'title' => $marketingSettings['profile_title'],
+            'description' => $marketingSettings['profile_description'],
+            'highlights' => is_array($marketingSettings['profile_highlights']) ? $marketingSettings['profile_highlights'] : [],
+            'button_text' => $marketingSettings['profile_button_text'],
+            'button_url' => $marketingSettings['profile_button_url'],
+            'empty_video_text' => $marketingSettings['profile_empty_video_text'],
+            'video' => $activeVideo ? [
+                'title' => $activeVideo->trans('title') ?: 'Video Profile Universitas Djuanda',
+                'url' => $activeVideo->video_url,
+                'embed_url' => $this->resolveVideoEmbedUrl($activeVideo->video_url),
+                'thumbnail_url' => Setting::resolveImageUrl($activeVideo->thumbnail),
+            ] : null,
         ];
 
         // ============================================================
@@ -153,10 +183,44 @@ class MarketingController extends Controller
             'heroSlides',
             'heroEmptyState',
             'about',
+            'profile',
             'blogSection',
             'blogPosts',
             'gallery',
             'accreditation'
         ));
+    }
+
+    private function resolveVideoEmbedUrl(?string $url): ?string
+    {
+        if (blank($url)) {
+            return null;
+        }
+
+        $host = parse_url($url, PHP_URL_HOST);
+        $path = trim((string) parse_url($url, PHP_URL_PATH), '/');
+
+        if (! $host) {
+            return null;
+        }
+
+        if (str_contains($host, 'youtube.com')) {
+            parse_str((string) parse_url($url, PHP_URL_QUERY), $query);
+            $videoId = $query['v'] ?? (str_starts_with($path, 'embed/') ? str_replace('embed/', '', $path) : null);
+
+            return $videoId ? 'https://www.youtube.com/embed/'.$videoId : null;
+        }
+
+        if (str_contains($host, 'youtu.be')) {
+            return $path !== '' ? 'https://www.youtube.com/embed/'.$path : null;
+        }
+
+        if (str_contains($host, 'vimeo.com')) {
+            $videoId = collect(explode('/', $path))->filter()->last();
+
+            return $videoId ? 'https://player.vimeo.com/video/'.$videoId : null;
+        }
+
+        return null;
     }
 }

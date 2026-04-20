@@ -12,7 +12,7 @@ use Illuminate\Support\Str;
 
 class SettingService
 {
-    private const CACHE_KEY = 'settings.resolved.map';
+    private const CACHE_KEY_PREFIX = 'settings.resolved.map.';
 
     public function syncGroup(string $group, array $items): Collection
     {
@@ -29,6 +29,7 @@ class SettingService
             ->all();
 
         $savedSettings = collect();
+        $supportsLocalizedValues = $this->supportsLocalizedValues();
 
         foreach (array_values($items) as $item) {
             $setting = isset($item['id']) ? $existingSettings->get($item['id']) : null;
@@ -37,13 +38,20 @@ class SettingService
             $previousType = $setting->type;
             $previousValue = $setting->value;
 
-            $setting->fill([
+            $type = $item['type'] ?? Setting::TYPE_TEXT;
+            $payload = [
                 'group' => $normalizedGroup,
                 'label' => trim((string) ($item['label'] ?? '')),
                 'key' => $this->resolveKey($item, $setting, $usedKeys),
-                'type' => $item['type'] ?? Setting::TYPE_TEXT,
+                'type' => $type,
                 'value' => $this->resolveValue($normalizedGroup, $item, $setting),
-            ]);
+            ];
+
+            if ($supportsLocalizedValues) {
+                $payload = array_merge($payload, $this->resolveLocalizedValues($item, $setting, $type));
+            }
+
+            $setting->fill($payload);
             $setting->save();
 
             if ($previousType === Setting::TYPE_IMAGE && $setting->type !== Setting::TYPE_IMAGE) {
@@ -77,6 +85,7 @@ class SettingService
             'key' => $setting->key,
             'type' => $setting->type,
             'value' => $setting->formValue(),
+            'translations' => $setting->translatedValues(),
             'existing_value' => $setting->type === Setting::TYPE_IMAGE ? $setting->value : null,
             'image_url' => $setting->type === Setting::TYPE_IMAGE ? $setting->imageUrl() : null,
         ];
@@ -109,7 +118,11 @@ class SettingService
 
     public function clearCache(): void
     {
-        Cache::forget(self::CACHE_KEY);
+        Cache::forget('settings.resolved.map');
+
+        foreach ($this->supportedLocales() as $locale) {
+            Cache::forget($this->cacheKey($locale));
+        }
     }
 
     private function resolveValue(string $group, array $item, ?Setting $setting = null): ?string
@@ -136,7 +149,7 @@ class SettingService
             $this->deleteStoredImage($setting->value);
         }
 
-        $rawValue = $item['value'] ?? null;
+        $rawValue = $item['value_id'] ?? $item['value'] ?? null;
 
         if ($type === Setting::TYPE_LIST) {
             return $this->serializeListValue($rawValue);
@@ -147,6 +160,36 @@ class SettingService
         }
 
         return filled($rawValue) ? (string) $rawValue : null;
+    }
+
+    private function resolveLocalizedValues(array $item, ?Setting $setting, string $type): array
+    {
+        if ($type === Setting::TYPE_IMAGE) {
+            return [
+                'value_id' => null,
+                'value_en' => null,
+                'value_ar' => null,
+            ];
+        }
+
+        return [
+            'value_id' => $this->normalizeLocalizedValue($item['value_id'] ?? $setting?->value_id ?? $setting?->value, $type),
+            'value_en' => $this->normalizeLocalizedValue($item['value_en'] ?? $setting?->value_en, $type),
+            'value_ar' => $this->normalizeLocalizedValue($item['value_ar'] ?? $setting?->value_ar, $type),
+        ];
+    }
+
+    private function normalizeLocalizedValue(mixed $value, string $type): ?string
+    {
+        if ($type === Setting::TYPE_LIST) {
+            return $this->serializeListValue($value);
+        }
+
+        if ($type === Setting::TYPE_TEXT) {
+            return filled($value) ? trim((string) $value) : null;
+        }
+
+        return filled($value) ? (string) $value : null;
     }
 
     private function serializeListValue(mixed $rawValue): ?string
@@ -206,7 +249,7 @@ class SettingService
             return [];
         }
 
-        return Cache::rememberForever(self::CACHE_KEY, function (): array {
+        return Cache::rememberForever($this->cacheKey(app()->getLocale()), function (): array {
             return Setting::query()
                 ->orderBy('group')
                 ->orderBy('label')
@@ -222,8 +265,30 @@ class SettingService
     {
         return match ($setting->type) {
             Setting::TYPE_IMAGE => $setting->imageUrl(),
-            Setting::TYPE_LIST => $setting->listItems(),
-            default => $setting->value,
+            Setting::TYPE_LIST => $setting->listItems(app()->getLocale()),
+            default => $setting->localizedValue(app()->getLocale()),
         };
+    }
+
+    private function supportsLocalizedValues(): bool
+    {
+        return Schema::hasTable('settings')
+            && Schema::hasColumns('settings', ['value_id', 'value_en', 'value_ar']);
+    }
+
+    private function cacheKey(string $locale): string
+    {
+        return self::CACHE_KEY_PREFIX.$locale;
+    }
+
+    private function supportedLocales(): array
+    {
+        return collect(array_keys(Setting::localeOptions()))
+            ->push(config('app.locale'))
+            ->push(app()->getLocale())
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
     }
 }

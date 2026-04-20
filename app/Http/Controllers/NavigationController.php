@@ -49,8 +49,7 @@ class NavigationController extends Controller
                 ->select('navigations.*'))
             ->addIndexColumn()
             ->addColumn('title', function (Navigation $row): string {
-                $destination = $row->route_name ?: ($row->url ?: '-');
-                $meta = e($destination);
+                $meta = e($row->url ?: '-');
                 $title = e($row->trans('title') ?? '-');
 
                 return "<div class=\"d-flex align-items-start\">
@@ -73,10 +72,9 @@ class NavigationController extends Controller
                 return "<span class=\"badge {$class}\">{$label}</span>";
             })
             ->addColumn('destination', function (Navigation $row): string {
-                $destination = e($row->route_name ?: ($row->url ?: '-'));
-                $class = $row->route_name ? 'badge-light-primary' : 'badge-light-secondary';
+                $destination = e($row->url ?: '-');
 
-                return "<span class=\"badge {$class}\">{$destination}</span>";
+                return "<span class=\"badge badge-light-secondary\">{$destination}</span>";
             })
             ->addColumn('status_badge', function (Navigation $row): string {
                 $class = $row->is_active ? 'badge-success' : 'badge-secondary';
@@ -173,7 +171,6 @@ class NavigationController extends Controller
             'navigation' => $navigation,
             'locationOptions' => Navigation::locationOptions(),
             'parentNavigations' => $this->navigationService->parentNavigations($navigation),
-            'moduleOptions' => config('navigator.modules', []),
         ];
     }
 
@@ -182,10 +179,8 @@ class NavigationController extends Controller
         $data['area'] = Navigation::AREA_MARKETING;
         $data['location'] = $data['location'] ?? Navigation::LOCATION_NAVBAR;
         $data['type'] = Navigation::TYPE_LINK;
-        $data['module_key'] = blank($data['module_key'] ?? null) ? null : $data['module_key'];
         $data['parent_id'] = blank($data['parent_id'] ?? null) ? null : $data['parent_id'];
-        $data['url'] = blank($data['url'] ?? null) ? null : $data['url'];
-        $data['route_name'] = blank($data['route_name'] ?? null) ? null : $data['route_name'];
+        $data['url'] = blank($data['url'] ?? null) ? '#' : $data['url'];
         $data['icon'] = null;
         $data['badge_text'] = null;
         $data['badge_class'] = null;

@@ -6,6 +6,12 @@
     $key = $item['key'] ?? '';
     $type = $item['type'] ?? Setting::TYPE_TEXT;
     $value = $item['value'] ?? '';
+    $localeOptions = $localeOptions ?? Setting::localeOptions();
+    $translations = collect($localeOptions)
+        ->mapWithKeys(fn (string $localeLabel, string $locale): array => [
+            $locale => $item["value_{$locale}"] ?? $item['translations'][$locale] ?? ($locale === Setting::LOCALE_ID ? $value : ''),
+        ])
+        ->all();
     $existingValue = $item['existing_value'] ?? null;
     $imageUrl = $item['image_url'] ?? Setting::resolveImageUrl($existingValue);
 @endphp
@@ -54,34 +60,58 @@
 
     <div class="setting-item-card__body">
         <div class="setting-value-panel {{ $type === Setting::TYPE_TEXT ? '' : 'd-none' }}" data-type-panel="text">
-            <input
-                type="text"
-                class="form-control"
-                name="items[{{ $index }}][value]"
-                value="{{ $type === Setting::TYPE_TEXT ? $value : '' }}"
-                placeholder="Masukkan nilai text"
-                {{ $type === Setting::TYPE_TEXT ? '' : 'disabled' }}
-            >
+            <div class="setting-locale-grid">
+                @foreach($localeOptions as $locale => $localeLabel)
+                    <div class="setting-locale-field">
+                        <label>{{ $localeLabel }}</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            name="items[{{ $index }}][value_{{ $locale }}]"
+                            value="{{ $type === Setting::TYPE_TEXT ? ($translations[$locale] ?? '') : '' }}"
+                            placeholder="Masukkan nilai {{ $localeLabel }}"
+                            data-setting-value-input
+                            {{ $type === Setting::TYPE_TEXT ? '' : 'disabled' }}
+                        >
+                    </div>
+                @endforeach
+            </div>
         </div>
 
         <div class="setting-value-panel {{ $type === Setting::TYPE_LONGTEXT ? '' : 'd-none' }}" data-type-panel="longtext">
-            <textarea
-                class="form-control"
-                name="items[{{ $index }}][value]"
-                rows="6"
-                placeholder="Masukkan long text"
-                {{ $type === Setting::TYPE_LONGTEXT ? '' : 'disabled' }}
-            >{{ $type === Setting::TYPE_LONGTEXT ? $value : '' }}</textarea>
+            <div class="setting-locale-grid">
+                @foreach($localeOptions as $locale => $localeLabel)
+                    <div class="setting-locale-field">
+                        <label>{{ $localeLabel }}</label>
+                        <textarea
+                            class="form-control"
+                            name="items[{{ $index }}][value_{{ $locale }}]"
+                            rows="5"
+                            placeholder="Masukkan long text {{ $localeLabel }}"
+                            data-setting-value-input
+                            {{ $type === Setting::TYPE_LONGTEXT ? '' : 'disabled' }}
+                        >{{ $type === Setting::TYPE_LONGTEXT ? ($translations[$locale] ?? '') : '' }}</textarea>
+                    </div>
+                @endforeach
+            </div>
         </div>
 
         <div class="setting-value-panel {{ $type === Setting::TYPE_LIST ? '' : 'd-none' }}" data-type-panel="list">
-            <textarea
-                class="form-control"
-                name="items[{{ $index }}][value]"
-                rows="6"
-                placeholder="Satu item per baris"
-                {{ $type === Setting::TYPE_LIST ? '' : 'disabled' }}
-            >{{ $type === Setting::TYPE_LIST ? $value : '' }}</textarea>
+            <div class="setting-locale-grid">
+                @foreach($localeOptions as $locale => $localeLabel)
+                    <div class="setting-locale-field">
+                        <label>{{ $localeLabel }}</label>
+                        <textarea
+                            class="form-control"
+                            name="items[{{ $index }}][value_{{ $locale }}]"
+                            rows="5"
+                            placeholder="Satu item per baris"
+                            data-setting-value-input
+                            {{ $type === Setting::TYPE_LIST ? '' : 'disabled' }}
+                        >{{ $type === Setting::TYPE_LIST ? ($translations[$locale] ?? '') : '' }}</textarea>
+                    </div>
+                @endforeach
+            </div>
             <small class="text-muted d-block mt-50">Setiap baris akan disimpan sebagai item list terpisah.</small>
         </div>
 

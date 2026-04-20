@@ -603,6 +603,7 @@ class KuiUnidaDemoSeeder extends Seeder
 
     private function seedVideos(): void
     {
+        $hasActiveColumn = Schema::hasColumn('videos', 'is_active');
         $items = [
             [
                 'title_id' => 'Profil KUI Universitas Juanda',
@@ -620,11 +621,21 @@ class KuiUnidaDemoSeeder extends Seeder
             ],
         ];
 
-        foreach ($items as $item) {
+        foreach ($items as $index => $item) {
+            if ($hasActiveColumn) {
+                $item['is_active'] = $index === 0;
+            }
+
             Video::query()->updateOrCreate(
                 ['title_id' => $item['title_id']],
                 $item
             );
+        }
+
+        if ($hasActiveColumn) {
+            Video::query()
+                ->where('title_id', '!=', $items[0]['title_id'])
+                ->update(['is_active' => false]);
         }
     }
 

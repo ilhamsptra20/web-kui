@@ -46,6 +46,7 @@ class SettingController extends Controller
             'activeGroup' => $activeGroup,
             'settings' => $settings,
             'typeOptions' => Setting::typeOptions(),
+            'localeOptions' => Setting::localeOptions(),
             'settingItems' => $settings
                 ->map(fn (Setting $setting): array => $this->settingService->mapForEditor($setting))
                 ->all(),

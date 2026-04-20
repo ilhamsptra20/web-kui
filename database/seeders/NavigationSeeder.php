@@ -35,12 +35,10 @@ class NavigationSeeder extends Seeder
                 'area' => Navigation::AREA_MARKETING,
                 'location' => $location,
                 'type' => Navigation::TYPE_LINK,
-                'module_key' => $item['module_key'] ?? $this->guessModuleKey($item),
                 'title_id' => $item['title_id'] ?? $item['title'] ?? '-',
                 'title_en' => $item['title_en'] ?? $item['title'] ?? null,
                 'title_ar' => $item['title_ar'] ?? null,
                 'url' => $item['url'] ?? null,
-                'route_name' => $item['route_name'] ?? null,
                 'icon' => $item['icon'] ?? null,
                 'badge_text' => $item['badge']['text'] ?? null,
                 'badge_class' => $item['badge']['class'] ?? null,
@@ -55,20 +53,4 @@ class NavigationSeeder extends Seeder
         }
     }
 
-    private function guessModuleKey(array $item): ?string
-    {
-        $routeName = $item['route_name'] ?? null;
-
-        if (! $routeName) {
-            return null;
-        }
-
-        foreach (config('navigator.modules', []) as $key => $module) {
-            if (($module['route_name'] ?? null) === $routeName) {
-                return $key;
-            }
-        }
-
-        return null;
-    }
 }

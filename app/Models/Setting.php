@@ -7,6 +7,12 @@ use Illuminate\Support\Str;
 
 class Setting extends BaseUuidModel
 {
+    public const LOCALE_ID = 'id';
+
+    public const LOCALE_EN = 'en';
+
+    public const LOCALE_AR = 'ar';
+
     public const TYPE_TEXT = 'text';
 
     public const TYPE_LONGTEXT = 'longtext';
@@ -21,7 +27,19 @@ class Setting extends BaseUuidModel
         'key',
         'type',
         'value',
+        'value_id',
+        'value_en',
+        'value_ar',
     ];
+
+    public static function localeOptions(): array
+    {
+        return [
+            self::LOCALE_ID => 'Indonesia',
+            self::LOCALE_EN => 'English',
+            self::LOCALE_AR => 'Arabic',
+        ];
+    }
 
     public static function typeOptions(): array
     {
@@ -43,22 +61,24 @@ class Setting extends BaseUuidModel
         return $query->where('group', $group);
     }
 
-    public function formValue(): ?string
+    public function formValue(?string $locale = null): ?string
     {
         if ($this->type === self::TYPE_LIST) {
-            return implode(PHP_EOL, $this->listItems());
+            return implode(PHP_EOL, $this->listItems($locale));
         }
 
-        return $this->value;
+        return $this->localizedValue($locale);
     }
 
-    public function listItems(): array
+    public function listItems(?string $locale = null): array
     {
-        if (blank($this->value)) {
+        $value = $this->localizedValue($locale);
+
+        if (blank($value)) {
             return [];
         }
 
-        $decoded = json_decode($this->value, true);
+        $decoded = json_decode($value, true);
 
         if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
             return collect($decoded)
@@ -68,10 +88,37 @@ class Setting extends BaseUuidModel
                 ->all();
         }
 
-        return collect(preg_split('/\r\n|\r|\n/', (string) $this->value))
+        return collect(preg_split('/\r\n|\r|\n/', (string) $value))
             ->map(fn ($item) => trim((string) $item))
             ->filter()
             ->values()
+            ->all();
+    }
+
+    public function localizedValue(?string $locale = null): ?string
+    {
+        if ($this->type === self::TYPE_IMAGE) {
+            return $this->value;
+        }
+
+        $locale = $locale ?: app()->getLocale();
+        $column = 'value_'.$locale;
+
+        if (array_key_exists($column, $this->attributes) && filled($this->attributes[$column])) {
+            return $this->attributes[$column];
+        }
+
+        if (array_key_exists('value_id', $this->attributes) && filled($this->attributes['value_id'])) {
+            return $this->attributes['value_id'];
+        }
+
+        return $this->value;
+    }
+
+    public function translatedValues(): array
+    {
+        return collect(self::localeOptions())
+            ->mapWithKeys(fn (string $label, string $locale): array => [$locale => $this->formValue($locale)])
             ->all();
     }
 

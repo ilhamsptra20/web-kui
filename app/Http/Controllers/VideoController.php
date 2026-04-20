@@ -22,9 +22,10 @@ class VideoController extends Controller
             ->addIndexColumn()
             ->addColumn('video_identity', fn (Video $row): string => AdminTable::image(\App\Models\Setting::resolveImageUrl($row->thumbnail), $row->trans('title') ?: '-', null))
             ->addColumn('video_link', fn (Video $row): string => AdminTable::externalLink($row->video_url))
+            ->addColumn('status_label', fn (Video $row): string => AdminTable::badge($row->is_active ? 'Aktif' : 'Nonaktif', $row->is_active ? 'success' : 'secondary'))
             ->addColumn('updated_at_label', fn (Video $row): string => AdminTable::dateTime($row->updated_at))
             ->addColumn('action', fn ($row) => view('modules.video.action', compact('row'))->render())
-            ->rawColumns(['video_identity', 'video_link', 'updated_at_label', 'action'])
+            ->rawColumns(['video_identity', 'video_link', 'status_label', 'updated_at_label', 'action'])
             ->toJson();
     }
 
@@ -42,6 +43,12 @@ class VideoController extends Controller
             $data = $request->validated();
             if ($request->hasFile('thumbnail')) {
                 $data['thumbnail'] = $request->file('thumbnail')->store('modules/videos', 'public');
+            }
+
+            $data['is_active'] = $request->boolean('is_active');
+
+            if ($data['is_active']) {
+                Video::query()->update(['is_active' => false]);
             }
 
             $video = Video::create($data);
@@ -81,6 +88,14 @@ class VideoController extends Controller
                 }
 
                 $data['thumbnail'] = $request->file('thumbnail')->store('modules/videos', 'public');
+            }
+
+            $data['is_active'] = $request->boolean('is_active');
+
+            if ($data['is_active']) {
+                Video::query()
+                    ->whereKeyNot($video->getKey())
+                    ->update(['is_active' => false]);
             }
 
             $video->update($data);

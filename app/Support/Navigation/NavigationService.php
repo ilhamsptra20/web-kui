@@ -3,15 +3,8 @@
 namespace App\Support\Navigation;
 
 use App\Models\Navigation;
-use App\Models\Agenda;
-use App\Models\Album;
-use App\Models\Announcement;
-use App\Models\Page;
-use App\Models\Post;
-use App\Models\Team;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 
 class NavigationService
@@ -136,17 +129,9 @@ class NavigationService
             ->map(fn (Navigation $child): array => $this->mapMarketingItem($child))
             ->values();
 
-        if ($navigation->module_key) {
-            $children = $children
-                ->concat($this->moduleItems($navigation->module_key))
-                ->unique(fn (array $child): string => $child['url'] ?? '#')
-                ->values();
-        }
-
         return [
             'title' => $navigation->trans('title') ?? '-',
             'url' => $navigation->resolvedUrl(),
-            'route_name' => $navigation->route_name,
             'target' => $navigation->open_in_new_tab ? '_blank' : '_self',
             'children' => $children->all(),
         ];
@@ -166,198 +151,18 @@ class NavigationService
     {
         return collect($items)
             ->map(function (array $item): array {
-                $children = collect($this->mapMarketingConfigItems($item['children'] ?? []));
-                $moduleKey = $item['module_key'] ?? null;
-
-                if ($moduleKey) {
-                    $children = $children
-                        ->concat($this->moduleItems($moduleKey))
-                        ->unique(fn (array $child): string => $child['url'] ?? '#')
-                        ->values();
-                }
-
                 return [
                     'title' => $this->localizedTitle($item),
                     'url' => $this->resolveConfigUrl($item),
-                    'route_name' => $item['route_name'] ?? null,
-                    'module_key' => $moduleKey,
                     'target' => $item['target'] ?? '_self',
-                    'children' => $children->all(),
+                    'children' => $this->mapMarketingConfigItems($item['children'] ?? []),
                 ];
             })
             ->all();
     }
 
-    private function moduleItems(string $moduleKey): array
-    {
-        return match ($moduleKey) {
-            'pages' => $this->pageItems(),
-            'posts' => $this->postItems(),
-            'albums_galleries' => $this->albumItems(),
-            'agendas' => $this->agendaItems(),
-            'announcements' => $this->announcementItems(),
-            'teams' => $this->teamItems(),
-            default => [],
-        };
-    }
-
-    private function pageItems(): array
-    {
-        try {
-            if (! Schema::hasTable('pages')) {
-                return [];
-            }
-
-            return Page::query()
-                ->published()
-                ->orderBy('title_id')
-                ->get()
-                ->map(fn (Page $page): array => [
-                    'title' => $page->trans('title') ?: $page->title_id ?: 'Halaman KUI',
-                    'url' => route('pages.show-marketing', $page, false),
-                    'route_name' => null,
-                    'target' => $page->isPdfFile() ? '_blank' : '_self',
-                    'children' => [],
-                ])
-                ->all();
-        } catch (\Throwable) {
-            return [];
-        }
-    }
-
-    private function postItems(): array
-    {
-        try {
-            if (! Schema::hasTable('posts')) {
-                return [];
-            }
-
-            return Post::query()
-                ->where('status', 'published')
-                ->whereNotNull('slug')
-                ->latest()
-                ->get()
-                ->map(fn (Post $post): array => [
-                    'title' => $post->trans('title') ?: $post->title_id ?: 'Artikel',
-                    'url' => route('article.show-marketing', $post->slug, false),
-                    'route_name' => null,
-                    'target' => '_self',
-                    'children' => [],
-                ])
-                ->all();
-        } catch (\Throwable) {
-            return [];
-        }
-    }
-
-    private function albumItems(): array
-    {
-        try {
-            if (! Schema::hasTable('albums')) {
-                return [];
-            }
-
-            return Album::query()
-                ->whereNotNull('slug')
-                ->latest()
-                ->get()
-                ->map(fn (Album $album): array => [
-                    'title' => $album->trans('name') ?: $album->name_id ?: 'Album',
-                    'url' => route('gallery.show-marketing', $album->slug, false),
-                    'route_name' => null,
-                    'target' => '_self',
-                    'children' => [],
-                ])
-                ->all();
-        } catch (\Throwable) {
-            return [];
-        }
-    }
-
-    private function agendaItems(): array
-    {
-        try {
-            if (! Schema::hasTable('agendas')) {
-                return [];
-            }
-
-            return Agenda::query()
-                ->whereNotNull('slug')
-                ->orderBy('start_date')
-                ->get()
-                ->map(fn (Agenda $agenda): array => [
-                    'title' => $agenda->trans('name') ?: $agenda->name_id ?: 'Agenda',
-                    'url' => route('event.show-marketing', $agenda->slug, false),
-                    'route_name' => null,
-                    'target' => '_self',
-                    'children' => [],
-                ])
-                ->all();
-        } catch (\Throwable) {
-            return [];
-        }
-    }
-
-    private function announcementItems(): array
-    {
-        try {
-            if (! Schema::hasTable('announcements')) {
-                return [];
-            }
-
-            return Announcement::query()
-                ->active()
-                ->latest()
-                ->get()
-                ->map(fn (Announcement $announcement): array => [
-                    'title' => $announcement->trans('title') ?: $announcement->title_id ?: 'Pengumuman',
-                    'url' => route('announcements.marketing.show', $announcement->id, false),
-                    'route_name' => null,
-                    'target' => '_self',
-                    'children' => [],
-                ])
-                ->all();
-        } catch (\Throwable) {
-            return [];
-        }
-    }
-
-    private function teamItems(): array
-    {
-        try {
-            if (! Schema::hasTable('teams')) {
-                return [];
-            }
-
-            return Team::query()
-                ->whereNotNull('slug')
-                ->orderBy('name')
-                ->get()
-                ->map(fn (Team $team): array => [
-                    'title' => $team->name ?: 'Team',
-                    'url' => route('team.show-marketing', $team->slug, false),
-                    'route_name' => null,
-                    'target' => '_self',
-                    'children' => [],
-                ])
-                ->all();
-        } catch (\Throwable) {
-            return [];
-        }
-    }
-
     private function resolveConfigUrl(array $item): string
     {
-        $routeName = $item['route_name'] ?? null;
-
-        if ($routeName && Route::has($routeName)) {
-            try {
-                return route($routeName, [], false);
-            } catch (\Throwable) {
-                //
-            }
-        }
-
         return Navigation::normalizeUrl($item['url'] ?? null);
     }
 
@@ -375,7 +180,7 @@ class NavigationService
 
     private function cacheKey(string $base, ?string $locale = null): string
     {
-        return $base.'.'.($locale ?: app()->getLocale()).'.v4';
+        return $base.'.'.($locale ?: app()->getLocale()).'.v6';
     }
 
     private function supportedLocales(): array

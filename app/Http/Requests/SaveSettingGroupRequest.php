@@ -30,6 +30,9 @@ class SaveSettingGroupRequest extends FormRequest
                         ->trim('_'), 100, ''),
                     'type' => $item['type'] ?? Setting::TYPE_TEXT,
                     'value' => $item['value'] ?? null,
+                    'value_id' => $item['value_id'] ?? null,
+                    'value_en' => $item['value_en'] ?? null,
+                    'value_ar' => $item['value_ar'] ?? null,
                     'existing_value' => $item['existing_value'] ?? null,
                 ];
             })
@@ -50,6 +53,9 @@ class SaveSettingGroupRequest extends FormRequest
             'items.*.label' => 'required|string|max:100',
             'items.*.type' => ['required', Rule::in(Setting::typeValues())],
             'items.*.value' => 'nullable|string',
+            'items.*.value_id' => 'nullable|string',
+            'items.*.value_en' => 'nullable|string',
+            'items.*.value_ar' => 'nullable|string',
             'items.*.existing_value' => 'nullable|string',
             'items.*.image' => 'nullable|image|max:4096',
         ];

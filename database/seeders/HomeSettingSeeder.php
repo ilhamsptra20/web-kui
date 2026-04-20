@@ -15,7 +15,10 @@ class HomeSettingSeeder extends Seeder
             return;
         }
 
-        foreach ($this->defaults() as $item) {
+        $localizedColumnsReady = $this->hasLocalizedColumns();
+
+        foreach ($this->defaults() as $rawItem) {
+            $item = $this->normalizeForSchema($rawItem, $localizedColumnsReady);
             $setting = Setting::query()->where('key', $item['key'])->first();
 
             if (! $setting) {
@@ -51,6 +54,34 @@ class HomeSettingSeeder extends Seeder
     private function hasBuilderColumns(): bool
     {
         return Schema::hasColumns('settings', ['group', 'label', 'key', 'type', 'value']);
+    }
+
+    private function hasLocalizedColumns(): bool
+    {
+        return Schema::hasColumns('settings', ['value_id', 'value_en', 'value_ar']);
+    }
+
+    private function normalizeForSchema(array $item, bool $localizedColumnsReady): array
+    {
+        if (! $localizedColumnsReady) {
+            unset($item['value_id'], $item['value_en'], $item['value_ar']);
+
+            return $item;
+        }
+
+        if (($item['type'] ?? null) === Setting::TYPE_IMAGE) {
+            $item['value_id'] = null;
+            $item['value_en'] = null;
+            $item['value_ar'] = null;
+
+            return $item;
+        }
+
+        $item['value_id'] ??= $item['value'] ?? null;
+        $item['value_en'] ??= null;
+        $item['value_ar'] ??= null;
+
+        return $item;
     }
 
     private function shouldRefreshDefault(Setting $setting, array $item): bool
@@ -267,6 +298,93 @@ class HomeSettingSeeder extends Seeder
                     'Pendampingan akademik lintas negara',
                     'Promosi global Universitas Juanda',
                 ], JSON_UNESCAPED_UNICODE),
+            ],
+
+            [
+                'group' => 'Profile Section',
+                'label' => 'Profile Subtitle',
+                'key' => 'profile_subtitle',
+                'type' => Setting::TYPE_TEXT,
+                'value' => 'PROFIL UNIVERSITAS DJUANDA',
+                'value_id' => 'PROFIL UNIVERSITAS DJUANDA',
+                'value_en' => 'DJUANDA UNIVERSITY PROFILE',
+                'value_ar' => 'ملف جامعة جواندا',
+            ],
+            [
+                'group' => 'Profile Section',
+                'label' => 'Profile Title',
+                'key' => 'profile_title',
+                'type' => Setting::TYPE_LONGTEXT,
+                'value' => 'Mengenal Universitas Djuanda Sebagai Kampus Bertauhid Yang Berwawasan Global',
+                'value_id' => 'Mengenal Universitas Djuanda Sebagai Kampus Bertauhid Yang Berwawasan Global',
+                'value_en' => 'Discover Djuanda University As A Tawhid-Based Campus With A Global Outlook',
+                'value_ar' => 'تعرف على جامعة جواندا كحرم جامعي قائم على التوحيد برؤية عالمية',
+            ],
+            [
+                'group' => 'Profile Section',
+                'label' => 'Profile Description',
+                'key' => 'profile_description',
+                'type' => Setting::TYPE_LONGTEXT,
+                'value' => 'Universitas Djuanda mengembangkan pendidikan, penelitian, dan pengabdian masyarakat dengan nilai ketauhidan, kolaborasi internasional, serta komitmen untuk memberi dampak bagi bangsa dan dunia.',
+                'value_id' => 'Universitas Djuanda mengembangkan pendidikan, penelitian, dan pengabdian masyarakat dengan nilai ketauhidan, kolaborasi internasional, serta komitmen untuk memberi dampak bagi bangsa dan dunia.',
+                'value_en' => 'Djuanda University advances education, research, and community engagement through tawhid values, international collaboration, and a commitment to meaningful impact for Indonesia and the world.',
+                'value_ar' => 'تطور جامعة جواندا التعليم والبحث وخدمة المجتمع بقيم التوحيد والتعاون الدولي والالتزام بإحداث أثر نافع لإندونيسيا والعالم.',
+            ],
+            [
+                'group' => 'Profile Section',
+                'label' => 'Profile Highlights',
+                'key' => 'profile_highlights',
+                'type' => Setting::TYPE_LIST,
+                'value' => json_encode([
+                    'Pendidikan berbasis nilai ketauhidan.',
+                    'Jejaring akademik dan kerja sama internasional.',
+                    'Riset dan pengabdian yang relevan dengan kebutuhan masyarakat.',
+                ], JSON_UNESCAPED_UNICODE),
+                'value_id' => implode(PHP_EOL, [
+                    'Pendidikan berbasis nilai ketauhidan.',
+                    'Jejaring akademik dan kerja sama internasional.',
+                    'Riset dan pengabdian yang relevan dengan kebutuhan masyarakat.',
+                ]),
+                'value_en' => implode(PHP_EOL, [
+                    'Education rooted in tawhid values.',
+                    'Academic networks and international collaboration.',
+                    'Research and community service aligned with society needs.',
+                ]),
+                'value_ar' => implode(PHP_EOL, [
+                    'تعليم قائم على قيم التوحيد.',
+                    'شبكات أكاديمية وتعاون دولي.',
+                    'بحث وخدمة مجتمعية تلبي احتياجات المجتمع.',
+                ]),
+            ],
+            [
+                'group' => 'Profile Section',
+                'label' => 'Profile Button Text',
+                'key' => 'profile_button_text',
+                'type' => Setting::TYPE_TEXT,
+                'value' => 'Lihat Profil Lengkap',
+                'value_id' => 'Lihat Profil Lengkap',
+                'value_en' => 'View Full Profile',
+                'value_ar' => 'عرض الملف الكامل',
+            ],
+            [
+                'group' => 'Profile Section',
+                'label' => 'Profile Button Url',
+                'key' => 'profile_button_url',
+                'type' => Setting::TYPE_TEXT,
+                'value' => '/about',
+                'value_id' => '/about',
+                'value_en' => '/about',
+                'value_ar' => '/about',
+            ],
+            [
+                'group' => 'Profile Section',
+                'label' => 'Profile Empty Video Text',
+                'key' => 'profile_empty_video_text',
+                'type' => Setting::TYPE_TEXT,
+                'value' => 'Video profile aktif belum dipilih dari module Video.',
+                'value_id' => 'Video profile aktif belum dipilih dari module Video.',
+                'value_en' => 'No active profile video has been selected from the Video module.',
+                'value_ar' => 'لم يتم اختيار فيديو ملف نشط من وحدة الفيديو.',
             ],
 
             [

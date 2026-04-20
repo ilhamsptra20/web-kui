@@ -7,10 +7,6 @@
     $isItemActive = function (array $candidate) use (&$isItemActive): bool {
         $candidateUrl = $candidate['url'] ?? '#';
 
-        if (($candidate['route_name'] ?? null) && request()->routeIs($candidate['route_name'])) {
-            return true;
-        }
-
         if ($candidateUrl === '/' && request()->url() === url('/')) {
             return true;
         }

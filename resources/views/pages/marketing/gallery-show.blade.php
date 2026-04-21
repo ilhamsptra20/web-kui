@@ -57,7 +57,11 @@
             <div class="row">
                 @foreach($galleries as $index => $item)
                     <div class="col-xl-4 col-md-6 mb-30" data-cue="slideInUp" data-delay="{{ ($index % 3) * 100 }}">
-                        <div class="gallery-item-card">
+                        <div class="gallery-item-card gallery-clickable"
+                             data-image="{{ $item['image_url'] }}"
+                             data-title="{{ $item['title'] }}"
+                             data-date="{{ $item['date'] }}"
+                            >
                             <div class="gallery-item-card__media">
                                 @if(!empty($item['image_url']))
                                     <img src="{{ $item['image_url'] }}"
@@ -128,10 +132,79 @@
         @endif
     </div>
 </section>
+<div id="galleryModal" class="gallery-modal">
+    <div class="gallery-modal__content">
+        <span class="gallery-modal__close">&times;</span>
+
+        <img id="modalImage" src="" alt="" />
+
+        <div class="gallery-modal__info">
+            <h4 id="modalTitle"></h4>
+            <p id="modalDate"></p>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('styles')
 <style>
+.gallery-clickable {
+    cursor: pointer;
+}
+
+.gallery-modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.gallery-modal.active {
+    display: flex;
+}
+
+.gallery-modal__content {
+    max-width: 800px;
+    width: 90%;
+    position: relative;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.gallery-modal__content img {
+    max-width: 100%;
+    max-height: 70vh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 12px;
+}
+
+.gallery-modal__close {
+    position: absolute;
+    top: -40px;
+    right: 0;
+    font-size: 30px;
+    color: white;
+    cursor: pointer;
+}
+
+.gallery-modal__info {
+    margin-top: 15px;
+    color: white;
+}
+
+body.modal-open {
+    overflow: hidden;
+    height: 100vh;
+}
     .album-detail-hero {
         padding: 34px 36px;
         border-radius: 28px;
@@ -206,4 +279,46 @@
         font-weight: 500;
     }
 </style>
+@endpush
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const modal = document.getElementById('galleryModal');
+    const modalImg = document.getElementById('modalImage');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalDate = document.getElementById('modalDate');
+    const closeBtn = document.querySelector('.gallery-modal__close');
+
+    document.querySelectorAll('.gallery-clickable').forEach(item => {
+        item.addEventListener('click', function () {
+            modal.classList.add('active');
+            document.body.classList.add('modal-open');
+
+            modalImg.src = this.dataset.image;
+            modalTitle.innerText = this.dataset.title || '';
+            modalDate.innerText = this.dataset.date || '';
+        });
+    });
+
+    function closeModal() {
+        modal.classList.remove('active');
+        document.body.classList.remove('modal-open');
+    }
+
+    closeBtn.addEventListener('click', closeModal);
+
+    modal.addEventListener('click', function (e) {
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+});
+</script>
 @endpush

@@ -58,21 +58,6 @@
                 </div>
             </div>
             <div class="other-options d-flex flex-wrap align-items-center justify-content-end">
-                <div class="option-item">
-                    <div class="d-flex flex-wrap align-items-center">
-                        <div class="mobile-options position-relative d-lg-none me-3">
-                            <button class="dropdown-toggle  text-center bg-transparent border-0 p-0 transition" type="button" data-bs-toggle="dropdown" aria-expanded="true">
-                                <i class="ri-more-fill"></i>
-                            </button>
-                            <div class="dropdown-menu dropdown-menu-centered mobile-option-list top-1 border-0" data-bs-popper="static">
-                                <a href="{{ $contactUrl }}" class="btn style-three fw-semibold position-relative round-oval">{{ $contactText }}<span class="position-absolute top-0 end-0 h-100 d-flex flex-column align-items-center justify-content-center"><img src="{{ asset('assets/marketing/img/icons/right-arrow-white.svg') }}" alt="Icon"></span></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="option-item d-lg-block d-none">
-                    <a href="{{ $contactUrl }}" class="btn style-three fw-semibold position-relative round-oval">{{ $contactText }}<span class="position-absolute top-0 end-0 h-100 d-flex flex-column align-items-center justify-content-center"><img src="{{ asset('assets/marketing/img/icons/right-arrow-white.svg') }}" alt="Icon"></span></a>
-                </div>
                 <div class="option-item d-lg-none">
                     <button type="button" class="menu-mobile-trigger">
                         <span></span>
